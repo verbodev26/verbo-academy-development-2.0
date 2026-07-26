@@ -16,7 +16,7 @@ import {
   type StoredMaterial,
 } from "@/lib/materials-store";
 import { Card, GhostButton, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
-import { Pencil, Trash2, X, Image as ImageIcon } from "lucide-react";
+import { Pencil, Trash2, X, Upload, Image as ImageIcon } from "lucide-react";
 
 export const Route = createFileRoute("/admin/materials")({ component: Page });
 
@@ -270,6 +270,40 @@ function Page() {
           </label>
         </div>
 
+        {/* Resource file */}
+        <div className="mt-4">
+          <label className="text-xs font-medium text-foreground">Resource file</label>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Upload the actual document ({acceptForType(type)}), max 8MB.
+            {editingId ? " Leave empty to keep the current file." : ""}
+          </p>
+          <input
+            ref={resourceRef}
+            type="file"
+            accept={acceptForType(type)}
+            className="hidden"
+            onChange={(e) => onResourceFile(e.target.files?.[0])}
+          />
+          <div className="mt-1.5 flex flex-wrap items-center gap-3">
+            <GhostButton onClick={() => resourceRef.current?.click()}>
+              <Upload className="h-3.5 w-3.5" /> {resourceFile ? "Replace file" : "Choose file"}
+            </GhostButton>
+            {resourceName && <span className="text-xs text-foreground">{resourceName}</span>}
+            {resourceFile && (
+              <GhostButton
+                onClick={() => {
+                  setResourceFile(undefined);
+                  setResourceName("");
+                  setResourceError(null);
+                  if (resourceRef.current) resourceRef.current.value = "";
+                }}
+              >
+                <X className="h-3.5 w-3.5" /> Remove
+              </GhostButton>
+            )}
+          </div>
+          {resourceError && <p className="mt-2 text-xs font-medium text-destructive">{resourceError}</p>}
+        </div>
 
 
         {/* Cover image */}
