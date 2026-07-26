@@ -100,6 +100,10 @@ function Page() {
 
   const onCoverFile = (file?: File | null) => {
     if (!file) return;
+    if (isFileTooLarge(file)) {
+      setResourceError(MAX_MATERIAL_FILE_ERROR);
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => setCover(reader.result as string);
     reader.readAsDataURL(file);
@@ -112,12 +116,13 @@ function Page() {
 
   const save = () => {
     if (!title.trim() || !category) return;
+    if (resourceError) return;
     upsertMaterial({
       id: editingId ?? `m${Date.now()}`,
       title: title.trim(),
       material_type: type,
       category,
-      upload_url: items.find((m) => m.id === editingId)?.upload_url ?? "#",
+      upload_url: resourceFile ?? items.find((m) => m.id === editingId)?.upload_url ?? "#",
       cover_image: cover,
       restrict_product: restrictProduct || undefined,
       restrict_level: restrictLevel || undefined,
@@ -138,9 +143,14 @@ function Page() {
     setRestrictProduct(m.restrict_product ?? "");
     setRestrictLevel(m.restrict_level ?? "");
     setPremium(!!m.premium);
+    setResourceFile(undefined);
+    setResourceName("");
+    setResourceError(null);
+    if (resourceRef.current) resourceRef.current.value = "";
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
 
   const restrictLabel = (m: StoredMaterial) => {
     if (!m.restrict_product && !m.restrict_level) return null;
