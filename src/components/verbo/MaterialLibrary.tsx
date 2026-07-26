@@ -1,8 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Card, GhostButton, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
 import { hasUploadedFile, type StoredMaterial } from "@/lib/materials-store";
 import type { MaterialType } from "@/lib/mock-data";
-import { PremiumBadge, AccessGateNotice } from "@/components/verbo/PremiumGate";
+import { PremiumBadge } from "@/components/verbo/PremiumGate";
+import { useAuth } from "@/lib/auth";
+import { groupsByStudentId } from "@/lib/groups-store";
 import {
   Book,
   FileText,
@@ -14,7 +17,8 @@ import {
   ChevronRight,
   ArrowLeft,
   X,
-  FolderOpen,
+  Search,
+  Sparkles,
   Lock,
 } from "lucide-react";
 
@@ -33,6 +37,29 @@ const TYPE_TINT: Record<MaterialType, string> = {
   video: "bg-sky-500/15 text-sky-400",
   image: "bg-violet-500/15 text-violet-400",
 };
+
+/**
+ * Cover placeholders for category cards — reuses the existing project palette
+ * (PRODUCT_GRADIENTS + CATEGORY_RING_COLORS from student.courses.tsx). Purely
+ * visual until real per-category cover images land.
+ */
+const CATEGORY_COVERS = [
+  "from-[#01304a] via-[#024366] to-[#0a5e88]",
+  "from-[#7c2d12] via-[#c2410c] to-[#f97316]",
+  "from-[#134e4a] via-[#0f766e] to-[#14b8a6]",
+  "from-[#4a044e] via-[#7e22ce] to-[#a855f7]",
+  "from-[#cb6ce6] via-[#a855f7] to-[#7e22ce]",
+  "from-[#69d11d] via-[#14b8a6] to-[#0f766e]",
+  "from-[#92dfd4] via-[#14b8a6] to-[#024366]",
+];
+
+const PREMIUM_KEY = "__premium__";
+const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("");
+
+function letterOf(title: string): string {
+  const c = (title.trim()[0] ?? "#").toUpperCase();
+  return /[A-Z]/.test(c) ? c : "#";
+}
 
 function CoverArt({ m, className = "" }: { m: StoredMaterial; className?: string }) {
   const Icon = TYPE_ICON[m.material_type];
@@ -95,25 +122,26 @@ function PreviewModal({ m, onClose }: { m: StoredMaterial; onClose: () => void }
   );
 }
 
-function GateModal({ m, onClose }: { m: StoredMaterial; onClose: () => void }) {
+/**
+ * Upgrade modal for the dedicated Premium category. Same access rule and the
+ * same group-vs-individual distinction as AccessGateNotice, with warmer,
+ * benefit-led copy for this commercial showcase.
+ */
+function PremiumUpsellModal({ onClose }: { onClose: () => void }) {
+  const { user } = useAuth();
+  const isGroup = !!(user && groupsByStudentId().has(user.id));
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        className="w-full max-w-md overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2">
             <PremiumBadge />
-            <h3 className="text-sm font-semibold text-foreground">{m.title}</h3>
+            <h3 className="text-sm font-semibold text-foreground">Premium resources</h3>
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
-          >
+          <button onClick={onClose} className="rounded-lg p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -121,10 +149,66 @@ function GateModal({ m, onClose }: { m: StoredMaterial; onClose: () => void }) {
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/15 text-amber-600">
             <Lock className="h-6 w-6" />
           </div>
-          <AccessGateNotice accent="#f38934" />
+          <p className="text-base font-semibold text-foreground">There's a whole library waiting for you</p>
+          <p className="max-w-sm text-sm text-muted-foreground">
+            {isGroup
+              ? "Premium resources — deep-dive guides, curated workbooks and exclusive practice packs — come with Advance tier and up. They're not part of your group's plan yet: ask your admin to expand access and unlock them for everyone."
+              : "Premium resources — deep-dive guides, curated workbooks and exclusive practice packs — come with Advance tier and up. Move up an access level and they're all yours, instantly."}
+          </p>
+          {!isGroup && (
+            <Link
+              to="/student/access-levels"
+              className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-4 py-2 text-xs font-semibold text-amber-600 transition-colors hover:bg-amber-500/25"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> See what Premium unlocks
+            </Link>
+          )}
         </div>
       </div>
     </div>
+  );
+}
+
+function MaterialCard({ m, onPreview }: { m: StoredMaterial; onPreview: (m: StoredMaterial) => void }) {
+  return (
+    <Card className="!p-0 overflow-hidden">
+      <div className="aspect-video w-full overflow-hidden border-b border-border">
+        <CoverArt m={m} />
+      </div>
+      <div className="space-y-3 p-4">
+        <div>
+          <div className="text-sm font-medium text-foreground">{m.title}</div>
+          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+            <Pill tone="muted">{m.material_type}</Pill>
+            {m.premium && <PremiumBadge />}
+          </div>
+        </div>
+        {hasUploadedFile(m) ? (
+          <div className="flex gap-2">
+            <GhostButton className="flex-1 justify-center" onClick={() => onPreview(m)}>
+              <Eye className="h-3.5 w-3.5" /> Preview
+            </GhostButton>
+            <a href={m.upload_url} target="_blank" rel="noreferrer" className="flex-1">
+              <PrimaryButton className="w-full justify-center">
+                <Download className="h-3.5 w-3.5" /> Download
+              </PrimaryButton>
+            </a>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <GhostButton disabled className="flex-1 justify-center cursor-not-allowed opacity-50">
+                <Eye className="h-3.5 w-3.5" /> Preview
+              </GhostButton>
+              <GhostButton disabled className="flex-1 justify-center cursor-not-allowed opacity-50">
+                <Download className="h-3.5 w-3.5" /> Download
+              </GhostButton>
+            </div>
+            <p className="text-xs text-muted-foreground">Coming soon — file pending upload</p>
+          </div>
+        )}
+      </div>
+    </Card>
   );
 }
 
@@ -139,17 +223,54 @@ export function MaterialLibrary({
 }) {
   const [category, setCategory] = useState<string | null>(null);
   const [preview, setPreview] = useState<StoredMaterial | null>(null);
-  const [gated, setGated] = useState<StoredMaterial | null>(null);
+  const [upsell, setUpsell] = useState(false);
+  const [query, setQuery] = useState("");
+  const letterRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  const grouped = useMemo(() => {
-    return items.reduce((acc, m) => {
-      (acc[m.category] ||= []).push(m);
-      return acc;
-    }, {} as Record<string, StoredMaterial[]>);
+  // Premium materials leave their original category and live in the dedicated
+  // "Premium" showcase instead.
+  const { grouped, premiumItems } = useMemo(() => {
+    const g: Record<string, StoredMaterial[]> = {};
+    const prem: StoredMaterial[] = [];
+    for (const m of items) {
+      if (m.premium) prem.push(m);
+      else (g[m.category] ||= []).push(m);
+    }
+    return { grouped: g, premiumItems: prem };
   }, [items]);
 
   const categories = Object.keys(grouped).sort();
-  const active = category ? grouped[category] ?? [] : [];
+  const isPremiumView = category === PREMIUM_KEY;
+  const active = isPremiumView ? premiumItems : category ? grouped[category] ?? [] : [];
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const list = q ? active.filter((m) => m.title.toLowerCase().includes(q)) : active;
+    return [...list].sort((a, b) => a.title.localeCompare(b.title));
+  }, [active, query]);
+
+  const availableLetters = useMemo(() => new Set(filtered.map((m) => letterOf(m.title))), [filtered]);
+
+  const byLetter = useMemo(() => {
+    const map: Record<string, StoredMaterial[]> = {};
+    for (const m of filtered) (map[letterOf(m.title)] ||= []).push(m);
+    return map;
+  }, [filtered]);
+
+  const openCategory = (key: string) => {
+    if (key === PREMIUM_KEY && !hasPremiumAccess) {
+      setUpsell(true);
+      return;
+    }
+    setQuery("");
+    setCategory(key);
+  };
+
+  const scrollToLetter = (l: string) => {
+    letterRefs.current[l]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const headerLabel = isPremiumView ? "Premium" : category;
 
   return (
     <div className="space-y-8">
@@ -161,7 +282,7 @@ export function MaterialLibrary({
         {category && (
           <>
             <ChevronRight className="h-3.5 w-3.5" />
-            <span className="font-medium text-foreground">{category}</span>
+            <span className="font-medium text-foreground">{headerLabel}</span>
           </>
         )}
       </div>
@@ -169,18 +290,42 @@ export function MaterialLibrary({
       {!category ? (
         <>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
-          {categories.length === 0 ? (
-            <Card className="text-sm text-muted-foreground">No materials available yet.</Card>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {categories.map((cat) => {
-                const count = grouped[cat].length;
-                return (
-                  <button key={cat} onClick={() => setCategory(cat)} className="text-left">
-                    <Card className="flex items-center gap-4 transition-all hover:border-primary/50 hover:shadow-md">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                        <FolderOpen className="h-5 w-5" />
-                      </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Premium showcase — always visible, slightly more prominent */}
+            <button onClick={() => openCategory(PREMIUM_KEY)} className="text-left sm:col-span-2">
+              <Card className="!p-0 h-full overflow-hidden border-amber-500/40 transition-all hover:border-amber-500 hover:shadow-md">
+                <div className="relative h-32 w-full bg-gradient-to-br from-[#7c2d12] via-[#c2410c] to-[#f97316]">
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.28),transparent_60%)]" />
+                  <span className="absolute right-3 top-3 rounded-full bg-amber-500/25 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-amber-50 backdrop-blur">
+                    Exclusive
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 p-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-semibold text-foreground">Premium</span>
+                      <PremiumBadge />
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">
+                      {hasPremiumAccess
+                        ? `${premiumItems.length} ${premiumItems.length === 1 ? "resource" : "resources"} · included in your plan`
+                        : "Exclusive resources for Advance tier and up"}
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </div>
+              </Card>
+            </button>
+
+            {categories.map((cat, i) => {
+              const count = grouped[cat].length;
+              return (
+                <button key={cat} onClick={() => openCategory(cat)} className="text-left">
+                  <Card className="!p-0 h-full overflow-hidden transition-all hover:border-primary/50 hover:shadow-md">
+                    <div className={`h-24 w-full bg-gradient-to-br ${CATEGORY_COVERS[i % CATEGORY_COVERS.length]}`}>
+                      <div className="h-full w-full bg-[radial-gradient(circle_at_25%_20%,rgba(255,255,255,0.25),transparent_65%)]" />
+                    </div>
+                    <div className="flex items-center gap-3 p-4">
                       <div className="flex-1">
                         <div className="text-base font-semibold text-foreground">{cat}</div>
                         <div className="mt-0.5 text-xs text-muted-foreground">
@@ -188,104 +333,102 @@ export function MaterialLibrary({
                         </div>
                       </div>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </Card>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </>
-      ) : (
-        <>
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">{category}</h1>
-            <GhostButton onClick={() => setCategory(null)}>
-              <ArrowLeft className="h-3.5 w-3.5" /> All categories
-            </GhostButton>
-          </div>
-          <SectionTitle>
-            {active.length} {active.length === 1 ? "resource" : "resources"}
-          </SectionTitle>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {active.map((m) => {
-              const locked = !!m.premium && !hasPremiumAccess;
-              if (locked) {
-                return (
-                  <button
-                    key={m.id}
-                    type="button"
-                    onClick={() => setGated(m)}
-                    className="text-left"
-                  >
-                    <Card className="relative !p-0 overflow-hidden transition-all hover:border-amber-500/50">
-                      <div className="pointer-events-none select-none blur-sm">
-                        <div className="aspect-video w-full overflow-hidden border-b border-border">
-                          <CoverArt m={m} />
-                        </div>
-                        <div className="space-y-3 p-4">
-                          <div>
-                            <div className="text-sm font-medium text-foreground">{m.title}</div>
-                            <div className="mt-1"><Pill tone="muted">{m.material_type}</Pill></div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-white/60 backdrop-blur-md">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20 text-amber-600">
-                          <Lock className="h-5 w-5" />
-                        </div>
-                        <PremiumBadge />
-                      </div>
-                    </Card>
-                  </button>
-                );
-              }
-              return (
-                <Card key={m.id} className="!p-0 overflow-hidden">
-                  <div className="aspect-video w-full overflow-hidden border-b border-border">
-                    <CoverArt m={m} />
-                  </div>
-                  <div className="space-y-3 p-4">
-                    <div>
-                      <div className="text-sm font-medium text-foreground">{m.title}</div>
-                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                        <Pill tone="muted">{m.material_type}</Pill>
-                        {m.premium && <PremiumBadge />}
-                      </div>
                     </div>
-                    {hasUploadedFile(m) ? (
-                      <div className="flex gap-2">
-                        <GhostButton className="flex-1 justify-center" onClick={() => setPreview(m)}>
-                          <Eye className="h-3.5 w-3.5" /> Preview
-                        </GhostButton>
-                        <a href={m.upload_url} target="_blank" rel="noreferrer" className="flex-1">
-                          <PrimaryButton className="w-full justify-center">
-                            <Download className="h-3.5 w-3.5" /> Download
-                          </PrimaryButton>
-                        </a>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <div className="flex gap-2">
-                          <GhostButton disabled className="flex-1 justify-center opacity-50 cursor-not-allowed">
-                            <Eye className="h-3.5 w-3.5" /> Preview
-                          </GhostButton>
-                          <GhostButton disabled className="flex-1 justify-center opacity-50 cursor-not-allowed">
-                            <Download className="h-3.5 w-3.5" /> Download
-                          </GhostButton>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Coming soon — file pending upload</p>
-                      </div>
-                    )}
-                  </div>
-                </Card>
+                  </Card>
+                </button>
               );
             })}
           </div>
         </>
+      ) : (
+        <>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">{headerLabel}</h1>
+              {isPremiumView && <PremiumBadge />}
+            </div>
+            <GhostButton onClick={() => setCategory(null)}>
+              <ArrowLeft className="h-3.5 w-3.5" /> All categories
+            </GhostButton>
+          </div>
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by title…"
+              className="w-full rounded-lg border border-input bg-background py-2.5 pl-9 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* A-Z index */}
+          <div className="sticky top-0 z-10 -mx-1 flex flex-wrap gap-1 rounded-lg border border-border bg-card/95 px-2 py-2 backdrop-blur">
+            {LETTERS.map((l) => {
+              const enabled = availableLetters.has(l);
+              return (
+                <button
+                  key={l}
+                  disabled={!enabled}
+                  onClick={() => scrollToLetter(l)}
+                  className={`h-7 w-7 rounded-md text-xs font-semibold transition-colors ${
+                    enabled
+                      ? "text-foreground hover:bg-secondary"
+                      : "cursor-not-allowed text-muted-foreground/35"
+                  }`}
+                >
+                  {l}
+                </button>
+              );
+            })}
+          </div>
+
+          <SectionTitle>
+            {filtered.length} {filtered.length === 1 ? "resource" : "resources"}
+          </SectionTitle>
+
+          {filtered.length === 0 ? (
+            <Card className="text-sm text-muted-foreground">
+              {isPremiumView && premiumItems.length === 0
+                ? "Premium resources are on their way — we're curating them right now. Check back soon."
+                : query
+                  ? "No resources match your search."
+                  : "No resources in this category yet."}
+            </Card>
+          ) : (
+            <div className="space-y-8">
+              {LETTERS.filter((l) => byLetter[l]?.length).map((l) => (
+                <div
+                  key={l}
+                  ref={(el) => {
+                    letterRefs.current[l] = el;
+                  }}
+                  className="scroll-mt-20 space-y-3"
+                >
+                  <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{l}</div>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {byLetter[l].map((m) => (
+                      <MaterialCard key={m.id} m={m} onPreview={setPreview} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {preview && <PreviewModal m={preview} onClose={() => setPreview(null)} />}
-      {gated && <GateModal m={gated} onClose={() => setGated(null)} />}
+      {upsell && <PremiumUpsellModal onClose={() => setUpsell(false)} />}
     </div>
   );
 }
