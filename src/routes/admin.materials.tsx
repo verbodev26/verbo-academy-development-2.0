@@ -348,7 +348,9 @@ function Page() {
               )}
             </div>
           </div>
+          {coverError && <p className="mt-2 text-xs font-medium text-destructive">{coverError}</p>}
         </div>
+
 
         <div className="mt-5 flex justify-end">
           <PrimaryButton onClick={save}>{editingId ? "Save changes" : "Save material"}</PrimaryButton>
