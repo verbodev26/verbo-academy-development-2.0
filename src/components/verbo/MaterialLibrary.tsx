@@ -312,7 +312,9 @@ export function MaterialLibrary({
     return { grouped: g, premiumItems: prem };
   }, [items]);
 
-  const categories = Object.keys(grouped).sort();
+  // Seeded categories are included even when they still have zero materials.
+  const storeCategories = useCategories();
+
   const isPremiumView = category === PREMIUM_KEY;
   const active = isPremiumView ? premiumItems : category ? grouped[category] ?? [] : [];
 
