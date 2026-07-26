@@ -347,7 +347,7 @@ export function MaterialLibrary({
 
   const NAVY = "#01304a";
   const WHITE = "#ffffff";
-  const knownNames = ["Grammar", "Vocabulary", "Business", "Speaking", "Troubleshooting", "Getting Started"];
+  const knownNames = ["Grammar", "Vocabulary", "Business", "Speaking", "Troubleshooting", "Getting Started", "Study Tips"];
   const extraCategories = Array.from(new Set([...storeCategories, ...Object.keys(grouped)]))
     .filter((c) => !knownNames.includes(c))
     .sort();
@@ -402,6 +402,13 @@ export function MaterialLibrary({
       bgClass: "bg-gradient-to-br from-[#ffc700] via-[#ffdb4d] to-[#ffe680]",
       textStyle: { color: NAVY },
       onClick: () => openCategory("Getting Started"),
+    },
+    {
+      name: "Study Tips",
+      subtitle: "Habits, routines and techniques to study smarter every week.",
+      bgClass: "card-gradient-gold",
+      textStyle: { color: NAVY },
+      onClick: () => openCategory("Study Tips"),
     },
     ...extraCategories.map((c, i) => ({
       name: c,
