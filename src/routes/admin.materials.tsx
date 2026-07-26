@@ -40,7 +40,11 @@ function Page() {
   const [restrictLevel, setRestrictLevel] = useState("");
   const [premium, setPremium] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<StoredMaterial | null>(null);
+  const [resourceFile, setResourceFile] = useState<string | undefined>(undefined);
+  const [resourceName, setResourceName] = useState<string>("");
+  const [resourceError, setResourceError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const resourceRef = useRef<HTMLInputElement>(null);
 
   const resetForm = () => {
     setEditingId(null);
@@ -53,7 +57,28 @@ function Page() {
     setRestrictProduct("");
     setRestrictLevel("");
     setPremium(false);
+    setResourceFile(undefined);
+    setResourceName("");
+    setResourceError(null);
+    if (resourceRef.current) resourceRef.current.value = "";
   };
+
+  const onResourceFile = (file?: File | null) => {
+    if (!file) return;
+    if (isFileTooLarge(file)) {
+      setResourceError(MAX_MATERIAL_FILE_ERROR);
+      setResourceFile(undefined);
+      setResourceName("");
+      if (resourceRef.current) resourceRef.current.value = "";
+      return;
+    }
+    setResourceError(null);
+    setResourceName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => setResourceFile(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
 
 
   const onPickCategory = (v: string) => {
