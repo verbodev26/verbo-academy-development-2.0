@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Card, GhostButton, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
-import type { StoredMaterial } from "@/lib/materials-store";
+import { hasUploadedFile, type StoredMaterial } from "@/lib/materials-store";
 import type { MaterialType } from "@/lib/mock-data";
 import { PremiumBadge, AccessGateNotice } from "@/components/verbo/PremiumGate";
 import {
@@ -252,16 +252,30 @@ export function MaterialLibrary({
                         {m.premium && <PremiumBadge />}
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <GhostButton className="flex-1 justify-center" onClick={() => setPreview(m)}>
-                        <Eye className="h-3.5 w-3.5" /> Preview
-                      </GhostButton>
-                      <a href={m.upload_url} target="_blank" rel="noreferrer" className="flex-1">
-                        <PrimaryButton className="w-full justify-center">
-                          <Download className="h-3.5 w-3.5" /> Download
-                        </PrimaryButton>
-                      </a>
-                    </div>
+                    {hasUploadedFile(m) ? (
+                      <div className="flex gap-2">
+                        <GhostButton className="flex-1 justify-center" onClick={() => setPreview(m)}>
+                          <Eye className="h-3.5 w-3.5" /> Preview
+                        </GhostButton>
+                        <a href={m.upload_url} target="_blank" rel="noreferrer" className="flex-1">
+                          <PrimaryButton className="w-full justify-center">
+                            <Download className="h-3.5 w-3.5" /> Download
+                          </PrimaryButton>
+                        </a>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <GhostButton disabled className="flex-1 justify-center opacity-50 cursor-not-allowed">
+                            <Eye className="h-3.5 w-3.5" /> Preview
+                          </GhostButton>
+                          <GhostButton disabled className="flex-1 justify-center opacity-50 cursor-not-allowed">
+                            <Download className="h-3.5 w-3.5" /> Download
+                          </GhostButton>
+                        </div>
+                        <p className="text-xs text-muted-foreground">Coming soon — file pending upload</p>
+                      </div>
+                    )}
                   </div>
                 </Card>
               );

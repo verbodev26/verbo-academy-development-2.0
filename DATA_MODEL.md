@@ -331,9 +331,9 @@ Reglas de gating (student.courses.tsx): el override MÁS RECIENTE por `(studentI
 | id | string | requerido | |
 | title | string | requerido | |
 | material_type | `MaterialType` | requerido | |
-| category | string | requerido | libre, catálogo dinámico |
-| upload_url | string | requerido | |
-| cover_image | string | opcional | |
+| category | string | requerido | libre, catálogo dinámico. `SEED_CATEGORIES` = Grammar, Vocabulary, Business, Speaking, Troubleshooting, Getting Started, Study Tips (las 3 últimas nacen vacías, sin materiales) |
+| upload_url | string | requerido | dataURL del archivo real subido por el admin (PDF/video/imagen según `material_type`, máx. 8MB vía `MAX_MATERIAL_FILE_BYTES` / `isFileTooLarge`). `"#"` o `""` = archivo pendiente: `hasUploadedFile()` es `false` y `MaterialLibrary` deshabilita Preview/Download mostrando "Coming soon — file pending upload". Al editar sin subir archivo nuevo se conserva el valor previo. |
+| cover_image | string | opcional | dataURL de portada (misma validación de tamaño) |
 | restrict_product | `"go"\|"enterprise"\|"international"` | opcional | filtro de visibilidad |
 | restrict_level | string | opcional | debe coincidir con un nombre en `RESTRICT_PRODUCTS`, sin validación tipada |
 | premium | boolean | opcional | cuando `true`, sólo los alumnos con `access_plan ∈ {"Advance","Elite"}` ven el material desbloqueado; el resto ve la tarjeta con blur + candado + badge "Premium" y al hacer click se abre el `AccessGateNotice` compartido (`src/components/verbo/PremiumGate.tsx`). Teachers ven todo sin restricción (`hasPremiumAccess` default `true` en `MaterialLibrary`). |

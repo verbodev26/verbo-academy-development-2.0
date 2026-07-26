@@ -8,12 +8,15 @@ import {
   upsertMaterial,
   deleteMaterial,
   levelsForProduct,
+  acceptForType,
+  isFileTooLarge,
+  MAX_MATERIAL_FILE_ERROR,
   RESTRICT_PRODUCTS,
   type RestrictProduct,
   type StoredMaterial,
 } from "@/lib/materials-store";
 import { Card, GhostButton, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
-import { Pencil, Trash2, X, Image as ImageIcon } from "lucide-react";
+import { Pencil, Trash2, X, Upload, Image as ImageIcon } from "lucide-react";
 
 export const Route = createFileRoute("/admin/materials")({ component: Page });
 
@@ -37,7 +40,11 @@ function Page() {
   const [restrictLevel, setRestrictLevel] = useState("");
   const [premium, setPremium] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<StoredMaterial | null>(null);
+  const [resourceFile, setResourceFile] = useState<string | undefined>(undefined);
+  const [resourceName, setResourceName] = useState<string>("");
+  const [resourceError, setResourceError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const resourceRef = useRef<HTMLInputElement>(null);
 
   const resetForm = () => {
     setEditingId(null);
@@ -50,7 +57,28 @@ function Page() {
     setRestrictProduct("");
     setRestrictLevel("");
     setPremium(false);
+    setResourceFile(undefined);
+    setResourceName("");
+    setResourceError(null);
+    if (resourceRef.current) resourceRef.current.value = "";
   };
+
+  const onResourceFile = (file?: File | null) => {
+    if (!file) return;
+    if (isFileTooLarge(file)) {
+      setResourceError(MAX_MATERIAL_FILE_ERROR);
+      setResourceFile(undefined);
+      setResourceName("");
+      if (resourceRef.current) resourceRef.current.value = "";
+      return;
+    }
+    setResourceError(null);
+    setResourceName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => setResourceFile(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
 
 
   const onPickCategory = (v: string) => {
@@ -72,6 +100,10 @@ function Page() {
 
   const onCoverFile = (file?: File | null) => {
     if (!file) return;
+    if (isFileTooLarge(file)) {
+      setResourceError(MAX_MATERIAL_FILE_ERROR);
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => setCover(reader.result as string);
     reader.readAsDataURL(file);
@@ -84,12 +116,13 @@ function Page() {
 
   const save = () => {
     if (!title.trim() || !category) return;
+    if (resourceError) return;
     upsertMaterial({
       id: editingId ?? `m${Date.now()}`,
       title: title.trim(),
       material_type: type,
       category,
-      upload_url: items.find((m) => m.id === editingId)?.upload_url ?? "#",
+      upload_url: resourceFile ?? items.find((m) => m.id === editingId)?.upload_url ?? "#",
       cover_image: cover,
       restrict_product: restrictProduct || undefined,
       restrict_level: restrictLevel || undefined,
@@ -110,9 +143,14 @@ function Page() {
     setRestrictProduct(m.restrict_product ?? "");
     setRestrictLevel(m.restrict_level ?? "");
     setPremium(!!m.premium);
+    setResourceFile(undefined);
+    setResourceName("");
+    setResourceError(null);
+    if (resourceRef.current) resourceRef.current.value = "";
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
 
   const restrictLabel = (m: StoredMaterial) => {
     if (!m.restrict_product && !m.restrict_level) return null;
@@ -232,6 +270,40 @@ function Page() {
           </label>
         </div>
 
+        {/* Resource file */}
+        <div className="mt-4">
+          <label className="text-xs font-medium text-foreground">Resource file</label>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Upload the actual document ({acceptForType(type)}), max 8MB.
+            {editingId ? " Leave empty to keep the current file." : ""}
+          </p>
+          <input
+            ref={resourceRef}
+            type="file"
+            accept={acceptForType(type)}
+            className="hidden"
+            onChange={(e) => onResourceFile(e.target.files?.[0])}
+          />
+          <div className="mt-1.5 flex flex-wrap items-center gap-3">
+            <GhostButton onClick={() => resourceRef.current?.click()}>
+              <Upload className="h-3.5 w-3.5" /> {resourceFile ? "Replace file" : "Choose file"}
+            </GhostButton>
+            {resourceName && <span className="text-xs text-foreground">{resourceName}</span>}
+            {resourceFile && (
+              <GhostButton
+                onClick={() => {
+                  setResourceFile(undefined);
+                  setResourceName("");
+                  setResourceError(null);
+                  if (resourceRef.current) resourceRef.current.value = "";
+                }}
+              >
+                <X className="h-3.5 w-3.5" /> Remove
+              </GhostButton>
+            )}
+          </div>
+          {resourceError && <p className="mt-2 text-xs font-medium text-destructive">{resourceError}</p>}
+        </div>
 
 
         {/* Cover image */}

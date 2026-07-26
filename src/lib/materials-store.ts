@@ -35,7 +35,37 @@ const MATERIALS_KEY = "verbo:materials";
 const CATEGORIES_KEY = "verbo:material-categories";
 export const MATERIALS_EVENT = "verbo:materials-updated";
 
-const SEED_CATEGORIES = ["Grammar", "Vocabulary", "Business", "Speaking"];
+const SEED_CATEGORIES = [
+  "Grammar",
+  "Vocabulary",
+  "Business",
+  "Speaking",
+  "Troubleshooting",
+  "Getting Started",
+  "Study Tips",
+];
+
+/** Max size (bytes) accepted for an uploaded resource file / cover. */
+export const MAX_MATERIAL_FILE_BYTES = 8 * 1024 * 1024;
+export const MAX_MATERIAL_FILE_ERROR = "File is too large — please upload a file under 8MB";
+
+/** True when the file exceeds the allowed upload size. */
+export function isFileTooLarge(file: { size: number }): boolean {
+  return file.size > MAX_MATERIAL_FILE_BYTES;
+}
+
+/** Accept attribute for the real resource file, based on the material type. */
+export function acceptForType(type: MaterialType): string {
+  if (type === "video") return "video/*";
+  if (type === "image") return "image/*";
+  return "application/pdf";
+}
+
+/** A material has a real downloadable file only when upload_url is a real value. */
+export function hasUploadedFile(m: Pick<StoredMaterial, "upload_url">): boolean {
+  const u = (m.upload_url ?? "").trim();
+  return u !== "" && u !== "#";
+}
 
 function safeRead<T>(k: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
