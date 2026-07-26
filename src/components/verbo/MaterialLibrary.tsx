@@ -345,6 +345,67 @@ export function MaterialLibrary({
     letterRefs.current[l]?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const NAVY = "#01304a";
+  const WHITE = "#ffffff";
+  const knownNames = ["Grammar", "Vocabulary", "Business", "Speaking", "Troubleshooting"];
+  const extraCategories = Array.from(new Set([...storeCategories, ...Object.keys(grouped)]))
+    .filter((c) => !knownNames.includes(c))
+    .sort();
+
+  const mainCards: {
+    name: string;
+    subtitle: string;
+    bgClass: string;
+    textStyle: React.CSSProperties;
+    buttonStyle?: React.CSSProperties;
+    onClick: () => void;
+  }[] = [
+    {
+      name: "Grammar",
+      subtitle: "Structures and practice sheets to sharpen your grammar.",
+      bgClass: "card-gradient-lime",
+      textStyle: { color: NAVY },
+      onClick: () => openCategory("Grammar"),
+    },
+    {
+      name: "Vocabulary",
+      subtitle: "Word lists and expressions to grow your everyday vocabulary.",
+      bgClass: "bg-gradient-to-br from-[#7c2d12] via-[#c2410c] to-[#f97316]",
+      textStyle: { color: WHITE },
+      onClick: () => openCategory("Vocabulary"),
+    },
+    {
+      name: "Business",
+      subtitle: "Templates and phrases for professional communication.",
+      bgClass: "card-gradient-navy",
+      textStyle: { color: WHITE },
+      onClick: () => openCategory("Business"),
+    },
+    {
+      name: "Speaking",
+      subtitle: "Prompts and exercises to build real speaking confidence.",
+      bgClass: "card-gradient-teal",
+      textStyle: { color: NAVY },
+      onClick: () => openCategory("Speaking"),
+    },
+    {
+      name: "Premium",
+      subtitle: "Deep-dive guides and exclusive practice packs for Advance tier and up.",
+      bgClass: "card-gradient-violet",
+      textStyle: { color: WHITE },
+      buttonStyle: { color: "var(--violet-900)" },
+      onClick: () => openCategory(PREMIUM_KEY),
+    },
+    ...extraCategories.map((c, i) => ({
+      name: c,
+      subtitle: "Complementary resources for this category.",
+      bgClass: `bg-gradient-to-br ${CATEGORY_COVERS[i % CATEGORY_COVERS.length]}`,
+      textStyle: { color: WHITE },
+      onClick: () => openCategory(c),
+    })),
+  ];
+
+
   const headerLabel = isPremiumView ? "Premium" : category;
 
   return (
