@@ -347,7 +347,7 @@ export function MaterialLibrary({
 
   const NAVY = "#01304a";
   const WHITE = "#ffffff";
-  const knownNames = ["Grammar", "Vocabulary", "Business", "Speaking", "Troubleshooting"];
+  const knownNames = ["Grammar", "Vocabulary", "Business", "Speaking", "Troubleshooting", "Getting Started"];
   const extraCategories = Array.from(new Set([...storeCategories, ...Object.keys(grouped)]))
     .filter((c) => !knownNames.includes(c))
     .sort();
@@ -395,6 +395,13 @@ export function MaterialLibrary({
       textStyle: { color: WHITE },
       buttonStyle: { color: "var(--violet-900)" },
       onClick: () => openCategory(PREMIUM_KEY),
+    },
+    {
+      name: "Getting Started",
+      subtitle: "Everything you need to take your first steps with confidence.",
+      bgClass: "bg-gradient-to-br from-[#ffc700] via-[#ffdb4d] to-[#ffe680]",
+      textStyle: { color: NAVY },
+      onClick: () => openCategory("Getting Started"),
     },
     ...extraCategories.map((c, i) => ({
       name: c,
