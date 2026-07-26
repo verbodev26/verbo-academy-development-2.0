@@ -336,7 +336,7 @@ Reglas de gating (student.courses.tsx): el override MÁS RECIENTE por `(studentI
 | cover_image | string | opcional | dataURL de portada (misma validación de tamaño) |
 | restrict_product | `"go"\|"enterprise"\|"international"` | opcional | filtro de visibilidad |
 | restrict_level | string | opcional | debe coincidir con un nombre en `RESTRICT_PRODUCTS`, sin validación tipada |
-| premium | boolean | opcional | cuando `true`, sólo los alumnos con `access_plan ∈ {"Advance","Elite"}` ven el material desbloqueado; el resto ve la tarjeta con blur + candado + badge "Premium" y al hacer click se abre el `AccessGateNotice` compartido (`src/components/verbo/PremiumGate.tsx`). Teachers ven todo sin restricción (`hasPremiumAccess` default `true` en `MaterialLibrary`). |
+| premium | boolean | opcional | cuando `true`, el material **sale de su `category` original** y se agrupa en la categoría virtual dedicada "Premium" (`__premium__`) de `MaterialLibrary`. Con acceso (`access_plan ∈ {"Advance","Elite"}`, o Teacher con `hasPremiumAccess` default `true`) la categoría funciona como cualquier otra; sin acceso, el click abre un modal de upsell (mismo criterio grupo vs. individual que `AccessGateNotice`, copy comercial propio) y nunca muestra el listado. La tarjeta "Premium" se muestra siempre, aunque no haya materiales premium (estado vacío "Premium resources are on their way"). |
 
 ⚠️ Coexiste con `Material`/`MATERIALS` de `mock-data.ts` (campos: `id, title, material_type, upload_url, category`, sin `restrict_product`/`restrict_level`) — dos catálogos de materiales paralelos, ver §13.
 
