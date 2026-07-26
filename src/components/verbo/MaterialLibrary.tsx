@@ -1,11 +1,13 @@
 import { useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Card, GhostButton, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
-import { hasUploadedFile, type StoredMaterial } from "@/lib/materials-store";
+import { hasUploadedFile, useCategories, type StoredMaterial } from "@/lib/materials-store";
 import type { MaterialType } from "@/lib/mock-data";
 import { PremiumBadge } from "@/components/verbo/PremiumGate";
 import { useAuth } from "@/lib/auth";
 import { groupsByStudentId } from "@/lib/groups-store";
+import spotlightArt from "@/assets/spotlight1.png.asset.json";
+
 import {
   Book,
   FileText,
@@ -169,20 +171,91 @@ function PremiumUpsellModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+/**
+ * Category card — reuses the "Spotlight Session" visual language from
+ * student.sessions.tsx (gradient surface, artwork pinned bottom-right, label,
+ * paragraph, wide pill button), without the Sparkles icon.
+ */
+function SpotlightCategoryCard({
+  name,
+  subtitle,
+  bgClass,
+  textStyle,
+  buttonStyle,
+  neutral = false,
+  compact = false,
+  onClick,
+}: {
+  name: string;
+  subtitle: string;
+  bgClass: string;
+  textStyle: React.CSSProperties;
+  buttonStyle?: React.CSSProperties;
+  neutral?: boolean;
+  compact?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      className={`${bgClass} relative h-full ${compact ? "min-h-[140px]" : "min-h-[200px]"} overflow-hidden rounded-3xl border border-border p-6 shadow-elevated`}
+    >
+      <img
+        src={spotlightArt.url}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 right-0 h-[110%] w-auto translate-y-[6%] select-none object-contain"
+      />
+      <div className="relative z-10 w-[58%]">
+        <h3
+          className={`text-base font-semibold tracking-tight ${neutral ? "text-foreground" : ""}`}
+          style={neutral ? undefined : textStyle}
+        >
+          {name}
+        </h3>
+        <p
+          className={`mt-3 text-xs leading-relaxed ${neutral ? "text-muted-foreground" : ""}`}
+          style={neutral ? undefined : { ...textStyle, opacity: 0.8 }}
+        >
+          {subtitle}
+        </p>
+        {neutral ? (
+          <PrimaryButton className="mt-4 w-full !text-xs" onClick={onClick}>
+            Browse Material
+          </PrimaryButton>
+        ) : (
+          <button
+            type="button"
+            onClick={onClick}
+            className="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-3 py-2.5 text-xs font-semibold transition-transform duration-200 active:scale-[0.97]"
+            style={buttonStyle ?? { color: "#01304a" }}
+          >
+            Browse Material
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function MaterialCard({ m, onPreview }: { m: StoredMaterial; onPreview: (m: StoredMaterial) => void }) {
   return (
-    <Card className="!p-0 overflow-hidden">
+    <Card className="!p-0 overflow-hidden verbo-card-hover">
       <div className="aspect-video w-full overflow-hidden border-b border-border">
         <CoverArt m={m} />
       </div>
       <div className="space-y-3 p-4">
         <div>
-          <div className="text-sm font-medium text-foreground">{m.title}</div>
+          <div className="text-base font-semibold text-foreground">{m.title}</div>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
-            <Pill tone="muted">{m.material_type}</Pill>
+            <span
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${TYPE_TINT[m.material_type]}`}
+            >
+              {m.material_type}
+            </span>
             {m.premium && <PremiumBadge />}
           </div>
         </div>
+
         {hasUploadedFile(m) ? (
           <div className="flex gap-2">
             <GhostButton className="flex-1 justify-center" onClick={() => onPreview(m)}>
@@ -239,7 +312,9 @@ export function MaterialLibrary({
     return { grouped: g, premiumItems: prem };
   }, [items]);
 
-  const categories = Object.keys(grouped).sort();
+  // Seeded categories are included even when they still have zero materials.
+  const storeCategories = useCategories();
+
   const isPremiumView = category === PREMIUM_KEY;
   const active = isPremiumView ? premiumItems : category ? grouped[category] ?? [] : [];
 
@@ -270,6 +345,67 @@ export function MaterialLibrary({
     letterRefs.current[l]?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const NAVY = "#01304a";
+  const WHITE = "#ffffff";
+  const knownNames = ["Grammar", "Vocabulary", "Business", "Speaking", "Troubleshooting"];
+  const extraCategories = Array.from(new Set([...storeCategories, ...Object.keys(grouped)]))
+    .filter((c) => !knownNames.includes(c))
+    .sort();
+
+  const mainCards: {
+    name: string;
+    subtitle: string;
+    bgClass: string;
+    textStyle: React.CSSProperties;
+    buttonStyle?: React.CSSProperties;
+    onClick: () => void;
+  }[] = [
+    {
+      name: "Grammar",
+      subtitle: "Structures and practice sheets to sharpen your grammar.",
+      bgClass: "card-gradient-lime",
+      textStyle: { color: NAVY },
+      onClick: () => openCategory("Grammar"),
+    },
+    {
+      name: "Vocabulary",
+      subtitle: "Word lists and expressions to grow your everyday vocabulary.",
+      bgClass: "bg-gradient-to-br from-[#7c2d12] via-[#c2410c] to-[#f97316]",
+      textStyle: { color: WHITE },
+      onClick: () => openCategory("Vocabulary"),
+    },
+    {
+      name: "Business",
+      subtitle: "Templates and phrases for professional communication.",
+      bgClass: "card-gradient-navy",
+      textStyle: { color: WHITE },
+      onClick: () => openCategory("Business"),
+    },
+    {
+      name: "Speaking",
+      subtitle: "Prompts and exercises to build real speaking confidence.",
+      bgClass: "card-gradient-teal",
+      textStyle: { color: NAVY },
+      onClick: () => openCategory("Speaking"),
+    },
+    {
+      name: "Premium",
+      subtitle: "Deep-dive guides and exclusive practice packs for Advance tier and up.",
+      bgClass: "card-gradient-violet",
+      textStyle: { color: WHITE },
+      buttonStyle: { color: "var(--violet-900)" },
+      onClick: () => openCategory(PREMIUM_KEY),
+    },
+    ...extraCategories.map((c, i) => ({
+      name: c,
+      subtitle: "Complementary resources for this category.",
+      bgClass: `bg-gradient-to-br ${CATEGORY_COVERS[i % CATEGORY_COVERS.length]}`,
+      textStyle: { color: WHITE },
+      onClick: () => openCategory(c),
+    })),
+  ];
+
+
   const headerLabel = isPremiumView ? "Premium" : category;
 
   return (
@@ -289,57 +425,42 @@ export function MaterialLibrary({
 
       {!category ? (
         <>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Premium showcase — always visible, slightly more prominent */}
-            <button onClick={() => openCategory(PREMIUM_KEY)} className="text-left sm:col-span-2">
-              <Card className="!p-0 h-full overflow-hidden border-amber-500/40 transition-all hover:border-amber-500 hover:shadow-md">
-                <div className="relative h-32 w-full bg-gradient-to-br from-[#7c2d12] via-[#c2410c] to-[#f97316]">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.28),transparent_60%)]" />
-                  <span className="absolute right-3 top-3 rounded-full bg-amber-500/25 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-amber-50 backdrop-blur">
-                    Exclusive
-                  </span>
-                </div>
-                <div className="flex items-center gap-3 p-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold text-foreground">Premium</span>
-                      <PremiumBadge />
-                    </div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">
-                      {hasPremiumAccess
-                        ? `${premiumItems.length} ${premiumItems.length === 1 ? "resource" : "resources"} · included in your plan`
-                        : "Exclusive resources for Advance tier and up"}
-                    </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </div>
-              </Card>
-            </button>
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+              <p className="mt-1 max-w-md text-sm text-muted-foreground">
+                Complementary resources to help you keep improving between sessions.
+              </p>
+            </div>
+            {/* Troubleshooting — deliberately detached from the content categories */}
+            <div className="w-full lg:w-80">
+              <SpotlightCategoryCard
+                name="Troubleshooting"
+                subtitle="Quick fixes and answers for common technical issues."
+                bgClass="bg-secondary border-border"
+                textStyle={{}}
+                neutral
+                compact
+                onClick={() => openCategory("Troubleshooting")}
+              />
+            </div>
+          </div>
 
-            {categories.map((cat, i) => {
-              const count = grouped[cat].length;
-              return (
-                <button key={cat} onClick={() => openCategory(cat)} className="text-left">
-                  <Card className="!p-0 h-full overflow-hidden transition-all hover:border-primary/50 hover:shadow-md">
-                    <div className={`h-24 w-full bg-gradient-to-br ${CATEGORY_COVERS[i % CATEGORY_COVERS.length]}`}>
-                      <div className="h-full w-full bg-[radial-gradient(circle_at_25%_20%,rgba(255,255,255,0.25),transparent_65%)]" />
-                    </div>
-                    <div className="flex items-center gap-3 p-4">
-                      <div className="flex-1">
-                        <div className="text-base font-semibold text-foreground">{cat}</div>
-                        <div className="mt-0.5 text-xs text-muted-foreground">
-                          {count} {count === 1 ? "resource" : "resources"}
-                        </div>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </Card>
-                </button>
-              );
-            })}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {mainCards.map((c) => (
+              <SpotlightCategoryCard
+                key={c.name}
+                name={c.name}
+                subtitle={c.subtitle}
+                bgClass={c.bgClass}
+                textStyle={c.textStyle}
+                buttonStyle={c.buttonStyle}
+                onClick={c.onClick}
+              />
+            ))}
           </div>
         </>
+
       ) : (
         <>
           <div className="flex items-center justify-between">
@@ -352,45 +473,38 @@ export function MaterialLibrary({
             </GhostButton>
           </div>
 
-          {/* Search */}
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by title…"
-              className="w-full rounded-lg border border-input bg-background py-2.5 pl-9 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-            {query && (
-              <button
-                onClick={() => setQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
-
-          {/* A-Z index */}
-          <div className="sticky top-0 z-10 -mx-1 flex flex-wrap gap-1 rounded-lg border border-border bg-card/95 px-2 py-2 backdrop-blur">
-            {LETTERS.map((l) => {
-              const enabled = availableLetters.has(l);
-              return (
+          {/* Search + A-Z index (single compact row) */}
+          <div className="sticky top-0 z-10 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card/95 px-2 py-2 backdrop-blur">
+            <div className="relative w-full max-w-xs">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by title…"
+                className="w-full rounded-lg border border-input bg-background py-2 pl-9 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              {query && (
+                <button
+                  onClick={() => setQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+            <div className="flex flex-1 flex-wrap items-center gap-1">
+              {LETTERS.filter((l) => availableLetters.has(l)).map((l) => (
                 <button
                   key={l}
-                  disabled={!enabled}
                   onClick={() => scrollToLetter(l)}
-                  className={`h-7 w-7 rounded-md text-xs font-semibold transition-colors ${
-                    enabled
-                      ? "text-foreground hover:bg-secondary"
-                      : "cursor-not-allowed text-muted-foreground/35"
-                  }`}
+                  className="h-7 w-7 rounded-md text-xs font-semibold text-foreground transition-colors hover:bg-secondary"
                 >
                   {l}
                 </button>
-              );
-            })}
+              ))}
+            </div>
           </div>
+
 
           <SectionTitle>
             {filtered.length} {filtered.length === 1 ? "resource" : "resources"}
