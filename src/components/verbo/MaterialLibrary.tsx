@@ -171,6 +171,72 @@ function PremiumUpsellModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+/**
+ * Category card — reuses the "Spotlight Session" visual language from
+ * student.sessions.tsx (gradient surface, artwork pinned bottom-right, label,
+ * paragraph, wide pill button), without the Sparkles icon.
+ */
+function SpotlightCategoryCard({
+  name,
+  subtitle,
+  bgClass,
+  textStyle,
+  buttonStyle,
+  neutral = false,
+  compact = false,
+  onClick,
+}: {
+  name: string;
+  subtitle: string;
+  bgClass: string;
+  textStyle: React.CSSProperties;
+  buttonStyle?: React.CSSProperties;
+  neutral?: boolean;
+  compact?: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      className={`${bgClass} relative h-full ${compact ? "min-h-[140px]" : "min-h-[200px]"} overflow-hidden rounded-3xl border border-border p-6 shadow-elevated`}
+    >
+      <img
+        src={spotlightArt.url}
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 right-0 h-[110%] w-auto translate-y-[6%] select-none object-contain"
+      />
+      <div className="relative z-10 w-[58%]">
+        <h3
+          className={`text-base font-semibold tracking-tight ${neutral ? "text-foreground" : ""}`}
+          style={neutral ? undefined : textStyle}
+        >
+          {name}
+        </h3>
+        <p
+          className={`mt-3 text-xs leading-relaxed ${neutral ? "text-muted-foreground" : ""}`}
+          style={neutral ? undefined : { ...textStyle, opacity: 0.8 }}
+        >
+          {subtitle}
+        </p>
+        {neutral ? (
+          <PrimaryButton className="mt-4 w-full !text-xs" onClick={onClick}>
+            Browse Material
+          </PrimaryButton>
+        ) : (
+          <button
+            type="button"
+            onClick={onClick}
+            className="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-3 py-2.5 text-xs font-semibold transition-transform duration-200 active:scale-[0.97]"
+            style={buttonStyle ?? { color: "#01304a" }}
+          >
+            Browse Material
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function MaterialCard({ m, onPreview }: { m: StoredMaterial; onPreview: (m: StoredMaterial) => void }) {
   return (
     <Card className="!p-0 overflow-hidden verbo-card-hover">
