@@ -2043,6 +2043,194 @@ function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
           setPicker(false);
         }}
       />
+
+      <ChallengeBadgesModal
+        open={challengeBadges}
+        onOpenChange={setChallengeBadges}
+        student={student}
+      />
     </section>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/* Challenge Badges modal — the 8 core badges (equippable), the Lightning Bolt */
+/* badge and the dynamic Season badges (display-only). Fully independent from  */
+/* the Profile Badges system in ProfileModal.tsx.                              */
+/* -------------------------------------------------------------------------- */
+type ChallengeBadgeTile = {
+  key: string;
+  name: string;
+  earned: boolean;
+  image?: string;
+  requirement: string;
+  equippable: boolean;
+  badgeId?: string;
+};
+
+function ChallengeBadgesModal({
+  open,
+  onOpenChange,
+  student,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  student: (typeof USERS)[number];
+}) {
+  const [tick, setTick] = useState(0);
+  const [badges, setBadges] = useState<BadgeDef[]>(loadBadges);
+  const [challenges, setChallenges] = useState<Challenge[]>(loadChallenges);
+  const [seasons, setSeasons] = useState<FlashSeason[]>(loadSeasons);
+  const [equipped, setEquipped] = useState<string[]>([]);
+
+  useEffect(() => {
+    setBadges(loadBadges());
+    setChallenges(loadChallenges());
+    setSeasons(loadSeasons());
+    setEquipped(loadEquippedChallengeBadgeIds(student.id));
+    const bump = () => setTick((t) => t + 1);
+    const un1 = subscribeBadges(() => setBadges(loadBadges()));
+    const un2 = subscribeChallenges(() => setChallenges(loadChallenges()));
+    const un3 = subscribeSeasons(() => setSeasons(loadSeasons()));
+    const un4 = subscribeEquippedChallengeBadges(() => {
+      setEquipped(loadEquippedChallengeBadgeIds(student.id));
+      bump();
+    });
+    const un5 = subscribeStudents(bump);
+    return () => { un1(); un2(); un3(); un4(); un5(); };
+  }, [student.id]);
+
+  const ctx: BadgeContext = useMemo(() => {
+    void tick;
+    const done = student.completed_challenges ?? [];
+    const map = new Map(challenges.map((c) => [c.id, c]));
+    const cats = new Set<string>();
+    let premiumDone = false;
+    for (const entry of done) {
+      const ch = map.get(entry.challenge_id);
+      if (!ch) continue;
+      if (ch.category) cats.add(ch.category);
+      if (ch.premium) premiumDone = true;
+    }
+    return {
+      completedCount: done.length,
+      longestStreak: student.longest_streak ?? 0,
+      distinctCategories: cats.size,
+      hasCompletedPremium: premiumDone,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [challenges, student.completed_challenges, student.longest_streak, tick]);
+
+  const tiles: ChallengeBadgeTile[] = useMemo(() => {
+    const core: ChallengeBadgeTile[] = badges.map((b) => {
+      const meta = BADGE_METRIC_META[b.rule.metric];
+      const requirement = meta
+        ? meta.numeric
+          ? `${meta.label}: ${b.rule.threshold ?? 1}`
+          : meta.label
+        : b.description;
+      return {
+        key: `core-${b.id}`,
+        badgeId: b.id,
+        name: b.name,
+        earned: isBadgeEarned(b, ctx),
+        image: b.image || undefined,
+        requirement: b.description || requirement,
+        equippable: true,
+      };
+    });
+    const bolt: ChallengeBadgeTile = {
+      key: "lightning",
+      name: "⚡ Lightning Bolt",
+      earned: (student.lightning_completions ?? 0) >= 1,
+      requirement: "Complete a Lightning challenge within its live window.",
+      equippable: false,
+    };
+    const seasonTiles: ChallengeBadgeTile[] = seasons.map((s) => ({
+      key: `season-${s.id}`,
+      name: s.badge_name,
+      earned: (student.season_completions?.[s.id] ?? 0) >= 1,
+      requirement: `Complete a challenge during the ${s.display_name} Season.`,
+      equippable: false,
+    }));
+    return [...core, bolt, ...seasonTiles];
+  }, [badges, ctx, seasons, student.lightning_completions, student.season_completions]);
+
+  if (!open) return null;
+
+  const toggle = (badgeId: string) => {
+    const next = equipped.includes(badgeId)
+      ? equipped.filter((id) => id !== badgeId)
+      : [...equipped, badgeId].slice(-EQUIPPED_CHALLENGE_MAX);
+    setEquippedChallengeBadgeIds(student.id, next);
+    setEquipped(next);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true">
+      <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-border bg-card p-6 shadow-elevated">
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-bold tracking-tight text-foreground">Challenge badges</h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Earned automatically by completing challenges and building streaks. Tap an unlocked badge to equip it.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            aria-label="Close"
+            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-5 sm:grid-cols-4">
+          {tiles.map((t) => {
+            const isEquipped = !!t.badgeId && equipped.includes(t.badgeId);
+            const clickable = t.equippable && t.earned && !!t.badgeId;
+            const Wrapper = clickable ? "button" : "div";
+            return (
+              <div key={t.key} className="group relative flex flex-col items-center gap-2 text-center">
+                <Wrapper
+                  {...(clickable ? { type: "button" as const, onClick: () => toggle(t.badgeId!) } : {})}
+                  className={`relative flex h-16 w-16 items-center justify-center rounded-full transition-transform ${
+                    clickable ? "cursor-pointer hover:scale-105" : ""
+                  } ${
+                    t.earned
+                      ? "bg-amber-500/15 text-amber-600 ring-2 ring-amber-400/50"
+                      : "bg-secondary text-muted-foreground grayscale"
+                  } ${isEquipped ? "ring-4 ring-[#f38934]" : ""}`}
+                >
+                  {t.image ? (
+                    <img src={t.image} alt="" className={`h-full w-full rounded-full object-cover ${t.earned ? "" : "grayscale opacity-60"}`} />
+                  ) : (
+                    <Trophy className="h-7 w-7" />
+                  )}
+                  {!t.earned && (
+                    <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/35">
+                      <Lock className="h-5 w-5 text-white" />
+                    </span>
+                  )}
+                  {isEquipped && (
+                    <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#f38934] text-white">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    </span>
+                  )}
+                </Wrapper>
+                <div className="text-[11px] font-semibold leading-tight text-foreground">{t.name}</div>
+                {!t.earned && (
+                  <div className="pointer-events-none absolute -top-2 left-1/2 z-10 w-44 -translate-x-1/2 -translate-y-full rounded-xl bg-foreground px-3 py-2 text-[11px] font-medium text-background opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                    {t.requirement}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
