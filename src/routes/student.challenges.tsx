@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   ChevronRight,
@@ -14,6 +14,10 @@ import {
   Upload,
   Gift,
   Zap,
+  Pencil,
+  Crown,
+  Flame,
+  Plus,
 } from "lucide-react";
 import { Card, Pill, PrimaryButton, GhostButton, SuccessButton } from "@/components/verbo/ui";
 import { Confetti } from "@/components/verbo/Confetti";
@@ -69,13 +73,29 @@ import {
 } from "@/lib/students-store";
 import { USERS } from "@/lib/mock-data";
 import { groupsByStudentId } from "@/lib/groups-store";
-import { useAvatar } from "@/lib/avatar-store";
+import { setAvatar, useAvatar } from "@/lib/avatar-store";
 import {
   getLeaderboardIdentity,
+  setLeaderboardIdentity,
   subscribeLeaderboardIdentity,
   colorFromString,
   initialsOf,
+  type LeaderboardIdentityMode,
 } from "@/lib/leaderboard-identity-store";
+import {
+  loadBadges as loadProfileBadges,
+  subscribeBadges as subscribeProfileBadges,
+  isBadgeEarned as isProfileBadgeEarned,
+  buildProfileBadgeContext,
+  type BadgeDef as ProfileBadgeDef,
+} from "@/lib/profile-badges-store";
+import {
+  loadEquippedBadgeIds,
+  setEquippedBadgeIds,
+  subscribeEquippedBadges,
+  EQUIPPED_MAX,
+} from "@/lib/equipped-profile-badges-store";
+import { BadgePickerModal, BadgeVisual } from "@/components/verbo/ProfileModal";
 
 export const Route = createFileRoute("/student/challenges")({ component: Page });
 
@@ -382,25 +402,16 @@ function Page() {
   /* ---------------- Screen 1: difficulty picker + badges ---------------- */
   return (
     <div className="space-y-8">
-      <div className={`rounded-2xl bg-gradient-to-br ${gradient} p-6 text-white shadow-soft`}>
-        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/70">
-          <Sparkles className="h-3.5 w-3.5" /> Weekly Challenges
-        </div>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Pick a difficulty to explore</h1>
-        <p className="mt-1 text-sm text-white/80">
-          Complementary practice — completing challenges keeps your streak alive and unlocks badges.
-        </p>
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-          <span className="rounded-full bg-white/15 px-3 py-1 font-medium">
-            🔥 Current streak: {student.current_streak ?? 0}
-          </span>
-          <span className="rounded-full bg-white/15 px-3 py-1 font-medium">
-            🏆 Longest: {student.longest_streak ?? 0}
-          </span>
-          <span className="rounded-full bg-white/15 px-3 py-1 font-medium">
-            ✅ Completed: {student.completed_challenges?.length ?? 0}
-          </span>
-        </div>
+      <ChallengesHero
+        gradient={gradient}
+        currentStreak={student.current_streak ?? 0}
+        longestStreak={student.longest_streak ?? 0}
+        completed={student.completed_challenges?.length ?? 0}
+      />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <PlayerProfileCard student={student} />
+        <LeaderboardSection currentUserId={student.id} />
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -500,7 +511,6 @@ function Page() {
         })()}
 
 
-      <LeaderboardSection currentUserId={student.id} />
 
       <section>
         <div className="mb-4 flex items-end justify-between">
@@ -1539,10 +1549,30 @@ function RowAvatar({ row, size }: { row: LeaderboardRow; size: "sm" | "lg" }) {
   return <NicknameAvatar seed={row.avatarSeed} className={cls} />;
 }
 
-const PODIUM_STYLES: Record<number, { ring: string; medal: string; label: string }> = {
-  0: { ring: "ring-yellow-400", medal: "bg-yellow-400 text-yellow-950", label: "1" },
-  1: { ring: "ring-slate-300", medal: "bg-slate-300 text-slate-800", label: "2" },
-  2: { ring: "ring-amber-600", medal: "bg-amber-600 text-amber-50", label: "3" },
+const PODIUM_STYLES: Record<number, {
+  frame: string; medal: string; label: string; halo: string; delay: number;
+}> = {
+  0: {
+    frame: "bg-gradient-to-br from-[#fde68a] via-[#fbbf24] to-[#d97706] p-[5px] shadow-[0_0_0_3px_rgba(251,191,36,0.35)]",
+    medal: "bg-gradient-to-br from-[#fbbf24] to-[#d97706] text-white ring-2 ring-white/70",
+    label: "1",
+    halo: "from-[#fbbf24]/60",
+    delay: 0,
+  },
+  1: {
+    frame: "bg-gradient-to-br from-[#f1f5f9] via-[#cbd5e1] to-[#94a3b8] p-[4px] shadow-[0_0_0_2px_rgba(203,213,225,0.5)]",
+    medal: "bg-gradient-to-br from-[#e2e8f0] to-[#94a3b8] text-slate-800 ring-2 ring-white/70",
+    label: "2",
+    halo: "from-[#cbd5e1]/50",
+    delay: 120,
+  },
+  2: {
+    frame: "bg-gradient-to-br from-[#fdba74] via-[#c2764a] to-[#92400e] p-[3px]",
+    medal: "bg-gradient-to-br from-[#c2764a] to-[#92400e] text-amber-50 ring-2 ring-white/60",
+    label: "3",
+    halo: "from-[#c2764a]/40",
+    delay: 220,
+  },
 };
 
 function LeaderboardSection({
@@ -1561,6 +1591,22 @@ function LeaderboardSection({
 
   return (
     <section>
+      <style>{`
+        @keyframes verbo-podium-in {
+          from { opacity: 0; transform: scale(0.9) translateY(14px) rotate(-2.5deg); }
+          70% { opacity: 1; transform: scale(1.03) translateY(-2px) rotate(0.6deg); }
+          to { opacity: 1; transform: none; }
+        }
+        @keyframes verbo-podium-crown-glow {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0.55), 0 0 18px 2px rgba(251,191,36,0.35); }
+          50% { box-shadow: 0 0 0 10px rgba(251,191,36,0), 0 0 30px 8px rgba(251,191,36,0.55); }
+        }
+        .verbo-podium-in { animation: verbo-podium-in 700ms cubic-bezier(0.23,1,0.32,1) both; }
+        .verbo-podium-glow { animation: verbo-podium-crown-glow 2.2s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .verbo-podium-in, .verbo-podium-glow { animation: none !important; }
+        }
+      `}</style>
       <div className="mb-4">
         <h2 className="text-base font-semibold tracking-tight text-foreground">Leaderboard</h2>
         <p className="mt-1 text-xs text-muted-foreground">Total Challenges and Flash completed by all students.</p>
@@ -1568,38 +1614,50 @@ function LeaderboardSection({
       <Card>
         <div className="p-5">
           {/* Top 3 podium */}
-          <div className={`grid gap-4 ${podium.length === 3 ? "grid-cols-3" : podium.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
+          <div className={`grid items-end gap-3 ${podium.length === 3 ? "grid-cols-3" : podium.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
             {podiumOrdered.map((row) => {
               const rank = podiumRankOf(row);
               const style = PODIUM_STYLES[rank];
               const isYou = row.userId === currentUserId;
-              // Middle column (rank 0 = #1) sits taller.
-              const pad = rank === 0 ? "pt-2" : "pt-6";
+              const first = rank === 0;
               return (
                 <div
                   key={row.userId}
-                  className={`relative flex flex-col items-center gap-2 rounded-2xl border p-4 text-center shadow-soft ${pad} ${isYou ? "border-accent bg-accent/5" : "border-border bg-card"}`}
+                  className={`verbo-podium-in relative flex flex-col items-center gap-2 rounded-2xl border px-3 text-center shadow-soft ${first ? "pb-5 pt-8" : "pb-4 pt-7"} ${isYou ? "border-accent bg-accent/5" : "border-border bg-card"}`}
+                  style={{ animationDelay: `${style.delay}ms` }}
                 >
-                  <div className={`absolute -top-3 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shadow ${style.medal}`}>
-                    {style.label}
+                  <div
+                    aria-hidden
+                    className={`pointer-events-none absolute inset-x-0 top-0 h-24 rounded-t-2xl bg-gradient-to-b ${style.halo} to-transparent opacity-60`}
+                  />
+                  {first && (
+                    <Crown className="absolute -top-4 left-1/2 h-7 w-7 -translate-x-1/2 text-[#fbbf24] drop-shadow" aria-hidden />
+                  )}
+                  <div className="relative">
+                    <div className={`rounded-full ${style.frame} ${first ? "verbo-podium-glow" : ""}`}>
+                      <div className="rounded-full bg-card p-[2px]">
+                        <RowAvatar row={row} size="lg" />
+                      </div>
+                    </div>
+                    <div className={`absolute -bottom-2 left-1/2 flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full text-xs font-extrabold shadow ${style.medal}`}>
+                      {style.label}
+                    </div>
                   </div>
-                  <div className={`rounded-full ring-4 ${style.ring} p-0.5`}>
-                    <RowAvatar row={row} size="lg" />
-                  </div>
-                  <div className="mt-1 line-clamp-1 text-sm font-semibold text-foreground">
+                  <div className={`mt-2 line-clamp-1 font-bold tracking-tight text-foreground ${first ? "text-base" : "text-sm"}`}>
                     {row.displayName}
                     {isYou && <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-accent">You</span>}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {row.completed}{" "}
+                  <div className="text-[11px] text-muted-foreground">
+                    <span className="text-sm font-bold text-foreground">{row.completed}</span>{" "}
                     <span className="opacity-70">
-                      {row.completed === 1 ? "Challenge completed" : "Challenges completed"}
+                      {row.completed === 1 ? "completed" : "completed"}
                     </span>
                   </div>
                 </div>
               );
             })}
           </div>
+
 
           {/* Rest of the ranking */}
           {rest.length > 0 && (
@@ -1631,6 +1689,280 @@ function LeaderboardSection({
           )}
         </div>
       </Card>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Screen-1 hero — gamified header with animated entrance + stat tiles.       */
+/* -------------------------------------------------------------------------- */
+function ChallengesHero({
+  gradient,
+  currentStreak,
+  longestStreak,
+  completed,
+}: {
+  gradient: string;
+  currentStreak: number;
+  longestStreak: number;
+  completed: number;
+}) {
+  const stats = [
+    { icon: Flame, label: "Current streak", value: currentStreak },
+    { icon: Trophy, label: "Longest streak", value: longestStreak },
+    { icon: CheckCircle2, label: "Completed", value: completed },
+  ];
+  return (
+    <div className={`verbo-hero-enter relative overflow-hidden rounded-3xl bg-gradient-to-br ${gradient} p-7 text-white shadow-elevated`}>
+      <style>{`
+        @keyframes verbo-hero-in {
+          from { opacity: 0; transform: translateY(12px) scale(0.985); }
+          to { opacity: 1; transform: none; }
+        }
+        @keyframes verbo-hero-shine {
+          0% { transform: translateX(-120%) skewX(-18deg); }
+          60%, 100% { transform: translateX(260%) skewX(-18deg); }
+        }
+        .verbo-hero-enter { animation: verbo-hero-in 520ms cubic-bezier(0.23,1,0.32,1) both; }
+        .verbo-hero-shine { animation: verbo-hero-shine 4.5s cubic-bezier(0.23,1,0.32,1) infinite; }
+        .verbo-stat-in { animation: verbo-hero-in 520ms cubic-bezier(0.23,1,0.32,1) both; }
+        @media (prefers-reduced-motion: reduce) {
+          .verbo-hero-enter, .verbo-hero-shine, .verbo-stat-in { animation: none !important; }
+        }
+      `}</style>
+
+      {/* decorative texture */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-[0.18]"
+        style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)", backgroundSize: "22px 22px" }} />
+      <div aria-hidden className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="verbo-hero-shine absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      </div>
+
+      <div className="relative">
+        <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/90 shadow-inner">
+          <Sparkles className="h-3.5 w-3.5" /> Weekly Challenges
+        </div>
+        <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          Pick a difficulty to explore
+        </h1>
+        <p className="mt-2 max-w-xl text-sm text-white/80">
+          Complementary practice — completing challenges keeps your streak alive and unlocks badges.
+        </p>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          {stats.map((s, i) => (
+            <div
+              key={s.label}
+              className="verbo-stat-in flex items-center gap-3 rounded-2xl bg-white/15 px-4 py-3 shadow-inner ring-1 ring-white/20"
+              style={{ animationDelay: `${120 + i * 90}ms` }}
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
+                <s.icon className="h-5 w-5" />
+              </span>
+              <div>
+                <div className="text-2xl font-bold leading-none tracking-tight">{s.value}</div>
+                <div className="mt-1 text-[11px] font-medium uppercase tracking-wider text-white/70">{s.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Player profile card — avatar, editable display name and one showcase badge */
+/* -------------------------------------------------------------------------- */
+function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
+  const avatar = useAvatar(student.id);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [tick, setTick] = useState(0);
+  const [editingName, setEditingName] = useState(false);
+  const [picker, setPicker] = useState(false);
+  const [mode, setMode] = useState<LeaderboardIdentityMode>("real");
+  const [nickname, setNickname] = useState("");
+
+  useEffect(() => {
+    const bump = () => setTick((t) => t + 1);
+    const un1 = subscribeLeaderboardIdentity(bump);
+    const un2 = subscribeProfileBadges(bump);
+    const un3 = subscribeEquippedBadges(bump);
+    return () => { un1(); un2(); un3(); };
+  }, []);
+
+  useEffect(() => {
+    const cur = getLeaderboardIdentity(student.id);
+    setMode(cur.mode);
+    setNickname(cur.nickname);
+  }, [student.id, tick]);
+
+  const identity = useMemo(() => { void tick; return getLeaderboardIdentity(student.id); }, [student.id, tick]);
+  const displayName = identity.mode === "nickname" && identity.nickname.trim()
+    ? identity.nickname.trim()
+    : student.name;
+
+  const { earned, equipped } = useMemo(() => {
+    void tick;
+    const all = loadProfileBadges();
+    const ctx = buildProfileBadgeContext(student);
+    return {
+      earned: all.filter((b) => isProfileBadgeEarned(b, ctx)),
+      equipped: loadEquippedBadgeIds(student.id),
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [student, tick]);
+
+  const slotBadge: ProfileBadgeDef | null = equipped[0]
+    ? earned.find((b) => b.id === equipped[0]) ?? null
+    : null;
+  const available = earned.filter((b) => !equipped.slice(1, EQUIPPED_MAX).includes(b.id));
+
+  const commit = (next: { mode: LeaderboardIdentityMode; nickname: string }) => {
+    setMode(next.mode);
+    setNickname(next.nickname);
+    setLeaderboardIdentity(student.id, next);
+  };
+
+  const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setAvatar(student.id, String(reader.result));
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  return (
+    <section>
+      <div className="mb-4">
+        <h2 className="text-base font-semibold tracking-tight text-foreground">Your player card</h2>
+        <p className="mt-1 text-xs text-muted-foreground">Customize how you show up on the leaderboard.</p>
+      </div>
+
+      <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-elevated">
+        <div className="h-24 bg-gradient-to-br from-[#01304a] via-[#024366] to-[#0a5e88]" aria-hidden>
+          <div className="h-full w-full opacity-25"
+            style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)", backgroundSize: "20px 20px" }} />
+        </div>
+
+        <div className="px-6 pb-6">
+          <div className="-mt-12 flex items-end gap-4">
+            <div className="relative">
+              {avatar ? (
+                <img src={avatar} alt="" className="h-24 w-24 rounded-full border-4 border-card object-cover shadow-elevated" />
+              ) : (
+                <span
+                  className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-card text-2xl font-bold text-white shadow-elevated"
+                  style={{ background: colorFromString(student.name) }}
+                >
+                  {initialsOf(student.name)}
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                aria-label="Change photo"
+                className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-[#f38934] text-white shadow-md transition-transform hover:scale-110"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </button>
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFile} />
+            </div>
+
+            <div className="min-w-0 flex-1 pb-1">
+              <div className="flex items-center gap-2">
+                <div className="truncate text-lg font-bold tracking-tight text-foreground">{displayName}</div>
+                <button
+                  type="button"
+                  onClick={() => setEditingName((v) => !v)}
+                  aria-label="Edit display name"
+                  className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {student.completed_challenges?.length ?? 0} challenges completed
+              </div>
+            </div>
+          </div>
+
+          {editingName && (
+            <div className="mt-4 space-y-2 rounded-2xl border border-border bg-secondary/40 p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Show on leaderboard as
+              </div>
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  type="radio"
+                  checked={mode === "real"}
+                  onChange={() => commit({ mode: "real", nickname })}
+                />
+                My name <span className="text-muted-foreground">({student.name})</span>
+              </label>
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  type="radio"
+                  checked={mode === "nickname"}
+                  onChange={() => commit({ mode: "nickname", nickname })}
+                />
+                Custom nickname
+              </label>
+              {mode === "nickname" && (
+                <input
+                  value={nickname}
+                  onChange={(e) => commit({ mode: "nickname", nickname: e.target.value })}
+                  placeholder="Your nickname"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent"
+                />
+              )}
+            </div>
+          )}
+
+          <div className="mt-5">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Showcase badge</div>
+            <div className="mt-2">
+              <button
+                type="button"
+                onClick={() => setPicker(true)}
+                className="flex items-center gap-3 rounded-2xl border border-border bg-background px-4 py-3 text-left transition-all hover:-translate-y-0.5 hover:border-[#f38934] hover:shadow-md"
+              >
+                {slotBadge ? (
+                  <>
+                    <BadgeVisual badge={slotBadge} earned size="sm" />
+                    <div>
+                      <div className="text-sm font-semibold text-foreground">{slotBadge.name}</div>
+                      <div className="text-[11px] text-muted-foreground">Tap to change</div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-border text-muted-foreground">
+                      <Plus className="h-5 w-5" />
+                    </span>
+                    <div className="text-sm font-medium text-muted-foreground">Add badge</div>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <BadgePickerModal
+        open={picker}
+        onOpenChange={setPicker}
+        available={available}
+        earnedCount={earned.length}
+        onPick={(id) => {
+          const next = [...equipped];
+          next[0] = id;
+          setEquippedBadgeIds(student.id, next.filter(Boolean) as string[]);
+          setPicker(false);
+        }}
+      />
     </section>
   );
 }
