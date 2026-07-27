@@ -195,6 +195,14 @@ function Layout() {
     }));
   }, [adminType]);
 
+  // Same nav shape as the student/teacher panels: single-item groups become
+  // plain tabs, multi-item groups become dropdowns.
+  const navEntries: NavEntry[] = visibleGroups.map((g) =>
+    g.items.length === 1
+      ? { to: g.items[0].to, label: g.label }
+      : { label: g.label, items: g.items.map((it) => ({ to: it.to, label: it.label })) },
+  );
+
   // Guard against direct URL access to forbidden sections.
   if (adminType && !canAccessAdminPath(adminType, pathname)) {
     return <Navigate to={defaultAdminLanding(adminType)} />;
@@ -202,14 +210,9 @@ function Layout() {
 
   return (
     <RoleGuard allow="admin">
-      <TopNav items={[{ to: "/admin", label: "Admin Panel" }]} />
-      <div className="flex min-h-screen flex-col bg-background">
-        <main className="mx-auto w-full max-w-7xl flex-1 pt-28 pb-10">
-          <div className="border-b border-border bg-background">
-            <nav aria-label="Admin sections" className="mx-auto flex max-w-7xl flex-wrap gap-1 px-6">
-              {visibleGroups.map((g) => <NavTab key={g.label} group={g} />)}
-            </nav>
-          </div>
+      <TopNav variant="dark" items={navEntries} />
+      <div className="flex min-h-screen flex-col" style={{ backgroundColor: "#f4f6f8" }}>
+        <main className="mx-auto w-full max-w-7xl flex-1 pt-24 pb-10">
           <div className="px-6">
             <Outlet />
           </div>
