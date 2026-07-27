@@ -880,12 +880,12 @@ function VerboFlashSection({
         }
         @media (prefers-reduced-motion: reduce) { .verbo-box-wiggle { animation: none !important; } }
       `}</style>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="flex flex-wrap items-start gap-6">
         <button
           type="button"
           disabled={!available}
           onClick={onOpen}
-          className={`group relative aspect-square rounded-3xl p-6 text-center transition-transform ${
+          className={`group relative aspect-square w-full max-w-[220px] rounded-3xl p-4 text-center transition-transform ${
             available
               ? "text-white hover:-translate-y-1"
               : "cursor-not-allowed text-white/60 opacity-70"
@@ -917,7 +917,7 @@ function VerboFlashSection({
               key={s.id}
               type="button"
               onClick={() => onOpenSeason(s)}
-              className="group relative aspect-square rounded-3xl p-6 text-center text-white transition-transform hover:-translate-y-1"
+              className="group relative aspect-square w-full max-w-[220px] rounded-3xl p-4 text-center text-white transition-transform hover:-translate-y-1"
             >
               <div className="relative flex h-full flex-col items-center justify-center gap-4">
                 <div
