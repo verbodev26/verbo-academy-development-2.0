@@ -18,7 +18,7 @@ import {
   Zap,
   Pencil,
   Crown,
-  Flame,
+  
   Plus,
 } from "lucide-react";
 import { Card, Pill, PrimaryButton, GhostButton, SuccessButton } from "@/components/verbo/ui";
