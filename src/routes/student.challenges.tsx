@@ -99,6 +99,7 @@ import { BadgePickerModal, BadgeVisual } from "@/components/verbo/ProfileModal";
 import fireIconAsset from "@/assets/fire-animation.svg.asset.json";
 import trophyIconAsset from "@/assets/trophy-animation.svg.asset.json";
 import confettiIconAsset from "@/assets/success-confetti.svg.asset.json";
+import crownIconAsset from "@/assets/crown-animation.svg.asset.json";
 
 export const Route = createFileRoute("/student/challenges")({ component: Page });
 
