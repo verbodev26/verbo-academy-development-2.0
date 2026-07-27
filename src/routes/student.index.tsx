@@ -1075,13 +1075,8 @@ function StudentDashboard() {
                 >
                   <div className="truncate text-sm text-foreground">{fmt(s.date_time)}</div>
                   <div className="flex min-w-0 items-center gap-3">
-                    <div
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold"
-                      style={{ color: "#01304a" }}
-                      aria-hidden
-                    >
-                      {initial}
-                    </div>
+                    <TeacherAvatar userId={teacher?.id} name={teacherName} className="h-10 w-10" />
+
                     <div className="truncate text-sm font-semibold" style={{ color: "#01304a" }}>{teacherName}</div>
                   </div>
                   <div className="md:justify-self-start">
