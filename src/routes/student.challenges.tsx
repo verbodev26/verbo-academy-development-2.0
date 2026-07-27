@@ -151,17 +151,17 @@ function DifficultyDots({ difficulty, className = "" }: { difficulty: Difficulty
 /* bleeding out of the bottom-right corner, content kept on the left column.   */
 /* -------------------------------------------------------------------------- */
 const DIFFICULTY_GRADIENTS: Record<DifficultyId, string> = {
-  [DIFFICULTY_ORDER[0]]: "from-[#0f766e] via-[#12a594] to-[#34d399]",
-  [DIFFICULTY_ORDER[1]]: "from-[#1d4ed8] via-[#0284c7] to-[#22b8d6]",
-  [DIFFICULTY_ORDER[2]]: "from-[#b91c1c] via-[#ea580c] to-[#f59e0b]",
-  [DIFFICULTY_ORDER[3]]: "from-[#6b21a8] via-[#9333ea] to-[#db2777]",
+  esencial: "from-[#0f766e] via-[#12a594] to-[#34d399]",
+  intermedio: "from-[#1d4ed8] via-[#0284c7] to-[#22b8d6]",
+  avanzado: "from-[#b91c1c] via-[#ea580c] to-[#f59e0b]",
+  experto: "from-[#6b21a8] via-[#9333ea] to-[#db2777]",
 };
 
 const DIFFICULTY_MOTIF: Record<DifficultyId, typeof Trophy> = {
-  [DIFFICULTY_ORDER[0]]: Gem,
-  [DIFFICULTY_ORDER[1]]: Zap,
-  [DIFFICULTY_ORDER[2]]: Medal,
-  [DIFFICULTY_ORDER[3]]: Trophy,
+  esencial: Gem,
+  intermedio: Zap,
+  avanzado: Medal,
+  experto: Trophy,
 };
 
 function ChallengeSurface({
