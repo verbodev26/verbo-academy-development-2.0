@@ -851,15 +851,6 @@ function VerboFlashSection({
 }) {
   return (
     <div>
-      <div className="mb-4 flex items-end justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7e22ce]">
-            <Zap className="h-3.5 w-3.5" /> Mystery Box{activeSeasons.length > 0 ? " & Seasons" : ""}
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">A surprise challenge waits inside. One per day, per box.</p>
-        </div>
-
-      </div>
       <style>{`
         @keyframes verbo-box-wiggle {
           0%, 92%, 100% { transform: rotate(0deg); }
