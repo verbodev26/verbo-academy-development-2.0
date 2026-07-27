@@ -482,26 +482,26 @@ function Page() {
               key={d}
               disabled={empty}
               onClick={() => { setDifficulty(d); setCategory("all"); }}
-              className={`group flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 text-left shadow-soft transition-all ${empty ? "cursor-not-allowed opacity-50" : "hover:-translate-y-0.5 hover:border-accent hover:shadow-elevated"}`}
+              className={`group block text-left transition-transform duration-300 ease-out ${empty ? "cursor-not-allowed opacity-60 saturate-50" : "hover:-translate-y-1.5"}`}
             >
-              <span className={`inline-flex items-center gap-1`} aria-hidden>
-                {[0, 1, 2, 3].map((i) => (
-                  <span
-                    key={i}
-                    className={`h-2 w-2 rounded-full ${i < DIFFICULTY_META[d].dots ? "bg-[#f38934]" : "border border-muted-foreground/40 bg-transparent"}`}
-                  />
-                ))}
-              </span>
-              <div className="text-lg font-semibold tracking-tight text-foreground">
-                {DIFFICULTY_META[d].label}
-              </div>
-              <div className="mt-2 flex items-center justify-between">
-                <Pill tone={count > 0 ? "success" : "muted"}>
-                  {count}/{target} challenges
-                </Pill>
-                <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-              </div>
+              <ChallengeSurface
+                difficulty={d}
+                className="h-full"
+                contentClassName="flex h-full w-[62%] flex-col gap-4 p-6"
+              >
+                <DifficultyDots difficulty={d} />
+                <div className="text-lg font-semibold tracking-tight text-white drop-shadow-sm">
+                  {DIFFICULTY_META[d].label}
+                </div>
+                <div className="mt-auto flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold text-white ring-1 ring-inset ring-white/30">
+                    {count}/{target} challenges
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-white/80 transition-transform group-hover:translate-x-1" />
+                </div>
+              </ChallengeSurface>
             </button>
+
           );
         })}
       </div>
