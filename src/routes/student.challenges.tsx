@@ -345,7 +345,7 @@ function Page() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setCategory("all")}
-              className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${category === "all" ? "border-[#f38934] bg-[#f38934]/10 text-[#f38934]" : "border-border bg-background text-muted-foreground hover:bg-secondary"}`}
+              className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${category === "all" ? "border-[#f38934] bg-[#f38934]/10 text-[#f38934]" : "verbo-glass border-white/20 bg-white/10 text-white/80 hover:bg-white/20"}`}
             >
               All categories
             </button>
@@ -362,8 +362,8 @@ function Page() {
         )}
 
         {filtered.length === 0 ? (
-          <Card>
-            <div className="py-10 text-center text-sm text-muted-foreground">
+          <Card className="verbo-glass border-white/20 bg-white/10!">
+            <div className="py-10 text-center text-sm text-white/75">
               No challenges yet in this difficulty.
             </div>
           </Card>
@@ -534,13 +534,13 @@ function Page() {
           />
           <div className="relative z-10">
             <div className="mb-5">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                <Zap className="h-3.5 w-3.5 text-[#7e22ce]" /> Verbo Flash
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/75">
+                <Zap className="h-3.5 w-3.5 text-[#e9d5ff]" /> Verbo Flash
               </div>
-              <h2 className="mt-1 text-lg font-semibold tracking-tight text-foreground">
+              <h2 className="mt-1 text-lg font-semibold tracking-tight text-white">
                 Instant challenges arcade
               </h2>
-              <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
+              <p className="mt-1 max-w-2xl text-xs text-white/75">
                 Mystery Box, active Seasons and the live Lightning — surprise challenges that appear
                 for a limited time and don't follow the regular difficulty path.
               </p>
@@ -630,8 +630,8 @@ function Page() {
         `}</style>
         <div className="mb-4 flex items-end justify-between">
           <div>
-            <h2 className="text-base font-semibold tracking-tight text-foreground">Badges</h2>
-            <p className="mt-1 text-xs text-muted-foreground">Earn badges automatically by completing challenges and building streaks.</p>
+            <h2 className="text-base font-semibold tracking-tight text-white">Badges</h2>
+            <p className="mt-1 text-xs text-white/75">Earn badges automatically by completing challenges and building streaks.</p>
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -642,7 +642,7 @@ function Page() {
               <div
                 key={b.id}
                 style={{ animationDelay: `${Math.min(i, 11) * 55}ms` }}
-                className={`verbo-badge-card flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-soft hover:shadow-elevated ${earned ? "border-amber-400/60 bg-amber-500/5" : "border-border bg-card opacity-60"}`}
+                className={`verbo-badge-card flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-soft hover:shadow-elevated ${earned ? "verbo-glass border-amber-300/60 bg-amber-400/15" : "verbo-glass border-white/15 bg-white/[0.07] opacity-70"}`}
               >
                 {hasImage ? (
                   <img
@@ -651,12 +651,12 @@ function Page() {
                     className="h-12 w-12 rounded-full object-cover ring-2 ring-amber-400/40"
                   />
                 ) : (
-                  <span className={`flex h-12 w-12 items-center justify-center rounded-full ${earned ? "bg-amber-500/15 text-amber-600 ring-2 ring-amber-400/40" : "bg-secondary text-muted-foreground"}`}>
+                  <span className={`flex h-12 w-12 items-center justify-center rounded-full ${earned ? "bg-amber-400/25 text-amber-200 ring-2 ring-amber-300/50" : "bg-white/10 text-white/70"}`}>
                     {earned ? <Trophy className="h-6 w-6" /> : <Lock className="h-5 w-5" />}
                   </span>
                 )}
-                <div className="text-sm font-semibold text-foreground">{b.name}</div>
-                <p className="text-[11px] text-muted-foreground">{b.description}</p>
+                <div className="text-sm font-semibold text-white">{b.name}</div>
+                <p className="text-[11px] text-white/75">{b.description}</p>
               </div>
             );
           })}
@@ -666,13 +666,13 @@ function Page() {
             return (
               <div
                 style={{ animationDelay: `${Math.min(badges.length, 11) * 55}ms` }}
-                className={`verbo-badge-card flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-soft hover:shadow-elevated ${earned ? "border-yellow-400/70 bg-yellow-400/5" : "border-border bg-card opacity-60"}`}
+                className={`verbo-badge-card flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-soft hover:shadow-elevated ${earned ? "verbo-glass border-yellow-300/70 bg-yellow-300/15" : "verbo-glass border-white/15 bg-white/[0.07] opacity-70"}`}
               >
-                <span className={`flex h-12 w-12 items-center justify-center rounded-full ${earned ? "bg-yellow-400/20 text-yellow-500 ring-2 ring-yellow-400/50" : "bg-secondary text-muted-foreground"}`}>
+                <span className={`flex h-12 w-12 items-center justify-center rounded-full ${earned ? "bg-yellow-300/25 text-yellow-200 ring-2 ring-yellow-300/50" : "bg-white/10 text-white/70"}`}>
                   {earned ? <Zap className="h-6 w-6" /> : <Lock className="h-5 w-5" />}
                 </span>
-                <div className="text-sm font-semibold text-foreground">⚡ Lightning Bolt</div>
-                <p className="text-[11px] text-muted-foreground">Completed a Lightning within its live window.</p>
+                <div className="text-sm font-semibold text-white">⚡ Lightning Bolt</div>
+                <p className="text-[11px] text-white/75">Completed a Lightning within its live window.</p>
               </div>
             );
           })()}
@@ -683,29 +683,29 @@ function Page() {
             return (
               <div
                 key={s.id}
-                className={`verbo-badge-card flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-soft hover:shadow-elevated ${earned ? "bg-card" : "border-border bg-card opacity-60"}`}
+                className={`verbo-badge-card flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-soft hover:shadow-elevated ${earned ? "verbo-glass bg-white/10" : "verbo-glass border-white/15 bg-white/[0.07] opacity-70"}`}
                 style={{
                   animationDelay: `${Math.min(badges.length + 1 + i, 11) * 55}ms`,
                   ...(earned ? { borderColor: accent, boxShadow: `0 0 0 1px ${accent}22` } : {}),
                 }}
               >
                 <span
-                  className="flex h-12 w-12 items-center justify-center rounded-full"
+                  className={`flex h-12 w-12 items-center justify-center rounded-full ${earned ? "" : "bg-white/10 text-white/70"}`}
                   style={
                     earned
                       ? { background: `${accent}22`, color: accent, boxShadow: `0 0 0 2px ${accent}55` }
                       : undefined
                   }
                 >
-                  {earned ? <Sparkles className="h-6 w-6" /> : <Lock className="h-5 w-5 text-muted-foreground" />}
+                  {earned ? <Sparkles className="h-6 w-6" /> : <Lock className="h-5 w-5 text-white/70" />}
                 </span>
                 <div
-                  className="text-sm font-semibold text-foreground"
+                  className="text-sm font-semibold text-white"
                   style={{ fontFamily: `"${fontFamilyFor(s)}", system-ui, sans-serif` }}
                 >
                   {s.badge_name}
                 </div>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-[11px] text-white/75">
                   Completed a challenge during the {s.display_name} Season.
                 </p>
               </div>
@@ -1774,10 +1774,10 @@ function LeaderboardSection({
         }
       `}</style>
       <div className="mb-4">
-        <h2 className="text-base font-semibold tracking-tight text-foreground">Leaderboard</h2>
-        <p className="mt-1 text-xs text-muted-foreground">Total Challenges and Flash completed by all students.</p>
+        <h2 className="text-base font-semibold tracking-tight text-white">Leaderboard</h2>
+        <p className="mt-1 text-xs text-white/75">Total Challenges and Flash completed by all students.</p>
       </div>
-      <Card>
+      <Card className="verbo-glass border-white/20 bg-white/10!">
         <div className="p-5">
           {/* Top 3 podium */}
           <div className={`grid items-end gap-3 ${podium.length === 3 ? "grid-cols-3" : podium.length === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
@@ -1790,11 +1790,11 @@ function LeaderboardSection({
                 <div
                   key={row.userId}
                   ref={flipRef(row.userId)}
-                  className={`verbo-podium-in verbo-flip relative flex flex-col items-center gap-2 rounded-2xl border px-3 text-center shadow-elevated ring-1 ring-inset ring-white/40 ${first ? "pb-5 pt-8" : "pb-4 pt-7"} ${isYou ? "border-accent bg-accent/5" : "border-border bg-card"}`}
+                  className={`verbo-podium-in verbo-flip relative flex flex-col items-center gap-2 rounded-2xl border px-3 text-center shadow-elevated ring-1 ring-inset ring-white/40 ${first ? "pb-5 pt-8" : "pb-4 pt-7"} ${isYou ? "border-[#7ee02d]/70 bg-[#7ee02d]/15" : "border-white/20 bg-white/10"} verbo-glass`}
                   style={{
                     animationDelay: `${style.delay}ms`,
                     boxShadow:
-                      "0 18px 32px -14px rgba(15,23,42,0.35), 0 6px 12px -6px rgba(15,23,42,0.22), inset 0 1px 0 rgba(255,255,255,0.7)",
+                      "0 22px 40px -16px rgba(3,7,18,0.6), 0 8px 16px -8px rgba(3,7,18,0.4), inset 0 1px 0 rgba(255,255,255,0.35)",
                   }}
                 >
                   <div
@@ -1822,12 +1822,12 @@ function LeaderboardSection({
                     />
 
                   </div>
-                  <div className={`mt-2 line-clamp-1 font-bold tracking-tight text-foreground ${first ? "text-base" : "text-sm"}`}>
+                  <div className={`mt-2 line-clamp-1 font-bold tracking-tight text-white ${first ? "text-base" : "text-sm"}`}>
                     {row.displayName}
-                    {isYou && <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-accent">You</span>}
+                    {isYou && <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-[#c8f571]">You</span>}
                   </div>
-                  <div className="text-[11px] text-muted-foreground">
-                    <span className="text-sm font-bold text-foreground">{row.completed}</span>{" "}
+                  <div className="text-[11px] text-white/75">
+                    <span className="text-sm font-bold text-white">{row.completed}</span>{" "}
                     <span className="opacity-70">
                       {row.completed === 1 ? "completed" : "completed"}
                     </span>
@@ -1838,7 +1838,7 @@ function LeaderboardSection({
           </div>
 
           {me && (
-            <p className="mt-3 text-center text-[11px] text-muted-foreground">
+            <p className="mt-3 text-center text-[11px] text-white/80">
               {isLeader
                 ? "You're #1! 🏆"
                 : `You are only ${gapToFirst} challenge${gapToFirst === 1 ? "" : "s"} away from 1st place`}
@@ -1847,7 +1847,7 @@ function LeaderboardSection({
 
           {/* Rest of the ranking */}
           {rest.length > 0 && (
-            <ul className="mt-5 divide-y divide-border rounded-xl border border-border bg-background">
+            <ul className="verbo-glass mt-5 divide-y divide-white/10 rounded-xl border border-white/20 bg-white/10">
               {rest.map((row, idx) => {
                 const pos = idx + 4;
                 const isYou = row.userId === currentUserId;
@@ -1855,17 +1855,17 @@ function LeaderboardSection({
                   <li
                     key={row.userId}
                     ref={flipRef(row.userId)}
-                    className={`verbo-flip flex items-center gap-3 px-4 py-2.5 text-sm ${isYou ? "bg-accent/10" : ""}`}
+                    className={`verbo-flip flex items-center gap-3 px-4 py-2.5 text-sm ${isYou ? "bg-[#7ee02d]/15" : ""}`}
                   >
-                    <span className="w-6 text-right text-xs font-semibold text-muted-foreground">{pos}</span>
+                    <span className="w-6 text-right text-xs font-semibold text-white/75">{pos}</span>
                     <span className="rounded-full bg-[#7ee02d]/15 p-[2px]">
                       <RowAvatar row={row} size="sm" />
                     </span>
-                    <span className="flex-1 truncate font-medium text-foreground">
+                    <span className="flex-1 truncate font-medium text-white">
                       {row.displayName}
-                      {isYou && <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-accent">You</span>}
+                      {isYou && <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-[#c8f571]">You</span>}
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-white/75">
                       {row.completed}{" "}
                       <span className="opacity-70">
                         {row.completed === 1 ? "Challenge completed" : "Challenges completed"}
@@ -2027,11 +2027,11 @@ function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
   return (
     <section>
       <div className="mb-4">
-        <h2 className="text-base font-semibold tracking-tight text-foreground">Your player card</h2>
-        <p className="mt-1 text-xs text-muted-foreground">Customize how you show up on the leaderboard.</p>
+        <h2 className="text-base font-semibold tracking-tight text-white">Your player card</h2>
+        <p className="mt-1 text-xs text-white/75">Customize how you show up on the leaderboard.</p>
       </div>
 
-      <div className="relative overflow-hidden rounded-3xl border border-border bg-card shadow-elevated">
+      <div className="verbo-glass relative overflow-hidden rounded-3xl border border-white/20 bg-white/10 shadow-elevated">
         <div className="h-24 bg-gradient-to-br from-[#01304a] via-[#024366] to-[#0a5e88]" aria-hidden>
           <div className="h-full w-full opacity-25"
             style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)", backgroundSize: "20px 20px" }} />
@@ -2041,10 +2041,10 @@ function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
           <div className="-mt-12 flex items-end gap-4">
             <div className="relative">
               {avatar ? (
-                <img src={avatar} alt="" className="h-24 w-24 rounded-full border-4 border-card object-cover shadow-elevated" />
+                <img src={avatar} alt="" className="h-24 w-24 rounded-full border-4 border-white/30 object-cover shadow-elevated" />
               ) : (
                 <span
-                  className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-card text-2xl font-bold text-white shadow-elevated"
+                  className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white/30 text-2xl font-bold text-white shadow-elevated"
                   style={{ background: colorFromString(student.name) }}
                 >
                   {initialsOf(student.name)}
@@ -2063,36 +2063,36 @@ function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
 
             <div className="min-w-0 flex-1 pb-1">
               <div className="flex items-center gap-2">
-                <div className="truncate text-lg font-bold tracking-tight text-foreground">{displayName}</div>
+                <div className="truncate text-lg font-bold tracking-tight text-white">{displayName}</div>
                 <button
                   type="button"
                   onClick={() => setEditingName((v) => !v)}
                   aria-label="Edit display name"
-                  className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                  className="rounded-md p-1 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </button>
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-white/75">
                 {student.completed_challenges?.length ?? 0} challenges completed
               </div>
             </div>
           </div>
 
           {editingName && (
-            <div className="mt-4 space-y-2 rounded-2xl border border-border bg-secondary/40 p-4">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="verbo-glass mt-4 space-y-2 rounded-2xl border border-white/20 bg-white/10 p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-white/75">
                 Show on leaderboard as
               </div>
-              <label className="flex items-center gap-2 text-sm text-foreground">
+              <label className="flex items-center gap-2 text-sm text-white">
                 <input
                   type="radio"
                   checked={mode === "real"}
                   onChange={() => commit({ mode: "real", nickname })}
                 />
-                My name <span className="text-muted-foreground">({student.name})</span>
+                My name <span className="text-white/70">({student.name})</span>
               </label>
-              <label className="flex items-center gap-2 text-sm text-foreground">
+              <label className="flex items-center gap-2 text-sm text-white">
                 <input
                   type="radio"
                   checked={mode === "nickname"}
@@ -2105,34 +2105,34 @@ function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
                   value={nickname}
                   onChange={(e) => commit({ mode: "nickname", nickname: e.target.value })}
                   placeholder="Your nickname"
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent"
+                  className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/50"
                 />
               )}
             </div>
           )}
 
           <div className="mt-5">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Showcase badge</div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-white/75">Showcase badge</div>
             <div className="mt-2">
               <button
                 type="button"
                 onClick={() => setPicker(true)}
-                className="flex items-center gap-3 rounded-2xl border border-border bg-background px-4 py-3 text-left transition-all hover:-translate-y-0.5 hover:border-[#f38934] hover:shadow-md"
+                className="verbo-glass flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-left transition-all hover:-translate-y-0.5 hover:border-[#f38934] hover:shadow-md"
               >
                 {slotBadge ? (
                   <>
                     <BadgeVisual badge={slotBadge} earned size="sm" />
                     <div>
-                      <div className="text-sm font-semibold text-foreground">{slotBadge.name}</div>
-                      <div className="text-[11px] text-muted-foreground">Tap to change</div>
+                      <div className="text-sm font-semibold text-white">{slotBadge.name}</div>
+                      <div className="text-[11px] text-white/70">Tap to change</div>
                     </div>
                   </>
                 ) : (
                   <>
-                    <span className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-border text-muted-foreground">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-white/40 text-white/70">
                       <Plus className="h-5 w-5" />
                     </span>
-                    <div className="text-sm font-medium text-muted-foreground">Add badge</div>
+                    <div className="text-sm font-medium text-white/80">Add badge</div>
                   </>
                 )}
               </button>
