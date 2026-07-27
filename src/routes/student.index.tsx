@@ -50,6 +50,17 @@ import {
   loadEquippedBadgeIds,
   subscribeEquippedBadges,
 } from "@/lib/equipped-profile-badges-store";
+import {
+  loadBadges as loadChallengeBadges,
+  subscribeBadges as subscribeChallengeBadges,
+  isBadgeEarned as isChallengeBadgeEarned,
+  type BadgeDef as ChallengeBadgeDef,
+} from "@/lib/badges-store";
+import {
+  loadEquippedChallengeBadgeIds,
+  subscribeEquippedChallengeBadges,
+} from "@/lib/equipped-challenge-badges-store";
+import { loadChallenges } from "@/lib/challenges-store";
 import { loadClubs, type Club } from "@/lib/clubs-store";
 import { isBooked } from "@/lib/club-bookings-store";
 import { ClubReservationModal } from "@/components/verbo/ClubReservationModal";
