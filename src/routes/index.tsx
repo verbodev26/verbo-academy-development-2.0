@@ -98,12 +98,12 @@ function Landing() {
                   </h1>
 
                   <p
-                    className="verbo-fade-up mt-6 text-lg leading-relaxed text-[var(--navy-700)]/75"
+                    className="verbo-fade-up mt-6 text-lg leading-relaxed text-[var(--navy-700)]/75 whitespace-pre-line"
                     style={{ animationDelay: "160ms" }}
                   >
-                    Verbo Academy trains executives and global teams to work in English with the
-                    confidence their role demands. Real business scenarios, structured practice, and
-                    measurable progress — built for the meetings that actually matter.
+                    A flexible, practical English experience designed around you.
+                    {"\n"}Forget about outdated textbooks and boring grammar rules.
+                    {"\n"}At Verbo Academy, you’re in control: you decide what to learn and how to do it. Choose from a wide selection of hand-picked content and learn at your own pace
                   </p>
 
                   <div
@@ -122,7 +122,7 @@ function Landing() {
                       hash="how"
                       className="inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-[var(--navy-700)]/15 bg-white px-6 py-3 text-sm font-medium text-[var(--navy-700)] shadow-soft transition-[transform,box-shadow,background-color] duration-150 ease-out hover:-translate-y-0.5 hover:bg-white hover:shadow-elevated active:scale-[0.97] active:translate-y-0"
                     >
-                      How it works
+                      Explore benefits
                     </Link>
                   </div>
                 </div>
