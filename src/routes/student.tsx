@@ -13,6 +13,8 @@ export const Route = createFileRoute("/student")({
 
 function StudentLayout() {
   const { user } = useAuth();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isChallenges = pathname.startsWith("/student/challenges");
   const productType = user?.product_type ?? "performance";
   const isVIP = user?.product === "vip";
 
