@@ -815,7 +815,8 @@ function StudentDashboard() {
                                 <div className="flex items-start justify-between gap-4">
                                   <div className="flex items-center gap-3">
                                     <div className="relative">
-                                      <PhotoPlaceholder tone="dark" shape="circle" className="h-9 w-9 bg-[#01304a]" />
+                                     <TeacherAvatar userId={teacher?.id} name={teacher?.name} />
+
                                       {imminent && (
                                         <span
                                           className="verbo-status-dot verbo-live-pulse absolute -right-0.5 -top-0.5"
@@ -898,7 +899,7 @@ function StudentDashboard() {
                             <div className="p-3">
                               <div className="flex items-start justify-between gap-4">
                                 <div className="flex items-center gap-3">
-                                  <PhotoPlaceholder tone="dark" shape="circle" className="h-9 w-9 bg-[#01304a]" />
+                                  <TeacherAvatar userId={club.teacher_id ?? undefined} name={clubHost ?? "Verbo Team"} />
                                   <div>
                                     <div className="text-xs uppercase tracking-wider text-muted-foreground">Host</div>
                                     <div className="text-sm font-semibold" style={{ color: "#01304a" }}>{clubHost ?? "Verbo Team"}</div>
