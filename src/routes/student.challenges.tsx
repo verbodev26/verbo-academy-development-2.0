@@ -1651,9 +1651,12 @@ function LeaderboardSection({
                         <RowAvatar row={row} size="lg" />
                       </div>
                     </div>
-                    <div className={`absolute -bottom-2 left-1/2 flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full text-xs font-extrabold shadow ${style.medal}`}>
-                      {style.label}
-                    </div>
+                    <img
+                      src={rank === 0 ? winnerBadgeAsset.url : rank === 1 ? silverCoinAsset.url : bronzeCoinAsset.url}
+                      alt={`Rank ${style.label}`}
+                      className="absolute -bottom-3 left-1/2 h-10 w-10 -translate-x-1/2 object-contain drop-shadow"
+                    />
+
                   </div>
                   <div className={`mt-2 line-clamp-1 font-bold tracking-tight text-foreground ${first ? "text-base" : "text-sm"}`}>
                     {row.displayName}
