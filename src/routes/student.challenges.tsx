@@ -571,80 +571,64 @@ function Page() {
 
       {/* ---------------- Verbo Flash family: Mystery Box + Seasons + Lightning ---------------- */}
       {(["enterprise", "go", "international"] as const).includes(productId as FlashProductId) && (
-        <section>
-            <div className="mb-5">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                <Zap className="h-3.5 w-3.5 text-[#7e22ce]" /> Verbo Flash
-              </div>
-              <h2 className="mt-1 text-lg font-semibold tracking-tight text-foreground">
-                Instant challenges arcade
-              </h2>
-              <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
-                Mystery Box, active Seasons and the live Lightning — surprise challenges that appear
-                for a limited time and don't follow the regular difficulty path.
-              </p>
-            </div>
+        <section className="space-y-6">
+          <VerboFlashSection
+            boxArtUrl={flashConfig.box_art_url}
+            available={flashChallengesFor(flashList, "mystery_box", productId as FlashProductId).length > 0}
+            activeSeasons={seasons.filter((s) => s.active)}
+            onOpen={() => {
+              const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
+              if (pool.length === 0) return;
+              if (!openMysteryBox(student.id)) {
+                setMystery({ opening: false, reveal: null, blocked: true });
+                return;
+              }
+              setMystery({ opening: true, reveal: null, blocked: false });
+              // Suspenseful reveal delay — the box animates then the challenge is revealed.
+              setTimeout(() => {
+                const pick = pool[Math.floor(Math.random() * pool.length)];
+                setMystery({ opening: false, reveal: pick, blocked: false });
+              }, 900);
+            }}
+            onOpenSeason={(season) => {
+              const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
+              if (pool.length === 0) return;
+              if (!openSeason(student.id, season.id)) {
+                setSeasonState({ season, opening: false, reveal: null, blocked: true });
+                return;
+              }
+              setSeasonState({ season, opening: true, reveal: null, blocked: false });
+              setTimeout(() => {
+                const pick = pool[Math.floor(Math.random() * pool.length)];
+                setSeasonState({ season, opening: false, reveal: pick, blocked: false });
+              }, 900);
+            }}
+          />
 
-            <div className="space-y-6">
-
-              <VerboFlashSection
-                boxArtUrl={flashConfig.box_art_url}
-                available={flashChallengesFor(flashList, "mystery_box", productId as FlashProductId).length > 0}
-                activeSeasons={seasons.filter((s) => s.active)}
-                onOpen={() => {
-                  const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
-                  if (pool.length === 0) return;
-                  if (!openMysteryBox(student.id)) {
-                    setMystery({ opening: false, reveal: null, blocked: true });
-                    return;
-                  }
-                  setMystery({ opening: true, reveal: null, blocked: false });
-                  // Suspenseful reveal delay — the box animates then the challenge is revealed.
-                  setTimeout(() => {
-                    const pick = pool[Math.floor(Math.random() * pool.length)];
-                    setMystery({ opening: false, reveal: pick, blocked: false });
-                  }, 900);
-                }}
-                onOpenSeason={(season) => {
-                  const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
-                  if (pool.length === 0) return;
-                  if (!openSeason(student.id, season.id)) {
-                    setSeasonState({ season, opening: false, reveal: null, blocked: true });
-                    return;
-                  }
-                  setSeasonState({ season, opening: true, reveal: null, blocked: false });
-                  setTimeout(() => {
-                    const pick = pool[Math.floor(Math.random() * pool.length)];
-                    setSeasonState({ season, opening: false, reveal: pick, blocked: false });
-                  }, 900);
-                }}
-              />
-
-              {/* Lightning card */}
-              {isLightningVisibleForStudents(lightning)
-                && lightning.product === productId && (() => {
-                  const ch = flashList.find((c) => c.id === lightning.challenge_id);
-                  if (!ch) return null;
-                  const remaining = lightning.expires_at ? +new Date(lightning.expires_at) - nowTick : 0;
-                  const isLive = lightning.status === "live" && remaining > 0;
-                  const accepted = lightning.accepted_student_ids.includes(student.id);
-                  const completed = hasCompletedChallenge(student.id, ch.id);
-                  return (
-                    <LightningCard
-                      challenge={ch}
-                      isLive={isLive}
-                      remainingMs={remaining}
-                      acceptedCount={lightning.accepted_student_ids.length}
-                      accepted={accepted}
-                      completed={completed}
-                      onOpen={() => {
-                        if (isLive && !accepted) acceptLightning(student.id);
-                        setLightningOpen(ch);
-                      }}
-                    />
-                  );
-                })()}
-            </div>
+          {/* Lightning card */}
+          {isLightningVisibleForStudents(lightning)
+            && lightning.product === productId && (() => {
+              const ch = flashList.find((c) => c.id === lightning.challenge_id);
+              if (!ch) return null;
+              const remaining = lightning.expires_at ? +new Date(lightning.expires_at) - nowTick : 0;
+              const isLive = lightning.status === "live" && remaining > 0;
+              const accepted = lightning.accepted_student_ids.includes(student.id);
+              const completed = hasCompletedChallenge(student.id, ch.id);
+              return (
+                <LightningCard
+                  challenge={ch}
+                  isLive={isLive}
+                  remainingMs={remaining}
+                  acceptedCount={lightning.accepted_student_ids.length}
+                  accepted={accepted}
+                  completed={completed}
+                  onOpen={() => {
+                    if (isLive && !accepted) acceptLightning(student.id);
+                    setLightningOpen(ch);
+                  }}
+                />
+              );
+            })()}
         </section>
 
       )}
@@ -867,15 +851,6 @@ function VerboFlashSection({
 }) {
   return (
     <div>
-      <div className="mb-4 flex items-end justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7e22ce]">
-            <Zap className="h-3.5 w-3.5" /> Mystery Box{activeSeasons.length > 0 ? " & Seasons" : ""}
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">A surprise challenge waits inside. One per day, per box.</p>
-        </div>
-
-      </div>
       <style>{`
         @keyframes verbo-box-wiggle {
           0%, 92%, 100% { transform: rotate(0deg); }
@@ -1304,15 +1279,6 @@ function LightningCard({
   const urgent = isLive && remainingMs > 0 && remainingMs < 60 * 60 * 1000;
   return (
     <div>
-      <div className="mb-4 flex items-end justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#ca8a04]">
-            <Zap className="h-3.5 w-3.5 text-[#facc15]" /> Lightning
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">Reto Relámpago — live for a limited window.</p>
-        </div>
-      </div>
-
       <style>{`
         @keyframes verbo-lightning-glow {
           0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.55), 0 0 30px 4px rgba(14, 165, 233, 0.35); }
