@@ -804,15 +804,15 @@ function VerboFlashSection({
   onOpenSeason: (season: FlashSeason) => void;
 }) {
   return (
-    <section>
+    <div>
       <div className="mb-4 flex items-end justify-between">
         <div>
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            <Zap className="h-3.5 w-3.5 text-[#7e22ce]" /> Verbo Flash
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7e22ce]">
+            <Zap className="h-3.5 w-3.5" /> Mystery Box{activeSeasons.length > 0 ? " & Seasons" : ""}
           </div>
-          <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground">Mystery Box{activeSeasons.length > 0 ? " & Seasons" : ""}</h2>
           <p className="mt-1 text-xs text-muted-foreground">A surprise challenge waits inside. One per day, per box.</p>
         </div>
+
       </div>
       <style>{`
         @keyframes verbo-box-wiggle {
