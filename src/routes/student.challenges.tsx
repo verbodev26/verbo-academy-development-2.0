@@ -714,7 +714,7 @@ function Page() {
         </div>
       </section>
 
-      </section>
+
 
       {lightningOpen && (
         <LightningRevealModal
