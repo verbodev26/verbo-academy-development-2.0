@@ -885,21 +885,21 @@ function VerboFlashSection({
           type="button"
           disabled={!available}
           onClick={onOpen}
-          className={`group relative aspect-square overflow-hidden rounded-2xl border p-6 text-center shadow-soft transition-all ${
+          className={`group relative aspect-square rounded-3xl p-6 text-center transition-transform ${
             available
-              ? "border-[#7e22ce]/30 bg-gradient-to-br from-[#4a044e] via-[#7e22ce] to-[#f59e0b] text-white hover:-translate-y-0.5 hover:shadow-elevated"
-              : "verbo-glass cursor-not-allowed border-white/20 bg-white/10 text-white/70 opacity-80"
+              ? "text-white hover:-translate-y-1"
+              : "cursor-not-allowed text-white/60 opacity-70"
           }`}
         >
           <div className="flex h-full flex-col items-center justify-center gap-4">
             <div
-              className="verbo-box-wiggle flex h-32 w-32 items-center justify-center rounded-2xl bg-white/15 shadow-inner"
+              className="verbo-box-wiggle flex h-32 w-32 items-center justify-center"
               style={{ animation: "verbo-box-wiggle 3.4s ease-in-out infinite", transformOrigin: "50% 90%" }}
             >
               {boxArtUrl ? (
-                <img src={boxArtUrl} alt="Mystery Box" className="h-full w-full rounded-2xl object-cover" />
+                <img src={boxArtUrl} alt="Mystery Box" className="h-full w-full object-contain drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)]" />
               ) : (
-                <Gift className="h-16 w-16 drop-shadow-md" />
+                <Gift className="h-24 w-24 drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)]" strokeWidth={1.5} />
               )}
             </div>
             <div>
@@ -917,23 +917,17 @@ function VerboFlashSection({
               key={s.id}
               type="button"
               onClick={() => onOpenSeason(s)}
-              className="group relative aspect-square overflow-hidden rounded-2xl border border-white/20 p-6 text-center text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated"
-              style={{
-                background: s.theme_image_url
-                  ? `center / cover no-repeat url(${s.theme_image_url})`
-                  : `linear-gradient(135deg, ${accent}, #111827)`,
-              }}
+              className="group relative aspect-square rounded-3xl p-6 text-center text-white transition-transform hover:-translate-y-1"
             >
-              <div className="absolute inset-0 bg-black/30" />
               <div className="relative flex h-full flex-col items-center justify-center gap-4">
                 <div
-                  className="verbo-box-wiggle flex h-32 w-32 items-center justify-center rounded-2xl bg-white/15 shadow-inner backdrop-blur-sm"
+                  className="verbo-box-wiggle flex h-32 w-32 items-center justify-center"
                   style={{ animation: "verbo-box-wiggle 3.4s ease-in-out infinite", transformOrigin: "50% 90%" }}
                 >
                   {s.theme_image_url ? (
-                    <img src={s.theme_image_url} alt={s.display_name} className="h-full w-full rounded-2xl object-cover" />
+                    <img src={s.theme_image_url} alt={s.display_name} className="h-full w-full object-contain drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)]" />
                   ) : (
-                    <Sparkles className="h-16 w-16 drop-shadow-md" />
+                    <Sparkles className="h-24 w-24 drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)]" strokeWidth={1.5} style={{ color: accent }} />
                   )}
                 </div>
                 <div>
