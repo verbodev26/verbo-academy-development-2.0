@@ -893,7 +893,8 @@ function VerboFlashSection({
           );
         })}
       </div>
-    </section>
+    </div>
+
   );
 }
 
