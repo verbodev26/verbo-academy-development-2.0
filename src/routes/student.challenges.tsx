@@ -18,6 +18,8 @@ import {
   Crown,
   Flame,
   Plus,
+  Gem,
+  Medal,
 } from "lucide-react";
 import { Card, Pill, PrimaryButton, GhostButton, SuccessButton } from "@/components/verbo/ui";
 import { Confetti } from "@/components/verbo/Confetti";
@@ -144,6 +146,55 @@ function DifficultyDots({ difficulty, className = "" }: { difficulty: Difficulty
     </span>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/* Challenge card shell — shares the visual language of Resources' spotlight   */
+/* cards: rounded-3xl, bespoke vibrant gradient, oversized decorative motif    */
+/* bleeding out of the bottom-right corner, content kept on the left column.   */
+/* -------------------------------------------------------------------------- */
+const DIFFICULTY_GRADIENTS: Record<DifficultyId, string> = {
+  esencial: "from-[#0f766e] via-[#12a594] to-[#34d399]",
+  intermedio: "from-[#1d4ed8] via-[#0284c7] to-[#22b8d6]",
+  avanzado: "from-[#b91c1c] via-[#ea580c] to-[#f59e0b]",
+  experto: "from-[#6b21a8] via-[#9333ea] to-[#db2777]",
+};
+
+const DIFFICULTY_MOTIF: Record<DifficultyId, typeof Trophy> = {
+  esencial: Gem,
+  intermedio: Zap,
+  avanzado: Medal,
+  experto: Trophy,
+};
+
+function ChallengeSurface({
+  difficulty,
+  className = "",
+  motifClassName = "",
+  contentClassName = "",
+  children,
+}: {
+  difficulty: DifficultyId;
+  className?: string;
+  motifClassName?: string;
+  contentClassName?: string;
+  children: React.ReactNode;
+}) {
+  const Motif = DIFFICULTY_MOTIF[difficulty];
+  return (
+    <div
+      className={`relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br ${DIFFICULTY_GRADIENTS[difficulty]} text-white shadow-elevated ${className}`}
+    >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -bottom-6 -right-6 text-white/15 transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:rotate-6"
+      >
+        <Motif className={`verbo-float h-32 w-32 ${motifClassName}`} strokeWidth={1.25} />
+      </span>
+      <div className={`relative z-10 ${contentClassName}`}>{children}</div>
+    </div>
+  );
+}
+
 
 function CategoryBadge({ name }: { name: string }) {
   if (!name) return <Pill tone="muted">No category</Pill>;
@@ -324,9 +375,12 @@ function Page() {
               const done = hasCompletedChallenge(student.id, c.id);
               const shared = !!getSharedResult(student.id, c.id);
               return (
-                <div
+                <ChallengeSurface
                   key={c.id}
-                  className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-elevated"
+                  difficulty={difficulty}
+                  className="group h-full transition-transform duration-300 ease-out hover:-translate-y-1.5"
+                  motifClassName="h-24 w-24 opacity-60"
+                  contentClassName="flex h-full flex-col gap-3 p-5 text-left"
                 >
                   <button
                     type="button"
@@ -339,18 +393,29 @@ function Page() {
                         {locked && <PremiumBadge />}
                       </div>
                       {done ? (
-                        <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" /> Completed</Pill>
+                        <span className="inline-flex items-center rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold text-white ring-1 ring-inset ring-white/30">
+                          <CheckCircle2 className="mr-1 h-3 w-3" /> Completed
+                        </span>
                       ) : chosen ? (
-                        <Pill tone="warning">In progress</Pill>
+                        <span className="inline-flex items-center rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold text-white ring-1 ring-inset ring-white/30">
+                          In progress
+                        </span>
                       ) : null}
                     </div>
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">{c.title}</div>
-                      <p className="mt-1 line-clamp-3 text-xs text-muted-foreground">{c.description || "Tap to see the details."}</p>
+                    <div className="w-[88%]">
+                      <div className="text-base font-semibold text-white drop-shadow-sm">{c.title}</div>
+                      <p className="mt-1 line-clamp-3 text-xs text-white/80">{c.description || "Tap to see the details."}</p>
                     </div>
                     {c.skill_tags && c.skill_tags.length > 0 && (
                       <div className="mt-auto flex flex-wrap items-center gap-1 pt-1">
-                        {c.skill_tags.map((s) => <SkillChip key={s} label={s} />)}
+                        {c.skill_tags.map((s) => (
+                          <span
+                            key={s}
+                            className="inline-flex items-center rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium text-white/90 ring-1 ring-inset ring-white/20"
+                          >
+                            {s}
+                          </span>
+                        ))}
                       </div>
                     )}
                   </button>
@@ -358,14 +423,15 @@ function Page() {
                     <button
                       type="button"
                       onClick={() => setShareFor(c)}
-                      className="inline-flex items-center gap-1.5 self-start text-[11px] font-medium text-accent hover:underline"
+                      className="inline-flex items-center gap-1.5 self-start text-[11px] font-semibold text-white/90 hover:underline"
                     >
                       <Share2 className="h-3 w-3" />
                       {shared ? "Edit shared result" : "Share result"}
                     </button>
                   )}
-                </div>
+                </ChallengeSurface>
               );
+
             })}
           </div>
         )}
@@ -431,26 +497,26 @@ function Page() {
               key={d}
               disabled={empty}
               onClick={() => { setDifficulty(d); setCategory("all"); }}
-              className={`group flex flex-col gap-4 rounded-2xl border border-border bg-card p-6 text-left shadow-soft transition-all ${empty ? "cursor-not-allowed opacity-50" : "hover:-translate-y-0.5 hover:border-accent hover:shadow-elevated"}`}
+              className={`group block text-left transition-transform duration-300 ease-out ${empty ? "cursor-not-allowed opacity-60 saturate-50" : "hover:-translate-y-1.5"}`}
             >
-              <span className={`inline-flex items-center gap-1`} aria-hidden>
-                {[0, 1, 2, 3].map((i) => (
-                  <span
-                    key={i}
-                    className={`h-2 w-2 rounded-full ${i < DIFFICULTY_META[d].dots ? "bg-[#f38934]" : "border border-muted-foreground/40 bg-transparent"}`}
-                  />
-                ))}
-              </span>
-              <div className="text-lg font-semibold tracking-tight text-foreground">
-                {DIFFICULTY_META[d].label}
-              </div>
-              <div className="mt-2 flex items-center justify-between">
-                <Pill tone={count > 0 ? "success" : "muted"}>
-                  {count}/{target} challenges
-                </Pill>
-                <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-              </div>
+              <ChallengeSurface
+                difficulty={d}
+                className="h-full"
+                contentClassName="flex h-full w-[62%] flex-col gap-4 p-6"
+              >
+                <DifficultyDots difficulty={d} />
+                <div className="text-lg font-semibold tracking-tight text-white drop-shadow-sm">
+                  {DIFFICULTY_META[d].label}
+                </div>
+                <div className="mt-auto flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold text-white ring-1 ring-inset ring-white/30">
+                    {count}/{target} challenges
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-white/80 transition-transform group-hover:translate-x-1" />
+                </div>
+              </ChallengeSurface>
             </button>
+
           );
         })}
       </div>
