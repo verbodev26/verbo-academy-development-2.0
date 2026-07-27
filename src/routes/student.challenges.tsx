@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   ChevronRight,
@@ -1648,12 +1648,46 @@ const PODIUM_STYLES: Record<number, {
   },
 };
 
+/** FLIP: animates rows sliding from their previous position to the new one. */
+function useFlipPositions(orderKey: string) {
+  const nodes = useRef(new Map<string, HTMLElement>());
+  const prev = useRef(new Map<string, DOMRect>());
+  useLayoutEffect(() => {
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    nodes.current.forEach((el, key) => {
+      const after = el.getBoundingClientRect();
+      const before = prev.current.get(key);
+      if (before && !reduce) {
+        const dx = before.left - after.left;
+        const dy = before.top - after.top;
+        if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+          el.style.transition = "none";
+          el.style.transform = `translate(${dx}px, ${dy}px)`;
+          requestAnimationFrame(() => {
+            el.style.transition = "transform 560ms cubic-bezier(0.23,1,0.32,1)";
+            el.style.transform = "";
+          });
+        }
+      }
+      prev.current.set(key, after);
+    });
+  }, [orderKey]);
+
+  return (key: string) => (el: HTMLElement | null) => {
+    if (el) nodes.current.set(key, el);
+    else nodes.current.delete(key);
+  };
+}
+
 function LeaderboardSection({
   currentUserId,
 }: {
   currentUserId: string;
 }) {
   const rows = useLeaderboardRows();
+  const flipRef = useFlipPositions(rows.map((r) => r.userId).join("|"));
   if (rows.length === 0) return null;
 
   const podium = rows.slice(0, 3);
@@ -1661,6 +1695,12 @@ function LeaderboardSection({
   // Ensure a visual "3-2-1-...” ordering: put #1 in the middle when there are 3+.
   const podiumOrdered = podium.length === 3 ? [podium[1], podium[0], podium[2]] : podium;
   const podiumRankOf = (r: LeaderboardRow) => podium.indexOf(r); // 0..2
+
+  // Derived: gap between the current user and the leader.
+  const leader = rows[0];
+  const me = rows.find((r) => r.userId === currentUserId);
+  const isLeader = !!me && leader.userId === me.userId;
+  const gapToFirst = me && !isLeader ? leader.completed - me.completed + 1 : 0;
 
   return (
     <section>
@@ -1678,6 +1718,7 @@ function LeaderboardSection({
         .verbo-podium-glow { animation: verbo-podium-crown-glow 2.2s ease-in-out infinite; }
         @media (prefers-reduced-motion: reduce) {
           .verbo-podium-in, .verbo-podium-glow { animation: none !important; }
+          .verbo-flip { transition: none !important; }
         }
       `}</style>
       <div className="mb-4">
@@ -1696,8 +1737,13 @@ function LeaderboardSection({
               return (
                 <div
                   key={row.userId}
-                  className={`verbo-podium-in relative flex flex-col items-center gap-2 rounded-2xl border px-3 text-center shadow-soft ${first ? "pb-5 pt-8" : "pb-4 pt-7"} ${isYou ? "border-accent bg-accent/5" : "border-border bg-card"}`}
-                  style={{ animationDelay: `${style.delay}ms` }}
+                  ref={flipRef(row.userId)}
+                  className={`verbo-podium-in verbo-flip relative flex flex-col items-center gap-2 rounded-2xl border px-3 text-center shadow-elevated ring-1 ring-inset ring-white/40 ${first ? "pb-5 pt-8" : "pb-4 pt-7"} ${isYou ? "border-accent bg-accent/5" : "border-border bg-card"}`}
+                  style={{
+                    animationDelay: `${style.delay}ms`,
+                    boxShadow:
+                      "0 18px 32px -14px rgba(15,23,42,0.35), 0 6px 12px -6px rgba(15,23,42,0.22), inset 0 1px 0 rgba(255,255,255,0.7)",
+                  }}
                 >
                   <div
                     aria-hidden
@@ -1713,7 +1759,7 @@ function LeaderboardSection({
                   )}
                   <div className="relative">
                     <div className={`rounded-full ${style.frame} ${first ? "verbo-podium-glow" : ""}`}>
-                      <div className="rounded-full bg-card p-[2px]">
+                      <div className="rounded-full bg-[#7ee02d]/15 p-[2px]">
                         <RowAvatar row={row} size="lg" />
                       </div>
                     </div>
@@ -1739,6 +1785,13 @@ function LeaderboardSection({
             })}
           </div>
 
+          {me && (
+            <p className="mt-3 text-center text-[11px] text-muted-foreground">
+              {isLeader
+                ? "You're #1! 🏆"
+                : `You are only ${gapToFirst} challenge${gapToFirst === 1 ? "" : "s"} away from 1st place`}
+            </p>
+          )}
 
           {/* Rest of the ranking */}
           {rest.length > 0 && (
@@ -1749,10 +1802,13 @@ function LeaderboardSection({
                 return (
                   <li
                     key={row.userId}
-                    className={`flex items-center gap-3 px-4 py-2.5 text-sm ${isYou ? "bg-accent/10" : ""}`}
+                    ref={flipRef(row.userId)}
+                    className={`verbo-flip flex items-center gap-3 px-4 py-2.5 text-sm ${isYou ? "bg-accent/10" : ""}`}
                   >
                     <span className="w-6 text-right text-xs font-semibold text-muted-foreground">{pos}</span>
-                    <RowAvatar row={row} size="sm" />
+                    <span className="rounded-full bg-[#7ee02d]/15 p-[2px]">
+                      <RowAvatar row={row} size="sm" />
+                    </span>
                     <span className="flex-1 truncate font-medium text-foreground">
                       {row.displayName}
                       {isYou && <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-accent">You</span>}
@@ -1773,6 +1829,7 @@ function LeaderboardSection({
     </section>
   );
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* Screen-1 hero — gamified header with animated entrance + stat tiles.       */
