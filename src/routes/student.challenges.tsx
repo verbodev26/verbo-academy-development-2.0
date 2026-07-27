@@ -1761,7 +1761,7 @@ function ChallengesHero({
               style={{ animationDelay: `${120 + i * 90}ms` }}
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
-                <s.icon className="h-5 w-5" />
+                <img src={s.icon} alt="" aria-hidden className="h-7 w-7 object-contain" />
               </span>
               <div>
                 <div className="text-2xl font-bold leading-none tracking-tight">{s.value}</div>
