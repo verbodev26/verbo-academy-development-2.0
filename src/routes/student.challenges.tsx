@@ -18,6 +18,8 @@ import {
   Crown,
   Flame,
   Plus,
+  Gem,
+  Medal,
 } from "lucide-react";
 import { Card, Pill, PrimaryButton, GhostButton, SuccessButton } from "@/components/verbo/ui";
 import { Confetti } from "@/components/verbo/Confetti";
