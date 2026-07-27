@@ -1324,7 +1324,8 @@ function LightningCard({
           </div>
         )}
       </div>
-    </section>
+    </div>
+
   );
 }
 
