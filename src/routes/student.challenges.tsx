@@ -20,7 +20,23 @@ import {
   Plus,
   Gem,
   Medal,
+  Video,
+  Clapperboard,
+  Headphones,
+  Ear,
+  Mail,
+  BookOpen,
+  PenLine,
+  MessagesSquare,
+  Users,
+  Presentation,
+  Handshake,
+  Megaphone,
+  Briefcase,
+  Tag,
+  type LucideIcon,
 } from "lucide-react";
+
 import { Card, Pill, PrimaryButton, GhostButton, SuccessButton } from "@/components/verbo/ui";
 import { Confetti } from "@/components/verbo/Confetti";
 import { useAuth } from "@/lib/auth";
@@ -196,14 +212,41 @@ function ChallengeSurface({
 }
 
 
-function CategoryBadge({ name }: { name: string }) {
+// Icon per challenge category. Categories are free text created by admins, so
+// unknown names fall back to a generic tag icon.
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  video: Video,
+  "video + written": Clapperboard,
+  audio: Headphones,
+  listening: Ear,
+  email: Mail,
+  reading: BookOpen,
+  written: PenLine,
+  debate: MessagesSquare,
+  roleplay: Users,
+  pitch: Presentation,
+  negotiation: Handshake,
+  persuasion: Megaphone,
+  networking: Share2,
+  leadership: Crown,
+  "business case": Briefcase,
+};
+
+export function categoryIcon(name: string): LucideIcon {
+  return CATEGORY_ICONS[name.trim().toLowerCase()] ?? Tag;
+}
+
+function CategoryBadge({ name, className = "" }: { name: string; className?: string }) {
   if (!name) return <Pill tone="muted">No category</Pill>;
+  const Icon = categoryIcon(name);
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${categoryColor(name)}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${categoryColor(name)} ${className}`}>
+      <Icon className="h-3 w-3 shrink-0" strokeWidth={2.25} />
       {name}
     </span>
   );
 }
+
 
 
 
@@ -349,15 +392,20 @@ function Page() {
             >
               All categories
             </button>
-            {availableCategories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setCategory(cat)}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-opacity ${categoryColor(cat)} ${category === cat ? "ring-2 ring-offset-1 ring-current" : "opacity-70 hover:opacity-100"}`}
-              >
-                {cat}
-              </button>
-            ))}
+            {availableCategories.map((cat) => {
+              const CatIcon = categoryIcon(cat);
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-opacity ${categoryColor(cat)} ${category === cat ? "ring-2 ring-offset-1 ring-current" : "opacity-70 hover:opacity-100"}`}
+                >
+                  <CatIcon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} />
+                  {cat}
+                </button>
+              );
+            })}
+
           </div>
         )}
 
@@ -523,16 +571,7 @@ function Page() {
 
       {/* ---------------- Verbo Flash family: Mystery Box + Seasons + Lightning ---------------- */}
       {(["enterprise", "go", "international"] as const).includes(productId as FlashProductId) && (
-        <section className="relative overflow-hidden rounded-3xl border border-[#7e22ce]/25 bg-gradient-to-br from-[#7e22ce]/[0.07] via-transparent to-[#facc15]/[0.08] p-5 sm:p-6">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#7e22ce]/10 blur-2xl"
-          />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -bottom-12 -left-8 h-40 w-40 rounded-full bg-[#facc15]/10 blur-2xl"
-          />
-          <div className="relative z-10">
+        <section>
             <div className="mb-5">
               <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
                 <Zap className="h-3.5 w-3.5 text-[#7e22ce]" /> Verbo Flash
@@ -547,6 +586,7 @@ function Page() {
             </div>
 
             <div className="space-y-6">
+
               <VerboFlashSection
                 boxArtUrl={flashConfig.box_art_url}
                 available={flashChallengesFor(flashList, "mystery_box", productId as FlashProductId).length > 0}
@@ -605,8 +645,8 @@ function Page() {
                   );
                 })()}
             </div>
-          </div>
         </section>
+
       )}
 
 
@@ -850,26 +890,26 @@ function VerboFlashSection({
           type="button"
           disabled={!available}
           onClick={onOpen}
-          className={`group relative aspect-square overflow-hidden rounded-2xl border p-6 text-center shadow-soft transition-all ${
+          className={`group relative aspect-square rounded-2xl bg-transparent p-6 text-center transition-transform ${
             available
-              ? "border-[#7e22ce]/30 bg-gradient-to-br from-[#4a044e] via-[#7e22ce] to-[#f59e0b] text-white hover:-translate-y-0.5 hover:shadow-elevated"
-              : "cursor-not-allowed border-border bg-secondary/60 text-muted-foreground opacity-70"
+              ? "text-foreground hover:-translate-y-1"
+              : "cursor-not-allowed text-muted-foreground opacity-60"
           }`}
         >
           <div className="flex h-full flex-col items-center justify-center gap-4">
             <div
-              className="verbo-box-wiggle flex h-32 w-32 items-center justify-center rounded-2xl bg-white/15 shadow-inner"
+              className="verbo-box-wiggle flex h-32 w-32 items-center justify-center"
               style={{ animation: "verbo-box-wiggle 3.4s ease-in-out infinite", transformOrigin: "50% 90%" }}
             >
               {boxArtUrl ? (
-                <img src={boxArtUrl} alt="Mystery Box" className="h-full w-full rounded-2xl object-cover" />
+                <img src={boxArtUrl} alt="Mystery Box" className="h-full w-full object-contain drop-shadow-lg" />
               ) : (
-                <Gift className="h-16 w-16 drop-shadow-md" />
+                <Gift className="h-24 w-24 text-[#7e22ce] drop-shadow-lg" strokeWidth={1.4} />
               )}
             </div>
             <div>
               <div className="text-lg font-semibold tracking-tight">Mystery Box</div>
-              <div className="mt-1 text-xs opacity-90">{available ? "Tap to open" : "Coming soon"}</div>
+              <div className="mt-1 text-xs text-muted-foreground">{available ? "Tap to open" : "Coming soon"}</div>
             </div>
           </div>
         </button>
@@ -882,35 +922,30 @@ function VerboFlashSection({
               key={s.id}
               type="button"
               onClick={() => onOpenSeason(s)}
-              className="group relative aspect-square overflow-hidden rounded-2xl border border-white/20 p-6 text-center text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated"
-              style={{
-                background: s.theme_image_url
-                  ? `center / cover no-repeat url(${s.theme_image_url})`
-                  : `linear-gradient(135deg, ${accent}, #111827)`,
-              }}
+              className="group relative aspect-square rounded-2xl bg-transparent p-6 text-center transition-transform hover:-translate-y-1"
             >
-              <div className="absolute inset-0 bg-black/30" />
               <div className="relative flex h-full flex-col items-center justify-center gap-4">
                 <div
-                  className="verbo-box-wiggle flex h-32 w-32 items-center justify-center rounded-2xl bg-white/15 shadow-inner backdrop-blur-sm"
+                  className="verbo-box-wiggle flex h-32 w-32 items-center justify-center"
                   style={{ animation: "verbo-box-wiggle 3.4s ease-in-out infinite", transformOrigin: "50% 90%" }}
                 >
                   {s.theme_image_url ? (
-                    <img src={s.theme_image_url} alt={s.display_name} className="h-full w-full rounded-2xl object-cover" />
+                    <img src={s.theme_image_url} alt={s.display_name} className="h-full w-full rounded-2xl object-contain drop-shadow-lg" />
                   ) : (
-                    <Sparkles className="h-16 w-16 drop-shadow-md" />
+                    <Sparkles className="h-24 w-24 drop-shadow-lg" strokeWidth={1.4} style={{ color: accent }} />
                   )}
                 </div>
                 <div>
                   <div
-                    className="text-lg font-semibold tracking-tight drop-shadow"
+                    className="text-lg font-semibold tracking-tight text-foreground"
                     style={{ fontFamily: `"${family}", system-ui, sans-serif` }}
                   >
                     {s.display_name}
                   </div>
-                  <div className="mt-1 text-xs opacity-90">Tap to open</div>
+                  <div className="mt-1 text-xs text-muted-foreground">Tap to open</div>
                 </div>
               </div>
+
             </button>
           );
         })}
