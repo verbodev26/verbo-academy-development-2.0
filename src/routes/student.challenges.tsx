@@ -212,14 +212,41 @@ function ChallengeSurface({
 }
 
 
-function CategoryBadge({ name }: { name: string }) {
+// Icon per challenge category. Categories are free text created by admins, so
+// unknown names fall back to a generic tag icon.
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  video: Video,
+  "video + written": Clapperboard,
+  audio: Headphones,
+  listening: Ear,
+  email: Mail,
+  reading: BookOpen,
+  written: PenLine,
+  debate: MessagesSquare,
+  roleplay: Users,
+  pitch: Presentation,
+  negotiation: Handshake,
+  persuasion: Megaphone,
+  networking: Share2,
+  leadership: Crown,
+  "business case": Briefcase,
+};
+
+export function categoryIcon(name: string): LucideIcon {
+  return CATEGORY_ICONS[name.trim().toLowerCase()] ?? Tag;
+}
+
+function CategoryBadge({ name, className = "" }: { name: string; className?: string }) {
   if (!name) return <Pill tone="muted">No category</Pill>;
+  const Icon = categoryIcon(name);
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${categoryColor(name)}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${categoryColor(name)} ${className}`}>
+      <Icon className="h-3 w-3 shrink-0" strokeWidth={2.25} />
       {name}
     </span>
   );
 }
+
 
 
 
