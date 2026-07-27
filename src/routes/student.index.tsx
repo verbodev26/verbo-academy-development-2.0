@@ -548,16 +548,11 @@ function StudentDashboard() {
                   className="flex flex-col gap-2.5 rounded-xl border border-border/70 bg-white/60 px-4 py-3"
                 >
                   <div className="flex items-center gap-3">
-                    <div
-                      className="flex h-11 w-11 items-center justify-center rounded-xl text-white"
-                      style={{ background: color, boxShadow: `0 6px 16px -4px color-mix(in oklab, ${color} 25%, transparent)` }}
-                    >
-                      {iconAsset ? (
-                        <img src={iconAsset} alt="" aria-hidden className="h-7 w-7 object-contain" />
-                      ) : (
-                        <Icon className="h-5 w-5" strokeWidth={2} />
-                      )}
-                    </div>
+                    {iconAsset ? (
+                      <img src={iconAsset} alt="" aria-hidden className="h-9 w-9 object-contain" />
+                    ) : (
+                      <Icon className="h-5 w-5" strokeWidth={2} style={{ color }} />
+                    )}
 
                     <div className="min-w-0">
                       <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{m.key}</div>
