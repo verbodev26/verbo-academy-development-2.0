@@ -1654,7 +1654,7 @@ function LeaderboardSection({
                     <img
                       src={rank === 0 ? winnerBadgeAsset.url : rank === 1 ? silverCoinAsset.url : bronzeCoinAsset.url}
                       alt={`Rank ${style.label}`}
-                      className="absolute -bottom-3 left-1/2 h-10 w-10 -translate-x-1/2 object-contain drop-shadow"
+                      className="absolute -bottom-3 left-1/2 h-12 w-12 -translate-x-1/2 object-contain drop-shadow"
                     />
 
                   </div>
