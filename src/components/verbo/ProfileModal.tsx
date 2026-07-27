@@ -30,7 +30,7 @@ interface Props {
   onOpenChange: (v: boolean) => void;
 }
 
-function BadgeVisual({ badge, earned, size = "md" }: { badge: ProfileBadgeDef; earned: boolean; size?: "sm" | "md" | "lg" }) {
+export function BadgeVisual({ badge, earned, size = "md" }: { badge: ProfileBadgeDef; earned: boolean; size?: "sm" | "md" | "lg" }) {
   const box = size === "lg" ? "h-16 w-16" : size === "sm" ? "h-12 w-12" : "h-14 w-14";
   const icon = size === "lg" ? "h-8 w-8" : size === "sm" ? "h-6 w-6" : "h-7 w-7";
   const gradient = earned
@@ -414,7 +414,7 @@ function AchievementsGallery({
   );
 }
 
-function BadgePickerModal({
+export function BadgePickerModal({
   open,
   onOpenChange,
   available,
