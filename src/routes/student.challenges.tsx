@@ -842,26 +842,26 @@ function VerboFlashSection({
           type="button"
           disabled={!available}
           onClick={onOpen}
-          className={`group relative aspect-square overflow-hidden rounded-2xl border p-6 text-center shadow-soft transition-all ${
+          className={`group relative aspect-square rounded-2xl bg-transparent p-6 text-center transition-transform ${
             available
-              ? "border-[#7e22ce]/30 bg-gradient-to-br from-[#4a044e] via-[#7e22ce] to-[#f59e0b] text-white hover:-translate-y-0.5 hover:shadow-elevated"
-              : "cursor-not-allowed border-border bg-secondary/60 text-muted-foreground opacity-70"
+              ? "text-foreground hover:-translate-y-1"
+              : "cursor-not-allowed text-muted-foreground opacity-60"
           }`}
         >
           <div className="flex h-full flex-col items-center justify-center gap-4">
             <div
-              className="verbo-box-wiggle flex h-32 w-32 items-center justify-center rounded-2xl bg-white/15 shadow-inner"
+              className="verbo-box-wiggle flex h-32 w-32 items-center justify-center"
               style={{ animation: "verbo-box-wiggle 3.4s ease-in-out infinite", transformOrigin: "50% 90%" }}
             >
               {boxArtUrl ? (
-                <img src={boxArtUrl} alt="Mystery Box" className="h-full w-full rounded-2xl object-cover" />
+                <img src={boxArtUrl} alt="Mystery Box" className="h-full w-full object-contain drop-shadow-lg" />
               ) : (
-                <Gift className="h-16 w-16 drop-shadow-md" />
+                <Gift className="h-24 w-24 text-[#7e22ce] drop-shadow-lg" strokeWidth={1.4} />
               )}
             </div>
             <div>
               <div className="text-lg font-semibold tracking-tight">Mystery Box</div>
-              <div className="mt-1 text-xs opacity-90">{available ? "Tap to open" : "Coming soon"}</div>
+              <div className="mt-1 text-xs text-muted-foreground">{available ? "Tap to open" : "Coming soon"}</div>
             </div>
           </div>
         </button>
@@ -874,35 +874,30 @@ function VerboFlashSection({
               key={s.id}
               type="button"
               onClick={() => onOpenSeason(s)}
-              className="group relative aspect-square overflow-hidden rounded-2xl border border-white/20 p-6 text-center text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-elevated"
-              style={{
-                background: s.theme_image_url
-                  ? `center / cover no-repeat url(${s.theme_image_url})`
-                  : `linear-gradient(135deg, ${accent}, #111827)`,
-              }}
+              className="group relative aspect-square rounded-2xl bg-transparent p-6 text-center transition-transform hover:-translate-y-1"
             >
-              <div className="absolute inset-0 bg-black/30" />
               <div className="relative flex h-full flex-col items-center justify-center gap-4">
                 <div
-                  className="verbo-box-wiggle flex h-32 w-32 items-center justify-center rounded-2xl bg-white/15 shadow-inner backdrop-blur-sm"
+                  className="verbo-box-wiggle flex h-32 w-32 items-center justify-center"
                   style={{ animation: "verbo-box-wiggle 3.4s ease-in-out infinite", transformOrigin: "50% 90%" }}
                 >
                   {s.theme_image_url ? (
-                    <img src={s.theme_image_url} alt={s.display_name} className="h-full w-full rounded-2xl object-cover" />
+                    <img src={s.theme_image_url} alt={s.display_name} className="h-full w-full rounded-2xl object-contain drop-shadow-lg" />
                   ) : (
-                    <Sparkles className="h-16 w-16 drop-shadow-md" />
+                    <Sparkles className="h-24 w-24 drop-shadow-lg" strokeWidth={1.4} style={{ color: accent }} />
                   )}
                 </div>
                 <div>
                   <div
-                    className="text-lg font-semibold tracking-tight drop-shadow"
+                    className="text-lg font-semibold tracking-tight text-foreground"
                     style={{ fontFamily: `"${family}", system-ui, sans-serif` }}
                   >
                     {s.display_name}
                   </div>
-                  <div className="mt-1 text-xs opacity-90">Tap to open</div>
+                  <div className="mt-1 text-xs text-muted-foreground">Tap to open</div>
                 </div>
               </div>
+
             </button>
           );
         })}
