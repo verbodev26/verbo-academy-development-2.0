@@ -72,6 +72,7 @@ import micIconAsset from "@/assets/yellow-mic.svg.asset.json";
 import pencilIconAsset from "@/assets/pencil-animation.svg.asset.json";
 import soundWavesIconAsset from "@/assets/sound-waves.svg.asset.json";
 import bookIconAsset from "@/assets/book-icon.svg.asset.json";
+import { useAvatar } from "@/lib/avatar-store";
 
 const MACRO_ICON_ASSETS: Record<string, string> = {
   Speaking: micIconAsset.url,
@@ -92,6 +93,40 @@ import {
 export const Route = createFileRoute("/student/")({
   component: StudentDashboard,
 });
+
+/**
+ * Teacher/host avatar: shows the uploaded profile photo when the staff member
+ * has one (avatar-store), otherwise falls back to their initial.
+ */
+function TeacherAvatar({
+  userId,
+  name,
+  className = "h-9 w-9",
+}: {
+  userId?: string;
+  name?: string;
+  className?: string;
+}) {
+  const avatar = useAvatar(userId);
+  if (avatar) {
+    return (
+      <img
+        src={avatar}
+        alt={name ?? "Teacher"}
+        className={`shrink-0 rounded-full object-cover ${className}`}
+      />
+    );
+  }
+  const initial = (name ?? "?").trim().charAt(0).toUpperCase() || "?";
+  return (
+    <div
+      className={`flex shrink-0 items-center justify-center rounded-full bg-[#01304a] text-sm font-semibold text-white ${className}`}
+      aria-hidden
+    >
+      {initial}
+    </div>
+  );
+}
 
 /** Section heading with a colored icon circle (Class Details modal). */
 function SectionHeadIcon({ icon, circleClass, label }: { icon: React.ReactNode; circleClass: string; label: string }) {
@@ -780,7 +815,8 @@ function StudentDashboard() {
                                 <div className="flex items-start justify-between gap-4">
                                   <div className="flex items-center gap-3">
                                     <div className="relative">
-                                      <PhotoPlaceholder tone="dark" shape="circle" className="h-9 w-9 bg-[#01304a]" />
+                                     <TeacherAvatar userId={teacher?.id} name={teacher?.name} />
+
                                       {imminent && (
                                         <span
                                           className="verbo-status-dot verbo-live-pulse absolute -right-0.5 -top-0.5"
@@ -863,7 +899,7 @@ function StudentDashboard() {
                             <div className="p-3">
                               <div className="flex items-start justify-between gap-4">
                                 <div className="flex items-center gap-3">
-                                  <PhotoPlaceholder tone="dark" shape="circle" className="h-9 w-9 bg-[#01304a]" />
+                                  <TeacherAvatar userId={club.teacher_id ?? undefined} name={clubHost ?? "Verbo Team"} />
                                   <div>
                                     <div className="text-xs uppercase tracking-wider text-muted-foreground">Host</div>
                                     <div className="text-sm font-semibold" style={{ color: "#01304a" }}>{clubHost ?? "Verbo Team"}</div>
@@ -1029,7 +1065,7 @@ function StudentDashboard() {
             {history.map((s) => {
               const teacher = userById(s.teacher_id);
               const teacherName = teacher?.name ?? "Teacher";
-              const initial = teacherName.charAt(0).toUpperCase();
+              
               return (
                 <button
                   key={s.id}
@@ -1039,13 +1075,8 @@ function StudentDashboard() {
                 >
                   <div className="truncate text-sm text-foreground">{fmt(s.date_time)}</div>
                   <div className="flex min-w-0 items-center gap-3">
-                    <div
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold"
-                      style={{ color: "#01304a" }}
-                      aria-hidden
-                    >
-                      {initial}
-                    </div>
+                    <TeacherAvatar userId={teacher?.id} name={teacherName} className="h-10 w-10" />
+
                     <div className="truncate text-sm font-semibold" style={{ color: "#01304a" }}>{teacherName}</div>
                   </div>
                   <div className="md:justify-self-start">
