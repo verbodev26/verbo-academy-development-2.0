@@ -173,7 +173,7 @@ export function staffStats(u: User): StaffStat[] {
     return [
       { key: "rating", value: rating != null ? rating.toFixed(1) : "—", label: "Rating" },
       { key: "students", value: students > 0 ? `${students}` : "—", label: "Students Taught" },
-      { key: "sessions", value: `${Math.round(u.hours_worked ?? 0)}`, label: "Hours Taught" },
+      { key: "sessions", value: `${Math.round(u.hours_month ?? 0)}`, label: "Hours This Month" },
     ];
   }
   const teachers = USERS.filter((x) => x.role === "teacher").length;
