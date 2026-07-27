@@ -20,7 +20,22 @@ import {
   Plus,
   Gem,
   Medal,
+  Video,
+  Clapperboard,
+  Headphones,
+  Ear,
+  Mail,
+  BookOpen,
+  PenLine,
+  MessagesSquare,
+  Users,
+  Presentation,
+  Handshake,
+  Megaphone,
+  Briefcase,
+  Tag,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Card, Pill, PrimaryButton, GhostButton, SuccessButton } from "@/components/verbo/ui";
 import { Confetti } from "@/components/verbo/Confetti";
 import { useAuth } from "@/lib/auth";
@@ -196,10 +211,34 @@ function ChallengeSurface({
 }
 
 
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  "video": Video,
+  "video + written": Clapperboard,
+  "audio": Headphones,
+  "listening": Ear,
+  "email": Mail,
+  "reading": BookOpen,
+  "written": PenLine,
+  "debate": MessagesSquare,
+  "roleplay": Users,
+  "pitch": Presentation,
+  "negotiation": Handshake,
+  "persuasion": Megaphone,
+  "networking": Share2,
+  "leadership": Crown,
+  "business case": Briefcase,
+};
+
+function categoryIcon(name: string): LucideIcon {
+  return CATEGORY_ICONS[name.trim().toLowerCase()] ?? Tag;
+}
+
 function CategoryBadge({ name }: { name: string }) {
   if (!name) return <Pill tone="muted">No category</Pill>;
+  const Icon = categoryIcon(name);
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${categoryColor(name)}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${categoryColor(name)}`}>
+      <Icon className="h-3 w-3 shrink-0" strokeWidth={2.25} aria-hidden />
       {name}
     </span>
   );
@@ -349,15 +388,19 @@ function Page() {
             >
               All categories
             </button>
-            {availableCategories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setCategory(cat)}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-opacity ${categoryColor(cat)} ${category === cat ? "ring-2 ring-offset-1 ring-current" : "opacity-70 hover:opacity-100"}`}
-              >
-                {cat}
-              </button>
-            ))}
+            {availableCategories.map((cat) => {
+              const CatIcon = categoryIcon(cat);
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-opacity ${categoryColor(cat)} ${category === cat ? "ring-2 ring-offset-1 ring-current" : "opacity-70 hover:opacity-100"}`}
+                >
+                  <CatIcon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} aria-hidden />
+                  {cat}
+                </button>
+              );
+            })}
           </div>
         )}
 
@@ -523,16 +566,8 @@ function Page() {
 
       {/* ---------------- Verbo Flash family: Mystery Box + Seasons + Lightning ---------------- */}
       {(["enterprise", "go", "international"] as const).includes(productId as FlashProductId) && (
-        <section className="relative overflow-hidden rounded-3xl border border-[#7e22ce]/25 bg-gradient-to-br from-[#7e22ce]/[0.07] via-transparent to-[#facc15]/[0.08] p-5 sm:p-6">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#7e22ce]/10 blur-2xl"
-          />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -bottom-12 -left-8 h-40 w-40 rounded-full bg-[#facc15]/10 blur-2xl"
-          />
-          <div className="relative z-10">
+        <section>
+          <div>
             <div className="mb-5">
               <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/75">
                 <Zap className="h-3.5 w-3.5 text-[#e9d5ff]" /> Verbo Flash
