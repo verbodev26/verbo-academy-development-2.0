@@ -96,6 +96,9 @@ import {
   EQUIPPED_MAX,
 } from "@/lib/equipped-profile-badges-store";
 import { BadgePickerModal, BadgeVisual } from "@/components/verbo/ProfileModal";
+import fireIconAsset from "@/assets/fire-animation.svg.asset.json";
+import trophyIconAsset from "@/assets/trophy-animation.svg.asset.json";
+import confettiIconAsset from "@/assets/success-confetti.svg.asset.json";
 
 export const Route = createFileRoute("/student/challenges")({ component: Page });
 
@@ -1708,9 +1711,9 @@ function ChallengesHero({
   completed: number;
 }) {
   const stats = [
-    { icon: Flame, label: "Current streak", value: currentStreak },
-    { icon: Trophy, label: "Longest streak", value: longestStreak },
-    { icon: CheckCircle2, label: "Completed", value: completed },
+    { icon: fireIconAsset.url, label: "Current streak", value: currentStreak },
+    { icon: trophyIconAsset.url, label: "Longest streak", value: longestStreak },
+    { icon: confettiIconAsset.url, label: "Completed", value: completed },
   ];
   return (
     <div className={`verbo-hero-enter relative overflow-hidden rounded-3xl bg-gradient-to-br ${gradient} p-7 text-white shadow-elevated`}>
@@ -1758,7 +1761,7 @@ function ChallengesHero({
               style={{ animationDelay: `${120 + i * 90}ms` }}
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
-                <s.icon className="h-5 w-5" />
+                <img src={s.icon} alt="" aria-hidden className="h-7 w-7 object-contain" />
               </span>
               <div>
                 <div className="text-2xl font-bold leading-none tracking-tight">{s.value}</div>
