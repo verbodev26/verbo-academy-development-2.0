@@ -145,6 +145,55 @@ function DifficultyDots({ difficulty, className = "" }: { difficulty: Difficulty
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/* Challenge card shell — shares the visual language of Resources' spotlight   */
+/* cards: rounded-3xl, bespoke vibrant gradient, oversized decorative motif    */
+/* bleeding out of the bottom-right corner, content kept on the left column.   */
+/* -------------------------------------------------------------------------- */
+const DIFFICULTY_GRADIENTS: Record<DifficultyId, string> = {
+  [DIFFICULTY_ORDER[0]]: "from-[#0f766e] via-[#12a594] to-[#34d399]",
+  [DIFFICULTY_ORDER[1]]: "from-[#1d4ed8] via-[#0284c7] to-[#22b8d6]",
+  [DIFFICULTY_ORDER[2]]: "from-[#b91c1c] via-[#ea580c] to-[#f59e0b]",
+  [DIFFICULTY_ORDER[3]]: "from-[#6b21a8] via-[#9333ea] to-[#db2777]",
+};
+
+const DIFFICULTY_MOTIF: Record<DifficultyId, typeof Trophy> = {
+  [DIFFICULTY_ORDER[0]]: Gem,
+  [DIFFICULTY_ORDER[1]]: Zap,
+  [DIFFICULTY_ORDER[2]]: Medal,
+  [DIFFICULTY_ORDER[3]]: Trophy,
+};
+
+function ChallengeSurface({
+  difficulty,
+  className = "",
+  motifClassName = "",
+  contentClassName = "",
+  children,
+}: {
+  difficulty: DifficultyId;
+  className?: string;
+  motifClassName?: string;
+  contentClassName?: string;
+  children: React.ReactNode;
+}) {
+  const Motif = DIFFICULTY_MOTIF[difficulty];
+  return (
+    <div
+      className={`relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-br ${DIFFICULTY_GRADIENTS[difficulty]} text-white shadow-elevated ${className}`}
+    >
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -bottom-6 -right-6 text-white/15 transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:rotate-6"
+      >
+        <Motif className={`verbo-float h-32 w-32 ${motifClassName}`} strokeWidth={1.25} />
+      </span>
+      <div className={`relative z-10 ${contentClassName}`}>{children}</div>
+    </div>
+  );
+}
+
+
 function CategoryBadge({ name }: { name: string }) {
   if (!name) return <Pill tone="muted">No category</Pill>;
   return (
