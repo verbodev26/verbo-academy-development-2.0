@@ -80,20 +80,11 @@ function Landing() {
                   className="verbo-fade-up relative mx-auto h-[520px] w-full max-w-[480px]"
                   style={{ animationDelay: "0ms" }}
                 >
-                  <div
-                    className="absolute -left-6 top-8 h-32 w-32 rounded-full bg-[var(--navy-100)]"
-                    aria-hidden
+                  <img
+                    src={heroImage.url}
+                    alt="Professional students with notebooks and backpack ready to learn"
+                    className="h-full w-full object-contain"
                   />
-                  <div
-                    className="verbo-float absolute bottom-0 right-4 h-[380px] w-[300px] rounded-[2rem] bg-[var(--orange-500)] shadow-elevated"
-                    aria-hidden
-                  />
-                  <div className="verbo-float-delayed absolute left-8 top-6">
-                    <PhotoPlaceholder
-                      tone="light"
-                      className="aspect-[3/4] w-[300px] rotate-[-3deg] shadow-elevated"
-                    />
-                  </div>
                 </div>
 
                 {/* Right: text */}
