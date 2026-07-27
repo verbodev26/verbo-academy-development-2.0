@@ -521,71 +521,113 @@ function Page() {
         })}
       </div>
 
-      {/* ---------------- Verbo Flash ---------------- */}
+      {/* ---------------- Verbo Flash family: Mystery Box + Seasons + Lightning ---------------- */}
       {(["enterprise", "go", "international"] as const).includes(productId as FlashProductId) && (
-        <VerboFlashSection
-          boxArtUrl={flashConfig.box_art_url}
-          available={flashChallengesFor(flashList, "mystery_box", productId as FlashProductId).length > 0}
-          activeSeasons={seasons.filter((s) => s.active)}
-          onOpen={() => {
-            const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
-            if (pool.length === 0) return;
-            if (!openMysteryBox(student.id)) {
-              setMystery({ opening: false, reveal: null, blocked: true });
-              return;
-            }
-            setMystery({ opening: true, reveal: null, blocked: false });
-            // Suspenseful reveal delay — the box animates then the challenge is revealed.
-            setTimeout(() => {
-              const pick = pool[Math.floor(Math.random() * pool.length)];
-              setMystery({ opening: false, reveal: pick, blocked: false });
-            }, 900);
-          }}
-          onOpenSeason={(season) => {
-            const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
-            if (pool.length === 0) return;
-            if (!openSeason(student.id, season.id)) {
-              setSeasonState({ season, opening: false, reveal: null, blocked: true });
-              return;
-            }
-            setSeasonState({ season, opening: true, reveal: null, blocked: false });
-            setTimeout(() => {
-              const pick = pool[Math.floor(Math.random() * pool.length)];
-              setSeasonState({ season, opening: false, reveal: pick, blocked: false });
-            }, 900);
-          }}
-        />
+        <section className="relative overflow-hidden rounded-3xl border border-[#7e22ce]/25 bg-gradient-to-br from-[#7e22ce]/[0.07] via-transparent to-[#facc15]/[0.08] p-5 sm:p-6">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#7e22ce]/10 blur-2xl"
+          />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -bottom-12 -left-8 h-40 w-40 rounded-full bg-[#facc15]/10 blur-2xl"
+          />
+          <div className="relative z-10">
+            <div className="mb-5">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <Zap className="h-3.5 w-3.5 text-[#7e22ce]" /> Verbo Flash
+              </div>
+              <h2 className="mt-1 text-lg font-semibold tracking-tight text-foreground">
+                Instant challenges arcade
+              </h2>
+              <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
+                Mystery Box, active Seasons and the live Lightning — surprise challenges that appear
+                for a limited time and don't follow the regular difficulty path.
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              <VerboFlashSection
+                boxArtUrl={flashConfig.box_art_url}
+                available={flashChallengesFor(flashList, "mystery_box", productId as FlashProductId).length > 0}
+                activeSeasons={seasons.filter((s) => s.active)}
+                onOpen={() => {
+                  const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
+                  if (pool.length === 0) return;
+                  if (!openMysteryBox(student.id)) {
+                    setMystery({ opening: false, reveal: null, blocked: true });
+                    return;
+                  }
+                  setMystery({ opening: true, reveal: null, blocked: false });
+                  // Suspenseful reveal delay — the box animates then the challenge is revealed.
+                  setTimeout(() => {
+                    const pick = pool[Math.floor(Math.random() * pool.length)];
+                    setMystery({ opening: false, reveal: pick, blocked: false });
+                  }, 900);
+                }}
+                onOpenSeason={(season) => {
+                  const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
+                  if (pool.length === 0) return;
+                  if (!openSeason(student.id, season.id)) {
+                    setSeasonState({ season, opening: false, reveal: null, blocked: true });
+                    return;
+                  }
+                  setSeasonState({ season, opening: true, reveal: null, blocked: false });
+                  setTimeout(() => {
+                    const pick = pool[Math.floor(Math.random() * pool.length)];
+                    setSeasonState({ season, opening: false, reveal: pick, blocked: false });
+                  }, 900);
+                }}
+              />
+
+              {/* Lightning card */}
+              {isLightningVisibleForStudents(lightning)
+                && lightning.product === productId && (() => {
+                  const ch = flashList.find((c) => c.id === lightning.challenge_id);
+                  if (!ch) return null;
+                  const remaining = lightning.expires_at ? +new Date(lightning.expires_at) - nowTick : 0;
+                  const isLive = lightning.status === "live" && remaining > 0;
+                  const accepted = lightning.accepted_student_ids.includes(student.id);
+                  const completed = hasCompletedChallenge(student.id, ch.id);
+                  return (
+                    <LightningCard
+                      challenge={ch}
+                      isLive={isLive}
+                      remainingMs={remaining}
+                      acceptedCount={lightning.accepted_student_ids.length}
+                      accepted={accepted}
+                      completed={completed}
+                      onOpen={() => {
+                        if (isLive && !accepted) acceptLightning(student.id);
+                        setLightningOpen(ch);
+                      }}
+                    />
+                  );
+                })()}
+            </div>
+          </div>
+        </section>
       )}
 
-      {/* ---------------- Lightning card ---------------- */}
-      {(["enterprise", "go", "international"] as const).includes(productId as FlashProductId)
-        && isLightningVisibleForStudents(lightning)
-        && lightning.product === productId && (() => {
-          const ch = flashList.find((c) => c.id === lightning.challenge_id);
-          if (!ch) return null;
-          const remaining = lightning.expires_at ? +new Date(lightning.expires_at) - nowTick : 0;
-          const isLive = lightning.status === "live" && remaining > 0;
-          const accepted = lightning.accepted_student_ids.includes(student.id);
-          const completed = hasCompletedChallenge(student.id, ch.id);
-          return (
-            <LightningCard
-              challenge={ch}
-              isLive={isLive}
-              remainingMs={remaining}
-              acceptedCount={lightning.accepted_student_ids.length}
-              accepted={accepted}
-              completed={completed}
-              onOpen={() => {
-                if (isLive && !accepted) acceptLightning(student.id);
-                setLightningOpen(ch);
-              }}
-            />
-          );
-        })()}
 
 
 
       <section>
+        <style>{`
+          @keyframes verbo-badge-in {
+            from { opacity: 0; transform: translateY(14px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+          }
+          .verbo-badge-card {
+            animation: verbo-badge-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+            transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, opacity 0.25s ease;
+          }
+          .verbo-badge-card:hover { transform: translateY(-6px) scale(1.03); opacity: 1; }
+          @media (prefers-reduced-motion: reduce) {
+            .verbo-badge-card { animation: none !important; transition: opacity 0.2s ease !important; }
+            .verbo-badge-card:hover { transform: none !important; }
+          }
+        `}</style>
         <div className="mb-4 flex items-end justify-between">
           <div>
             <h2 className="text-base font-semibold tracking-tight text-foreground">Badges</h2>
@@ -593,13 +635,14 @@ function Page() {
           </div>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {badges.map((b) => {
+          {badges.map((b, i) => {
             const earned = isBadgeEarned(b, badgeCtx);
             const hasImage = earned && !!b.image;
             return (
               <div
                 key={b.id}
-                className={`flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-soft transition-opacity ${earned ? "border-amber-400/60 bg-amber-500/5" : "border-border bg-card opacity-60"}`}
+                style={{ animationDelay: `${Math.min(i, 11) * 55}ms` }}
+                className={`verbo-badge-card flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-soft hover:shadow-elevated ${earned ? "border-amber-400/60 bg-amber-500/5" : "border-border bg-card opacity-60"}`}
               >
                 {hasImage ? (
                   <img
@@ -622,7 +665,8 @@ function Page() {
             const earned = (student.lightning_completions ?? 0) >= 1;
             return (
               <div
-                className={`flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-soft transition-opacity ${earned ? "border-yellow-400/70 bg-yellow-400/5" : "border-border bg-card opacity-60"}`}
+                style={{ animationDelay: `${Math.min(badges.length, 11) * 55}ms` }}
+                className={`verbo-badge-card flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-soft hover:shadow-elevated ${earned ? "border-yellow-400/70 bg-yellow-400/5" : "border-border bg-card opacity-60"}`}
               >
                 <span className={`flex h-12 w-12 items-center justify-center rounded-full ${earned ? "bg-yellow-400/20 text-yellow-500 ring-2 ring-yellow-400/50" : "bg-secondary text-muted-foreground"}`}>
                   {earned ? <Zap className="h-6 w-6" /> : <Lock className="h-5 w-5" />}
@@ -633,14 +677,17 @@ function Page() {
             );
           })()}
           {/* Dynamic Season badges — grows as admin creates Seasons. */}
-          {seasons.map((s) => {
+          {seasons.map((s, i) => {
             const earned = (student.season_completions?.[s.id] ?? 0) >= 1;
             const accent = s.accent_color || "#7e22ce";
             return (
               <div
                 key={s.id}
-                className={`flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-soft transition-opacity ${earned ? "bg-card" : "border-border bg-card opacity-60"}`}
-                style={earned ? { borderColor: accent, boxShadow: `0 0 0 1px ${accent}22` } : undefined}
+                className={`verbo-badge-card flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-soft hover:shadow-elevated ${earned ? "bg-card" : "border-border bg-card opacity-60"}`}
+                style={{
+                  animationDelay: `${Math.min(badges.length + 1 + i, 11) * 55}ms`,
+                  ...(earned ? { borderColor: accent, boxShadow: `0 0 0 1px ${accent}22` } : {}),
+                }}
               >
                 <span
                   className="flex h-12 w-12 items-center justify-center rounded-full"
@@ -666,6 +713,8 @@ function Page() {
           })}
         </div>
       </section>
+
+
 
       {lightningOpen && (
         <LightningRevealModal
@@ -777,15 +826,15 @@ function VerboFlashSection({
   onOpenSeason: (season: FlashSeason) => void;
 }) {
   return (
-    <section>
+    <div>
       <div className="mb-4 flex items-end justify-between">
         <div>
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            <Zap className="h-3.5 w-3.5 text-[#7e22ce]" /> Verbo Flash
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7e22ce]">
+            <Zap className="h-3.5 w-3.5" /> Mystery Box{activeSeasons.length > 0 ? " & Seasons" : ""}
           </div>
-          <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground">Mystery Box{activeSeasons.length > 0 ? " & Seasons" : ""}</h2>
           <p className="mt-1 text-xs text-muted-foreground">A surprise challenge waits inside. One per day, per box.</p>
         </div>
+
       </div>
       <style>{`
         @keyframes verbo-box-wiggle {
@@ -866,7 +915,8 @@ function VerboFlashSection({
           );
         })}
       </div>
-    </section>
+    </div>
+
   );
 }
 
@@ -1218,15 +1268,16 @@ function LightningCard({
 }) {
   const urgent = isLive && remainingMs > 0 && remainingMs < 60 * 60 * 1000;
   return (
-    <section>
+    <div>
       <div className="mb-4 flex items-end justify-between">
         <div>
-          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            <Zap className="h-3.5 w-3.5 text-[#facc15]" /> Verbo Flash · Lightning
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#ca8a04]">
+            <Zap className="h-3.5 w-3.5 text-[#facc15]" /> Lightning
           </div>
-          <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground">Reto Relámpago</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Reto Relámpago — live for a limited window.</p>
         </div>
       </div>
+
       <style>{`
         @keyframes verbo-lightning-glow {
           0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.55), 0 0 30px 4px rgba(14, 165, 233, 0.35); }
@@ -1295,7 +1346,8 @@ function LightningCard({
           </div>
         )}
       </div>
-    </section>
+    </div>
+
   );
 }
 
