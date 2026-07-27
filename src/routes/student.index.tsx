@@ -549,7 +549,7 @@ function StudentDashboard() {
                 >
                   <div className="flex items-center gap-3">
                     {iconAsset ? (
-                      <img src={iconAsset} alt="" aria-hidden className="h-12 w-12 object-contain" />
+                      <img src={iconAsset} alt="" aria-hidden className="h-16 w-16 object-contain" />
                     ) : (
                       <Icon className="h-5 w-5" strokeWidth={2} style={{ color }} />
                     )}
