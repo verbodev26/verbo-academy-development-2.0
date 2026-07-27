@@ -77,7 +77,7 @@ function Landing() {
               <div className="grid items-center gap-12 lg:grid-cols-2">
                 {/* Left: photo composition */}
                 <div
-                  className="verbo-fade-up relative mx-auto h-[520px] w-full max-w-[480px]"
+                  className="verbo-fade-up relative mx-auto h-[598px] w-full max-w-[552px]"
                   style={{ animationDelay: "0ms" }}
                 >
                   <img
