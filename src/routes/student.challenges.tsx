@@ -333,26 +333,8 @@ function Page() {
   const countByDifficulty = (d: DifficultyId) =>
     productChallenges.filter((c) => c.difficulty === d).length;
 
-  const badgeCtx: BadgeContext = useMemo(() => {
-    void tick;
-    const done = student.completed_challenges ?? [];
-    const map = new Map(challenges.map((c) => [c.id, c]));
-    const cats = new Set<string>();
-    let premiumDone = false;
-    for (const entry of done) {
-      const ch = map.get(entry.challenge_id);
-      if (!ch) continue;
-      if (ch.category) cats.add(ch.category);
-      if (ch.premium) premiumDone = true;
-    }
-    return {
-      completedCount: done.length,
-      longestStreak: student.longest_streak ?? 0,
-      distinctCategories: cats.size,
-      hasCompletedPremium: premiumDone,
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [challenges, student.completed_challenges, student.longest_streak, tick]);
+
+
 
   /* ---------------- Screen 2: challenge list ---------------- */
   if (difficulty) {
