@@ -268,7 +268,14 @@ import {
   loadBadges,
   subscribeBadges,
   isBadgeEarned,
+  BADGE_METRIC_META,
 } from "@/lib/badges-store";
+import {
+  loadEquippedChallengeBadgeIds,
+  setEquippedChallengeBadgeIds,
+  subscribeEquippedChallengeBadges,
+  EQUIPPED_MAX as EQUIPPED_CHALLENGE_MAX,
+} from "@/lib/equipped-challenge-badges-store";
 
 
 
