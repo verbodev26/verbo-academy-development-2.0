@@ -555,7 +555,7 @@ function StudentDashboard() {
                     )}
 
                     <div className="min-w-0">
-                      <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{m.key}</div>
+                      <div className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">{m.key}</div>
                       <div className="text-base font-semibold tabular-nums" style={{ color: "#01304a" }}>
                         {m.overall === null ? "--" : `${m.overall}%`}
                       </div>
