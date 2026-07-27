@@ -1851,6 +1851,8 @@ function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
   const [tick, setTick] = useState(0);
   const [editingName, setEditingName] = useState(false);
   const [picker, setPicker] = useState(false);
+  const [challengeBadges, setChallengeBadges] = useState(false);
+
   const [mode, setMode] = useState<LeaderboardIdentityMode>("real");
   const [nickname, setNickname] = useState("");
 
