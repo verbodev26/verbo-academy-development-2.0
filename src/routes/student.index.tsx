@@ -1065,7 +1065,7 @@ function StudentDashboard() {
             {history.map((s) => {
               const teacher = userById(s.teacher_id);
               const teacherName = teacher?.name ?? "Teacher";
-              const initial = teacherName.charAt(0).toUpperCase();
+              
               return (
                 <button
                   key={s.id}
