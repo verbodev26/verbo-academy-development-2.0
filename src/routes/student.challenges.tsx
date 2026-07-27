@@ -392,15 +392,20 @@ function Page() {
             >
               All categories
             </button>
-            {availableCategories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setCategory(cat)}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-opacity ${categoryColor(cat)} ${category === cat ? "ring-2 ring-offset-1 ring-current" : "opacity-70 hover:opacity-100"}`}
-              >
-                {cat}
-              </button>
-            ))}
+            {availableCategories.map((cat) => {
+              const CatIcon = categoryIcon(cat);
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-opacity ${categoryColor(cat)} ${category === cat ? "ring-2 ring-offset-1 ring-current" : "opacity-70 hover:opacity-100"}`}
+                >
+                  <CatIcon className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} />
+                  {cat}
+                </button>
+              );
+            })}
+
           </div>
         )}
 
