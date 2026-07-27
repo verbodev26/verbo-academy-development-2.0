@@ -852,3 +852,29 @@ Nuevo store simple (mismo patrón que `student-reports-store.ts`): `localStorage
 - `detail` es opcional (string vacío si no se completa).
 - `addContentIssueReport(input)` crea el reporte; `loadContentIssueReports()` y `contentIssuesForUnit(unitId)` son lecturas ordenadas por fecha desc.
 - Lo dispara el alumno desde `ReportContentIssueModal` en el detalle de unidad (`student.courses.tsx`). Todavía no existe bandeja de Admin, igual que `student-reports-store.ts`.
+
+---
+
+## Staff Profile (`src/lib/staff-profile-store.ts`)
+
+Datos de presentación editables para **teachers y admins** (el equivalente staff del `ProfileModal` de alumno). Se renderiza en `StaffProfileModal.tsx`, abierto desde la foto del navbar (`TopNav`). Reemplaza a `AdminProfileModal.tsx` (eliminado).
+
+### `StaffProfile` — localStorage `verbo:staff-profiles` (mapa `userId → StaffProfile`)
+
+| campo | tipo | notas |
+|---|---|---|
+| headline | string | frase de presentación visible para alumnos, máx. `MAX_HEADLINE_CHARS` = 200 |
+| specializations | string[] | tags "Specializes in", máx. `MAX_SPECIALIZATIONS` = 6, deduplicados y trimmed |
+
+### Presencia — localStorage `verbo:staff-presence` (mapa `userId → timestamp ms`)
+- `touchPresence(userId)` late cada 60s mientras el modal está montado (`usePresence(userId, self=true)`).
+- `isOnline(userId)`: heartbeat más reciente que `PRESENCE_TTL_MS` (5 min) → punto verde; si no, gris.
+
+### Derivados (calculados solo en el store)
+- `roleLabelFor(user)` → "Teacher" | "Admin" | "Student" (chip 1).
+- `rankLabel(user)` → tier del teacher (`teacher-tiers.ts`) o tipo de admin (chip 2).
+- `tenureLabel(user)` → "New" / "N mos tenure" / "N yrs tenure"; teachers usan `activeTenureDays()`, admins `member_since` (chip 3).
+- `staffStats(user)` → 3 columnas. Teacher: `avgRating()`, `assignedStudents().length`, `hours_month`. Admin: nº de teachers, nº de alumnos, nivel de acceso.
+
+### Contraseña
+El cambio de contraseña usa `updateProfile({ currentPassword, newPassword })` de `auth.tsx` + `validatePasswordComplexity()` (misma regla que el alumno: ≥4 chars, 1 mayúscula, 1 número). Sin contraseña actual correcta no se aplica el cambio. "Forgot password" es solo UI por ahora (sin lógica).
