@@ -57,6 +57,17 @@ import { EVENT_KIND_META } from "@/lib/calendar-events";
 import { RatingModal } from "@/components/verbo/RatingModal";
 import { ReportConductModal } from "@/components/verbo/ReportConductModal";
 import { CantAttendRouter, RescheduleRequestModal } from "@/components/verbo/CancelSessionFlow";
+import micIconAsset from "@/assets/yellow-mic.svg.asset.json";
+import pencilIconAsset from "@/assets/pencil-animation.svg.asset.json";
+import soundWavesIconAsset from "@/assets/sound-waves.svg.asset.json";
+import bookIconAsset from "@/assets/book-icon.svg.asset.json";
+
+const MACRO_ICON_ASSETS: Record<string, string> = {
+  Speaking: micIconAsset.url,
+  Writing: pencilIconAsset.url,
+  Listening: soundWavesIconAsset.url,
+  Reading: bookIconAsset.url,
+};
 
 import {
   Dialog,
