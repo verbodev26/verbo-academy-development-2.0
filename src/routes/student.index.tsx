@@ -50,6 +50,17 @@ import {
   loadEquippedBadgeIds,
   subscribeEquippedBadges,
 } from "@/lib/equipped-profile-badges-store";
+import {
+  loadBadges as loadChallengeBadges,
+  subscribeBadges as subscribeChallengeBadges,
+  isBadgeEarned as isChallengeBadgeEarned,
+  type BadgeDef as ChallengeBadgeDef,
+} from "@/lib/badges-store";
+import {
+  loadEquippedChallengeBadgeIds,
+  subscribeEquippedChallengeBadges,
+} from "@/lib/equipped-challenge-badges-store";
+import { loadChallenges } from "@/lib/challenges-store";
 import { loadClubs, type Club } from "@/lib/clubs-store";
 import { isBooked } from "@/lib/club-bookings-store";
 import { ClubReservationModal } from "@/components/verbo/ClubReservationModal";
@@ -1363,8 +1374,41 @@ function FeaturedProfileBadge({ user }: { user: NonNullable<ReturnType<typeof us
     const un1 = subscribeProfileBadges(bump);
     const un2 = subscribeEquippedBadges(bump);
     const un3 = subscribeCourses(bump);
-    return () => { un1(); un2(); un3(); };
+    const un4 = subscribeEquippedChallengeBadges(bump);
+    const un5 = subscribeChallengeBadges(bump);
+    return () => { un1(); un2(); un3(); un4(); un5(); };
   }, []);
+
+  // Challenge Badges take precedence over Profile Badges when one is equipped
+  // AND actually unlocked. Independent catalog/storage — see badges-store.ts.
+  const featuredChallenge = useMemo<ChallengeBadgeDef | null>(() => {
+    void tick;
+    const equipped = loadEquippedChallengeBadgeIds(user.id);
+    if (equipped.length === 0) return null;
+    const done = user.completed_challenges ?? [];
+    const map = new Map(loadChallenges().map((c) => [c.id, c]));
+    const cats = new Set<string>();
+    let premiumDone = false;
+    for (const entry of done) {
+      const ch = map.get(entry.challenge_id);
+      if (!ch) continue;
+      if (ch.category) cats.add(ch.category);
+      if (ch.premium) premiumDone = true;
+    }
+    const ctx = {
+      completedCount: done.length,
+      longestStreak: user.longest_streak ?? 0,
+      distinctCategories: cats.size,
+      hasCompletedPremium: premiumDone,
+    };
+    const catalog = loadChallengeBadges();
+    for (const id of equipped) {
+      const hit = catalog.find((b) => b.id === id);
+      if (hit && isChallengeBadgeEarned(hit, ctx)) return hit;
+    }
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, tick]);
 
   // The subscriptions above bump `tick`, which invalidates the memo below.
   const featured = useMemo<ProfileBadgeDef | null>(() => {
@@ -1381,19 +1425,21 @@ function FeaturedProfileBadge({ user }: { user: NonNullable<ReturnType<typeof us
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, tick]);
 
-  if (!featured) return null;
+  const shown = featuredChallenge ?? featured;
+  if (!shown) return null;
 
   return (
     <div
-      title={`Equipped: ${featured.name}`}
+      title={`Equipped: ${shown.name}`}
       className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full shadow-md"
       style={{ background: "linear-gradient(135deg, #01304a, #0a4a6e)" }}
     >
-      {featured.image ? (
-        <img src={featured.image} alt={featured.name} className="h-full w-full object-cover" />
+      {shown.image ? (
+        <img src={shown.image} alt={shown.name} className="h-full w-full object-cover" />
       ) : (
         <Award className="h-5 w-5 text-white" />
       )}
     </div>
   );
 }
+
