@@ -156,7 +156,7 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
               </button>
               <span
                 title={online ? "Online" : "Offline"}
-                className={`absolute left-1 top-2 h-4 w-4 rounded-full border-2 border-background ${
+                className={`absolute bottom-2 left-1 h-4 w-4 rounded-full border-2 border-background ${
                   online ? "bg-emerald-500" : "bg-zinc-400"
                 }`}
               />
