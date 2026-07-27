@@ -100,6 +100,9 @@ import fireIconAsset from "@/assets/fire-animation.svg.asset.json";
 import trophyIconAsset from "@/assets/trophy-animation.svg.asset.json";
 import confettiIconAsset from "@/assets/success-confetti.svg.asset.json";
 import crownIconAsset from "@/assets/crown-animation.svg.asset.json";
+import winnerBadgeAsset from "@/assets/winner-badge.svg.asset.json";
+import silverCoinAsset from "@/assets/silver-coin.svg.asset.json";
+import bronzeCoinAsset from "@/assets/bronze-coin.svg.asset.json";
 
 export const Route = createFileRoute("/student/challenges")({ component: Page });
 
