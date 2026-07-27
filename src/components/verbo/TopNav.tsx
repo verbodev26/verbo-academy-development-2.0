@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/auth";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { ProfileModal } from "./ProfileModal";
-import { AdminProfileModal } from "./AdminProfileModal";
+import { StaffProfileModal } from "./StaffProfileModal";
 import { useAvatar } from "@/lib/avatar-store";
 import { NotificationsBell } from "./NotificationsBell";
 import type { User } from "@/lib/mock-data";
@@ -185,7 +185,8 @@ export function TopNav({ items, variant = "light" }: { items: NavEntry[]; varian
   const [profileOpen, setProfileOpen] = useState(false);
   const isStudent = user?.role === "student";
   const isAdmin = user?.role === "admin";
-  const canEditProfile = isStudent || isAdmin;
+  const isTeacher = user?.role === "teacher";
+  const canEditProfile = isStudent || isAdmin || isTeacher;
   const avatar = useAvatar(user?.id);
   const isDark = variant === "dark";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -373,7 +374,7 @@ export function TopNav({ items, variant = "light" }: { items: NavEntry[]; varian
         </div>
       </div>
       {isStudent && <ProfileModal open={profileOpen} onOpenChange={setProfileOpen} />}
-      {isAdmin && <AdminProfileModal open={profileOpen} onOpenChange={setProfileOpen} />}
+      {(isAdmin || isTeacher) && <StaffProfileModal open={profileOpen} onOpenChange={setProfileOpen} />}
     </header>
   );
 }
