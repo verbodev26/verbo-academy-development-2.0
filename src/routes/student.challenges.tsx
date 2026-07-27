@@ -523,16 +523,7 @@ function Page() {
 
       {/* ---------------- Verbo Flash family: Mystery Box + Seasons + Lightning ---------------- */}
       {(["enterprise", "go", "international"] as const).includes(productId as FlashProductId) && (
-        <section className="relative overflow-hidden rounded-3xl border border-[#7e22ce]/25 bg-gradient-to-br from-[#7e22ce]/[0.07] via-transparent to-[#facc15]/[0.08] p-5 sm:p-6">
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#7e22ce]/10 blur-2xl"
-          />
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -bottom-12 -left-8 h-40 w-40 rounded-full bg-[#facc15]/10 blur-2xl"
-          />
-          <div className="relative z-10">
+        <section>
             <div className="mb-5">
               <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
                 <Zap className="h-3.5 w-3.5 text-[#7e22ce]" /> Verbo Flash
@@ -547,6 +538,7 @@ function Page() {
             </div>
 
             <div className="space-y-6">
+
               <VerboFlashSection
                 boxArtUrl={flashConfig.box_art_url}
                 available={flashChallengesFor(flashList, "mystery_box", productId as FlashProductId).length > 0}
@@ -605,8 +597,8 @@ function Page() {
                   );
                 })()}
             </div>
-          </div>
         </section>
+
       )}
 
 
