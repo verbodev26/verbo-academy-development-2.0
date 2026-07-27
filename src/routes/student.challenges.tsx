@@ -2056,24 +2056,21 @@ function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
   return (
     <section>
       <div className="mb-4">
-        <h2 className="text-base font-semibold tracking-tight text-white">Your player card</h2>
-        <p className="mt-1 text-xs text-white/75">Customize how you show up on the leaderboard.</p>
+        <h2 className="text-base font-semibold tracking-tight text-foreground">Your player card</h2>
+        <p className="mt-1 text-xs text-muted-foreground">Customize how you show up on the leaderboard.</p>
       </div>
 
-      <div className="verbo-glass relative overflow-hidden rounded-3xl border border-white/20 bg-white/10 shadow-elevated">
-        <div className="h-24 bg-gradient-to-br from-[#01304a] via-[#024366] to-[#0a5e88]" aria-hidden>
-          <div className="h-full w-full opacity-25"
-            style={{ backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.9) 1px, transparent 0)", backgroundSize: "20px 20px" }} />
-        </div>
+      <div className="relative overflow-hidden rounded-3xl border border-border bg-white shadow-elevated">
+        <div className="h-24 bg-gradient-to-br from-[#01304a] via-[#024366] to-[#0a5e88]" aria-hidden />
 
         <div className="px-6 pb-6">
           <div className="-mt-12 flex items-end gap-4">
             <div className="relative">
               {avatar ? (
-                <img src={avatar} alt="" className="h-24 w-24 rounded-full border-4 border-white/30 object-cover shadow-elevated" />
+                <img src={avatar} alt="" className="h-24 w-24 rounded-full border-4 border-white object-cover shadow-elevated" />
               ) : (
                 <span
-                  className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white/30 text-2xl font-bold text-white shadow-elevated"
+                  className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white text-2xl font-bold text-white shadow-elevated"
                   style={{ background: colorFromString(student.name) }}
                 >
                   {initialsOf(student.name)}
@@ -2092,36 +2089,36 @@ function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
 
             <div className="min-w-0 flex-1 pb-1">
               <div className="flex items-center gap-2">
-                <div className="truncate text-lg font-bold tracking-tight text-white">{displayName}</div>
+                <div className="truncate text-lg font-bold tracking-tight text-foreground">{displayName}</div>
                 <button
                   type="button"
                   onClick={() => setEditingName((v) => !v)}
                   aria-label="Edit display name"
-                  className="rounded-md p-1 text-white/70 transition-colors hover:bg-white/15 hover:text-white"
+                  className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </button>
               </div>
-              <div className="text-xs text-white/75">
+              <div className="text-xs text-muted-foreground">
                 {student.completed_challenges?.length ?? 0} challenges completed
               </div>
             </div>
           </div>
 
           {editingName && (
-            <div className="verbo-glass mt-4 space-y-2 rounded-2xl border border-white/20 bg-white/10 p-4">
-              <div className="text-[11px] font-semibold uppercase tracking-wider text-white/75">
+            <div className="mt-4 space-y-2 rounded-2xl border border-border bg-secondary/50 p-4">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Show on leaderboard as
               </div>
-              <label className="flex items-center gap-2 text-sm text-white">
+              <label className="flex items-center gap-2 text-sm text-foreground">
                 <input
                   type="radio"
                   checked={mode === "real"}
                   onChange={() => commit({ mode: "real", nickname })}
                 />
-                My name <span className="text-white/70">({student.name})</span>
+                My name <span className="text-muted-foreground">({student.name})</span>
               </label>
-              <label className="flex items-center gap-2 text-sm text-white">
+              <label className="flex items-center gap-2 text-sm text-foreground">
                 <input
                   type="radio"
                   checked={mode === "nickname"}
@@ -2134,34 +2131,34 @@ function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
                   value={nickname}
                   onChange={(e) => commit({ mode: "nickname", nickname: e.target.value })}
                   placeholder="Your nickname"
-                  className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/50 outline-none focus:border-white/50"
+                  className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#f38934]"
                 />
               )}
             </div>
           )}
 
           <div className="mt-5">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-white/75">Showcase badge</div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Showcase badge</div>
             <div className="mt-2">
               <button
                 type="button"
                 onClick={() => setPicker(true)}
-                className="verbo-glass flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-left transition-all hover:-translate-y-0.5 hover:border-[#f38934] hover:shadow-md"
+                className="flex items-center gap-3 rounded-2xl border border-border bg-white px-4 py-3 text-left transition-all hover:-translate-y-0.5 hover:border-[#f38934] hover:shadow-md"
               >
                 {slotBadge ? (
                   <>
                     <BadgeVisual badge={slotBadge} earned size="sm" />
                     <div>
-                      <div className="text-sm font-semibold text-white">{slotBadge.name}</div>
-                      <div className="text-[11px] text-white/70">Tap to change</div>
+                      <div className="text-sm font-semibold text-foreground">{slotBadge.name}</div>
+                      <div className="text-[11px] text-muted-foreground">Tap to change</div>
                     </div>
                   </>
                 ) : (
                   <>
-                    <span className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-white/40 text-white/70">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/40 text-muted-foreground">
                       <Plus className="h-5 w-5" />
                     </span>
-                    <div className="text-sm font-medium text-white/80">Add badge</div>
+                    <div className="text-sm font-medium text-foreground/80">Add badge</div>
                   </>
                 )}
               </button>
