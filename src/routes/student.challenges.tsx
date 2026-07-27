@@ -829,10 +829,10 @@ function VerboFlashSection({
     <div>
       <div className="mb-4 flex items-end justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7e22ce]">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#e9d5ff]">
             <Zap className="h-3.5 w-3.5" /> Mystery Box{activeSeasons.length > 0 ? " & Seasons" : ""}
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">A surprise challenge waits inside. One per day, per box.</p>
+          <p className="mt-1 text-xs text-white/75">A surprise challenge waits inside. One per day, per box.</p>
         </div>
 
       </div>
@@ -853,7 +853,7 @@ function VerboFlashSection({
           className={`group relative aspect-square overflow-hidden rounded-2xl border p-6 text-center shadow-soft transition-all ${
             available
               ? "border-[#7e22ce]/30 bg-gradient-to-br from-[#4a044e] via-[#7e22ce] to-[#f59e0b] text-white hover:-translate-y-0.5 hover:shadow-elevated"
-              : "cursor-not-allowed border-border bg-secondary/60 text-muted-foreground opacity-70"
+              : "verbo-glass cursor-not-allowed border-white/20 bg-white/10 text-white/70 opacity-80"
           }`}
         >
           <div className="flex h-full flex-col items-center justify-center gap-4">
