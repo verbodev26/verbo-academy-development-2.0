@@ -1993,7 +1993,7 @@ function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
 
           <div className="mt-5">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Showcase badge</div>
-            <div className="mt-2">
+            <div className="mt-2 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={() => setPicker(true)}
@@ -2016,7 +2016,15 @@ function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
                   </>
                 )}
               </button>
+              <button
+                type="button"
+                onClick={() => setChallengeBadges(true)}
+                className="rounded-2xl border border-border bg-background px-4 py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:border-[#f38934] hover:shadow-md"
+              >
+                Badges
+              </button>
             </div>
+
           </div>
         </div>
       </div>
