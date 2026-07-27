@@ -72,6 +72,7 @@ import micIconAsset from "@/assets/yellow-mic.svg.asset.json";
 import pencilIconAsset from "@/assets/pencil-animation.svg.asset.json";
 import soundWavesIconAsset from "@/assets/sound-waves.svg.asset.json";
 import bookIconAsset from "@/assets/book-icon.svg.asset.json";
+import { useAvatar } from "@/lib/avatar-store";
 
 const MACRO_ICON_ASSETS: Record<string, string> = {
   Speaking: micIconAsset.url,
@@ -92,6 +93,40 @@ import {
 export const Route = createFileRoute("/student/")({
   component: StudentDashboard,
 });
+
+/**
+ * Teacher/host avatar: shows the uploaded profile photo when the staff member
+ * has one (avatar-store), otherwise falls back to their initial.
+ */
+function TeacherAvatar({
+  userId,
+  name,
+  className = "h-9 w-9",
+}: {
+  userId?: string;
+  name?: string;
+  className?: string;
+}) {
+  const avatar = useAvatar(userId);
+  if (avatar) {
+    return (
+      <img
+        src={avatar}
+        alt={name ?? "Teacher"}
+        className={`shrink-0 rounded-full object-cover ${className}`}
+      />
+    );
+  }
+  const initial = (name ?? "?").trim().charAt(0).toUpperCase() || "?";
+  return (
+    <div
+      className={`flex shrink-0 items-center justify-center rounded-full bg-[#01304a] text-sm font-semibold text-white ${className}`}
+      aria-hidden
+    >
+      {initial}
+    </div>
+  );
+}
 
 /** Section heading with a colored icon circle (Class Details modal). */
 function SectionHeadIcon({ icon, circleClass, label }: { icon: React.ReactNode; circleClass: string; label: string }) {
