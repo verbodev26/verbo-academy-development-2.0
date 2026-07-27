@@ -1271,10 +1271,10 @@ function LightningCard({
     <div>
       <div className="mb-4 flex items-end justify-between">
         <div>
-          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#ca8a04]">
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#fde68a]">
             <Zap className="h-3.5 w-3.5 text-[#facc15]" /> Lightning
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">Reto Relámpago — live for a limited window.</p>
+          <p className="mt-1 text-xs text-white/75">Reto Relámpago — live for a limited window.</p>
         </div>
       </div>
 
