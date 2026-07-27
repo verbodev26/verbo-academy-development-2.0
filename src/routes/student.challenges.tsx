@@ -1711,9 +1711,9 @@ function ChallengesHero({
   completed: number;
 }) {
   const stats = [
-    { icon: Flame, label: "Current streak", value: currentStreak },
-    { icon: Trophy, label: "Longest streak", value: longestStreak },
-    { icon: CheckCircle2, label: "Completed", value: completed },
+    { icon: fireIconAsset.url, label: "Current streak", value: currentStreak },
+    { icon: trophyIconAsset.url, label: "Longest streak", value: longestStreak },
+    { icon: confettiIconAsset.url, label: "Completed", value: completed },
   ];
   return (
     <div className={`verbo-hero-enter relative overflow-hidden rounded-3xl bg-gradient-to-br ${gradient} p-7 text-white shadow-elevated`}>
