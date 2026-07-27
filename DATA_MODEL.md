@@ -795,8 +795,14 @@ Guarda hasta `EQUIPPED_MAX = 3` badge ids por alumno. `localStorage["verbo:equip
 **Admin**: `/admin/profile-badges` (grupo "Students" en `admin.tsx`) usa la misma mecánica que la pestaña "Badges" de Admin Challenges: subir imagen (GIF/PNG/JPG/WebP, máx 1 MB) como data URL, editar nombre/descripción/métrica/umbral, sin URLs externas.
 
 **Consumo**:
-- `student.index.tsx` → `<FeaturedProfileBadge />` en el header (equipado primero, sino el earned con mayor threshold, sino nada — se eliminó la flama fija "On Fire").
+- `student.index.tsx` → `<FeaturedProfileBadge />` en el header. Orden de prioridad: 1) Challenge Badge equipado **y** desbloqueado (`equipped-challenge-badges-store.ts` + `badges-store.ts`), 2) Profile Badge equipado, 3) Profile Badge earned con mayor threshold, 4) nada.
 - `ProfileModal.tsx` → slots "Equipped Badges" reales con equip/unequip, y "Achievements Gallery" con estado earned/locked y hint de progreso numérico (p.ej. `8/10`).
+
+**`src/lib/equipped-challenge-badges-store.ts`** (independiente del anterior)
+
+Guarda hasta `EQUIPPED_MAX = 3` **Challenge Badge** ids por alumno (catálogo de `badges-store.ts`). `localStorage["verbo:equipped-challenge-badges"]`, evento `"verbo:equipped-challenge-badges-updated"`. API: `loadEquippedChallengeBadgeIds(studentId)`, `setEquippedChallengeBadgeIds(studentId, ids)`, `subscribeEquippedChallengeBadges(cb)`. Storage separado a propósito: los ids se repiten entre ambos catálogos (`first`, `explorer`, `master`).
+
+Consumo: modal "Challenge badges" en `student.challenges.tsx` (abierto desde `PlayerProfileCard`) — sólo los 8 badges core son equipables (toggle); Lightning Bolt y los badges de Season se muestran earned/locked pero no son equipables.
 
 **Regla compartida `levelIsComplete(level, studentId)`** vive ahora en `activities-store.ts` (antes duplicada en `student.courses.tsx`) e incluye el caso especial de unidades milestone con override `"unlocked"` / `"locked"`.
 
