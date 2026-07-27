@@ -20,7 +20,23 @@ import {
   Plus,
   Gem,
   Medal,
+  Video,
+  Clapperboard,
+  Headphones,
+  Ear,
+  Mail,
+  BookOpen,
+  PenLine,
+  MessagesSquare,
+  Users,
+  Presentation,
+  Handshake,
+  Megaphone,
+  Briefcase,
+  Tag,
+  type LucideIcon,
 } from "lucide-react";
+
 import { Card, Pill, PrimaryButton, GhostButton, SuccessButton } from "@/components/verbo/ui";
 import { Confetti } from "@/components/verbo/Confetti";
 import { useAuth } from "@/lib/auth";
