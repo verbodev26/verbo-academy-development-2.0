@@ -571,80 +571,64 @@ function Page() {
 
       {/* ---------------- Verbo Flash family: Mystery Box + Seasons + Lightning ---------------- */}
       {(["enterprise", "go", "international"] as const).includes(productId as FlashProductId) && (
-        <section>
-            <div className="mb-5">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                <Zap className="h-3.5 w-3.5 text-[#7e22ce]" /> Verbo Flash
-              </div>
-              <h2 className="mt-1 text-lg font-semibold tracking-tight text-foreground">
-                Instant challenges arcade
-              </h2>
-              <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
-                Mystery Box, active Seasons and the live Lightning — surprise challenges that appear
-                for a limited time and don't follow the regular difficulty path.
-              </p>
-            </div>
+        <section className="space-y-6">
+          <VerboFlashSection
+            boxArtUrl={flashConfig.box_art_url}
+            available={flashChallengesFor(flashList, "mystery_box", productId as FlashProductId).length > 0}
+            activeSeasons={seasons.filter((s) => s.active)}
+            onOpen={() => {
+              const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
+              if (pool.length === 0) return;
+              if (!openMysteryBox(student.id)) {
+                setMystery({ opening: false, reveal: null, blocked: true });
+                return;
+              }
+              setMystery({ opening: true, reveal: null, blocked: false });
+              // Suspenseful reveal delay — the box animates then the challenge is revealed.
+              setTimeout(() => {
+                const pick = pool[Math.floor(Math.random() * pool.length)];
+                setMystery({ opening: false, reveal: pick, blocked: false });
+              }, 900);
+            }}
+            onOpenSeason={(season) => {
+              const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
+              if (pool.length === 0) return;
+              if (!openSeason(student.id, season.id)) {
+                setSeasonState({ season, opening: false, reveal: null, blocked: true });
+                return;
+              }
+              setSeasonState({ season, opening: true, reveal: null, blocked: false });
+              setTimeout(() => {
+                const pick = pool[Math.floor(Math.random() * pool.length)];
+                setSeasonState({ season, opening: false, reveal: pick, blocked: false });
+              }, 900);
+            }}
+          />
 
-            <div className="space-y-6">
-
-              <VerboFlashSection
-                boxArtUrl={flashConfig.box_art_url}
-                available={flashChallengesFor(flashList, "mystery_box", productId as FlashProductId).length > 0}
-                activeSeasons={seasons.filter((s) => s.active)}
-                onOpen={() => {
-                  const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
-                  if (pool.length === 0) return;
-                  if (!openMysteryBox(student.id)) {
-                    setMystery({ opening: false, reveal: null, blocked: true });
-                    return;
-                  }
-                  setMystery({ opening: true, reveal: null, blocked: false });
-                  // Suspenseful reveal delay — the box animates then the challenge is revealed.
-                  setTimeout(() => {
-                    const pick = pool[Math.floor(Math.random() * pool.length)];
-                    setMystery({ opening: false, reveal: pick, blocked: false });
-                  }, 900);
-                }}
-                onOpenSeason={(season) => {
-                  const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
-                  if (pool.length === 0) return;
-                  if (!openSeason(student.id, season.id)) {
-                    setSeasonState({ season, opening: false, reveal: null, blocked: true });
-                    return;
-                  }
-                  setSeasonState({ season, opening: true, reveal: null, blocked: false });
-                  setTimeout(() => {
-                    const pick = pool[Math.floor(Math.random() * pool.length)];
-                    setSeasonState({ season, opening: false, reveal: pick, blocked: false });
-                  }, 900);
-                }}
-              />
-
-              {/* Lightning card */}
-              {isLightningVisibleForStudents(lightning)
-                && lightning.product === productId && (() => {
-                  const ch = flashList.find((c) => c.id === lightning.challenge_id);
-                  if (!ch) return null;
-                  const remaining = lightning.expires_at ? +new Date(lightning.expires_at) - nowTick : 0;
-                  const isLive = lightning.status === "live" && remaining > 0;
-                  const accepted = lightning.accepted_student_ids.includes(student.id);
-                  const completed = hasCompletedChallenge(student.id, ch.id);
-                  return (
-                    <LightningCard
-                      challenge={ch}
-                      isLive={isLive}
-                      remainingMs={remaining}
-                      acceptedCount={lightning.accepted_student_ids.length}
-                      accepted={accepted}
-                      completed={completed}
-                      onOpen={() => {
-                        if (isLive && !accepted) acceptLightning(student.id);
-                        setLightningOpen(ch);
-                      }}
-                    />
-                  );
-                })()}
-            </div>
+          {/* Lightning card */}
+          {isLightningVisibleForStudents(lightning)
+            && lightning.product === productId && (() => {
+              const ch = flashList.find((c) => c.id === lightning.challenge_id);
+              if (!ch) return null;
+              const remaining = lightning.expires_at ? +new Date(lightning.expires_at) - nowTick : 0;
+              const isLive = lightning.status === "live" && remaining > 0;
+              const accepted = lightning.accepted_student_ids.includes(student.id);
+              const completed = hasCompletedChallenge(student.id, ch.id);
+              return (
+                <LightningCard
+                  challenge={ch}
+                  isLive={isLive}
+                  remainingMs={remaining}
+                  acceptedCount={lightning.accepted_student_ids.length}
+                  accepted={accepted}
+                  completed={completed}
+                  onOpen={() => {
+                    if (isLive && !accepted) acceptLightning(student.id);
+                    setLightningOpen(ch);
+                  }}
+                />
+              );
+            })()}
         </section>
 
       )}
