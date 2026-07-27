@@ -1708,10 +1708,11 @@ function ChallengesHero({
   completed: number;
 }) {
   const stats = [
-    { icon: Flame, label: "Current streak", value: currentStreak },
-    { icon: Trophy, label: "Longest streak", value: longestStreak },
-    { icon: CheckCircle2, label: "Completed", value: completed },
+    { label: "Current streak", value: currentStreak },
+    { label: "Longest streak", value: longestStreak },
+    { label: "Completed", value: completed },
   ];
+
   return (
     <div className={`verbo-hero-enter relative overflow-hidden rounded-3xl bg-gradient-to-br ${gradient} p-7 text-white shadow-elevated`}>
       <style>{`
@@ -1758,8 +1759,9 @@ function ChallengesHero({
               style={{ animationDelay: `${120 + i * 90}ms` }}
             >
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
-                <s.icon className="h-5 w-5" />
+                <img src={fireAnimation} alt="" aria-hidden className="h-8 w-8" />
               </span>
+
               <div>
                 <div className="text-2xl font-bold leading-none tracking-tight">{s.value}</div>
                 <div className="mt-1 text-[11px] font-medium uppercase tracking-wider text-white/70">{s.label}</div>
