@@ -57,6 +57,17 @@ import { EVENT_KIND_META } from "@/lib/calendar-events";
 import { RatingModal } from "@/components/verbo/RatingModal";
 import { ReportConductModal } from "@/components/verbo/ReportConductModal";
 import { CantAttendRouter, RescheduleRequestModal } from "@/components/verbo/CancelSessionFlow";
+import micIconAsset from "@/assets/yellow-mic.svg.asset.json";
+import pencilIconAsset from "@/assets/pencil-animation.svg.asset.json";
+import soundWavesIconAsset from "@/assets/sound-waves.svg.asset.json";
+import bookIconAsset from "@/assets/book-icon.svg.asset.json";
+
+const MACRO_ICON_ASSETS: Record<string, string> = {
+  Speaking: micIconAsset.url,
+  Writing: pencilIconAsset.url,
+  Listening: soundWavesIconAsset.url,
+  Reading: bookIconAsset.url,
+};
 
 import {
   Dialog,
@@ -528,6 +539,7 @@ function StudentDashboard() {
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {macros.map((m) => {
               const Icon = m.icon;
+              const iconAsset = MACRO_ICON_ASSETS[m.key];
               const color = SKILL_COLORS[m.key] ?? "#01304a";
               const pct = m.overall === null ? 0 : m.overall;
               return (
@@ -540,7 +552,11 @@ function StudentDashboard() {
                       className="flex h-11 w-11 items-center justify-center rounded-xl text-white"
                       style={{ background: color, boxShadow: `0 6px 16px -4px color-mix(in oklab, ${color} 25%, transparent)` }}
                     >
-                      <Icon className="h-5 w-5" strokeWidth={2} />
+                      {iconAsset ? (
+                        <img src={iconAsset} alt="" aria-hidden className="h-7 w-7 object-contain" />
+                      ) : (
+                        <Icon className="h-5 w-5" strokeWidth={2} />
+                      )}
                     </div>
 
                     <div className="min-w-0">
