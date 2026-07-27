@@ -38,8 +38,8 @@ function Layout() {
 
   return (
     <RoleGuard allow="teacher">
-      <TopNav items={items} />
-      <div className="flex min-h-screen flex-col bg-background">
+      <TopNav variant="dark" items={items} />
+      <div className="flex min-h-screen flex-col" style={{ backgroundColor: "#f4f6f8" }}>
         <main className="mx-auto w-full max-w-7xl flex-1 pt-24 pb-10">
           <div className="px-6">
             <AnnouncementBanner />

@@ -30,7 +30,7 @@ function isGroup(entry: NavEntry): entry is NavGroup {
 }
 
 function isActive(pathname: string, item: NavItem, exact?: boolean): boolean {
-  return exact || item.to === "/teacher" || item.to === "/student"
+  return exact || item.to === "/teacher" || item.to === "/student" || item.to === "/admin"
     ? pathname === item.to
     : pathname === item.to || pathname.startsWith(item.to + "/");
 }
