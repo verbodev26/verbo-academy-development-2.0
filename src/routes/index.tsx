@@ -299,7 +299,7 @@ function Landing() {
                   delay={140}
                   className="md:col-span-2 lg:col-span-1 lg:row-span-2"
                   image={{ src: redCardImage.url, alt: "Students taking on challenges together" }}
-                  artClassName="sm:-top-[6%]"
+                  artClassName="sm:top-[30%]"
                   watermarks={
                     <>
                       <Zap
@@ -343,7 +343,7 @@ function Landing() {
                   imageSide="left"
                   delay={280}
                   image={{ src: navyCardImage.url, alt: "Verbo Academy instructors" }}
-                  artClassName="sm:-top-[12%] sm:w-[52%]"
+                  artClassName="sm:-top-[8%]"
 
                   title="Guided by expert Instructors"
                   body={
