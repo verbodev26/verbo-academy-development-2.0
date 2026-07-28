@@ -81,24 +81,27 @@ function BenefitCard({
   const bodyColor = tone === "light" ? "text-white/85" : "text-[var(--navy-900)]/80";
   const isBottom = imageSide === "bottom";
 
-  // Desktop: width-driven artwork sitting on the card floor, clipped by the card sides
-  // but free to break the top edge.
-  const imgPos = isBottom
-    ? "sm:right-[-6%] sm:w-[72%]"
-    : imageSide === "left"
-      ? "sm:left-[-14%] sm:w-[80%]"
-      : "sm:right-[-14%] sm:w-[80%]";
-
   const art = image ? (
-    <div className="relative mt-6 h-56 w-full sm:absolute sm:inset-x-0 sm:bottom-0 sm:-top-[42%] sm:mt-0 sm:h-auto sm:overflow-hidden sm:rounded-[2rem]">
+    <>
+      {/* Mobile: la foto fluye debajo del texto, completa */}
+      <div className="mt-6 h-52 w-full sm:hidden">
+        <img
+          src={image.src}
+          alt={image.alt}
+          loading="lazy"
+          className="h-full w-full object-contain object-bottom drop-shadow-[0_18px_28px_rgba(1,48,74,0.22)]"
+        />
+      </div>
+      {/* Desktop: recorte gigante anclado al piso de la tarjeta, puede desbordar sus bordes */}
       <img
         src={image.src}
         alt={image.alt}
         loading="lazy"
-        className={`h-full w-full object-contain object-bottom drop-shadow-[0_18px_28px_rgba(1,48,74,0.22)] transition-transform duration-300 ease-out group-hover:-translate-y-1 sm:absolute sm:bottom-0 sm:h-auto ${imgPos} ${artClassName}`}
+        className={`pointer-events-none absolute z-0 hidden w-auto max-w-none drop-shadow-[0_18px_28px_rgba(1,48,74,0.22)] transition-transform duration-300 ease-out group-hover:-translate-y-1 sm:block ${artClassName}`}
       />
-    </div>
+    </>
   ) : null;
+
 
 
 
