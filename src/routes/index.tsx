@@ -299,6 +299,7 @@ function Landing() {
                   delay={140}
                   className="md:col-span-2 lg:col-span-1 lg:row-span-2"
                   image={{ src: redCardImage.url, alt: "Students taking on challenges together" }}
+                  artClassName="sm:left-[-4%] sm:bottom-[-2%] sm:h-[52%]"
                   
                   watermarks={
                     <>
