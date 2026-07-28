@@ -122,12 +122,13 @@ function BenefitCard({
         </div>
       )}
 
-      {art}
-
       <div className={`relative z-10 flex flex-col p-8 ${textAlign}`}>
         <h3 className={`text-2xl font-bold leading-tight tracking-tight ${titleColor}`}>{title}</h3>
         <p className={`mt-3 text-sm leading-relaxed ${bodyColor}`}>{body}</p>
       </div>
+
+      {art}
+
     </div>
   );
 }
