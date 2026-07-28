@@ -108,10 +108,10 @@ function BenefitCard({
 
 
   const textAlign = isBottom
-    ? ""
+    ? "sm:mx-auto sm:max-w-[26rem] sm:text-center"
     : imageSide === "left"
-      ? "sm:ml-auto sm:w-[46%]"
-      : "sm:mr-auto sm:w-[46%]";
+      ? "sm:ml-auto sm:w-[52%] sm:text-right"
+      : "sm:mr-auto sm:w-[52%]";
 
   return (
     <div
