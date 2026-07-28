@@ -233,12 +233,13 @@ function Landing() {
                 </p>
               </div>
 
-              <div ref={cardsRef} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2" ref={cardsRef}>
                 <BenefitCard
                   gradient="card-gradient-gold"
                   tone="navy"
                   imageSide="left"
                   delay={0}
+                  image={{ src: yellowCardImage.url, alt: "Student learning on his phone" }}
                   title="Learn on Your Own Terms"
                   body={
                     <>
@@ -254,6 +255,19 @@ function Landing() {
                   tone="navy"
                   imageSide="right"
                   delay={70}
+                  image={{ src: purpleCardImage.url, alt: "Two people talking in English" }}
+                  watermarks={
+                    <>
+                      <MessageCircle
+                        className="absolute -left-6 top-6 h-40 w-40 opacity-[0.08]"
+                        strokeWidth={1.5}
+                      />
+                      <MessageSquare
+                        className="absolute bottom-4 left-24 h-24 w-24 opacity-[0.08]"
+                        strokeWidth={1.5}
+                      />
+                    </>
+                  }
                   title="Speak with confidence, not pressure"
                   body={
                     <>
@@ -270,6 +284,19 @@ function Landing() {
                   imageSide="bottom"
                   delay={140}
                   className="md:col-span-2 lg:col-span-1 lg:row-span-2"
+                  image={{ src: redCardImage.url, alt: "Students taking on challenges together" }}
+                  watermarks={
+                    <>
+                      <Gift
+                        className="absolute -left-8 top-24 h-48 w-48 opacity-[0.08]"
+                        strokeWidth={1.5}
+                      />
+                      <Zap
+                        className="absolute -right-6 top-6 h-40 w-40 opacity-[0.08]"
+                        strokeWidth={1.5}
+                      />
+                    </>
+                  }
                   title="Level Up with Fun Challenges"
                   body={
                     <>
@@ -284,6 +311,7 @@ function Landing() {
                   tone="navy"
                   imageSide="right"
                   delay={210}
+                  image={{ src: greenCardImage.url, alt: "Student celebrating her progress" }}
                   title="Track real, tangible progress"
                   body={
                     <>
@@ -298,6 +326,7 @@ function Landing() {
                   tone="light"
                   imageSide="left"
                   delay={280}
+                  image={{ src: navyCardImage.url, alt: "Verbo Academy instructors" }}
                   title="Guided by expert Instructors"
                   body={
                     <>
@@ -308,6 +337,7 @@ function Landing() {
                   }
                 />
               </div>
+
             </div>
           </section>
 
