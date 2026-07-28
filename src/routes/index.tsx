@@ -81,34 +81,37 @@ function BenefitCard({
   const bodyColor = tone === "light" ? "text-white/85" : "text-[var(--navy-900)]/80";
   const isBottom = imageSide === "bottom";
 
-  // Desktop: width-driven artwork sitting on the card floor, clipped by the card sides
-  // but free to break the top edge.
-  const imgPos = isBottom
-    ? "sm:right-[-6%] sm:w-[72%]"
-    : imageSide === "left"
-      ? "sm:left-[-14%] sm:w-[80%]"
-      : "sm:right-[-14%] sm:w-[80%]";
-
   const art = image ? (
-    <div className="relative mt-6 h-56 w-full sm:absolute sm:inset-x-0 sm:bottom-0 sm:-top-[42%] sm:mt-0 sm:h-auto sm:overflow-hidden sm:rounded-[2rem]">
+    <>
+      {/* Mobile: la foto fluye debajo del texto, completa */}
+      <div className="mt-6 h-52 w-full sm:hidden">
+        <img
+          src={image.src}
+          alt={image.alt}
+          loading="lazy"
+          className="h-full w-full object-contain object-bottom drop-shadow-[0_18px_28px_rgba(1,48,74,0.22)]"
+        />
+      </div>
+      {/* Desktop: recorte gigante anclado al piso de la tarjeta, puede desbordar sus bordes */}
       <img
         src={image.src}
         alt={image.alt}
         loading="lazy"
-        className={`h-full w-full object-contain object-bottom drop-shadow-[0_18px_28px_rgba(1,48,74,0.22)] transition-transform duration-300 ease-out group-hover:-translate-y-1 sm:absolute sm:bottom-0 sm:h-auto ${imgPos} ${artClassName}`}
+        className={`pointer-events-none absolute z-0 hidden w-auto max-w-none drop-shadow-[0_18px_28px_rgba(1,48,74,0.22)] transition-transform duration-300 ease-out group-hover:-translate-y-1 sm:block ${artClassName}`}
       />
-    </div>
+    </>
   ) : null;
 
 
 
 
 
+
   const textAlign = isBottom
-    ? ""
+    ? "sm:mx-auto sm:max-w-[26rem] sm:text-center"
     : imageSide === "left"
-      ? "sm:ml-auto sm:w-[46%]"
-      : "sm:mr-auto sm:w-[46%]";
+      ? "sm:ml-auto sm:w-[52%] sm:text-right"
+      : "sm:mr-auto sm:w-[52%]";
 
   return (
     <div
@@ -249,6 +252,7 @@ function Landing() {
                   imageSide="left"
                   delay={0}
                   image={{ src: yellowCardImage.url, alt: "Student learning on his phone" }}
+                  artClassName="sm:left-[-6%] sm:bottom-[-7%] sm:h-[105%]"
                   title="Learn on Your Own Terms"
                   body={
                     <>
@@ -265,6 +269,7 @@ function Landing() {
                   imageSide="right"
                   delay={70}
                   image={{ src: purpleCardImage.url, alt: "Two people talking in English" }}
+                  artClassName="sm:right-[2%] sm:bottom-0 sm:h-[90%]"
                   watermarks={
                     <>
                       <MessageCircle
@@ -294,6 +299,7 @@ function Landing() {
                   delay={140}
                   className="md:col-span-2 lg:col-span-1 lg:row-span-2"
                   image={{ src: redCardImage.url, alt: "Students taking on challenges together" }}
+                  artClassName="sm:left-[-4%] sm:bottom-[-2%] sm:h-[52%]"
                   
                   watermarks={
                     <>
@@ -323,6 +329,7 @@ function Landing() {
                   imageSide="right"
                   delay={210}
                   image={{ src: greenCardImage.url, alt: "Student celebrating her progress" }}
+                  artClassName="sm:right-[-7%] sm:bottom-[-8%] sm:h-[105%]"
                   title="Track real, tangible progress"
                   body={
                     <>
@@ -338,6 +345,7 @@ function Landing() {
                   imageSide="left"
                   delay={280}
                   image={{ src: navyCardImage.url, alt: "Verbo Academy instructors" }}
+                  artClassName="sm:left-[3%] sm:bottom-0 sm:h-[97%]"
                   
 
                   title="Guided by expert Instructors"
