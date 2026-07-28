@@ -47,6 +47,80 @@ function useRevealOnScroll<T extends HTMLElement>() {
   return ref;
 }
 
+type BenefitCardProps = {
+  gradient: string;
+  tone: "navy" | "light";
+  imageSide: "left" | "right" | "bottom";
+  title: string;
+  body: React.ReactNode;
+  delay: number;
+  className?: string;
+  image?: { src: string; alt: string };
+};
+
+/** Colored benefit card with cut-out artwork and text side by side. */
+function BenefitCard({
+  gradient,
+  tone,
+  imageSide,
+  title,
+  body,
+  delay,
+  className = "",
+  image,
+}: BenefitCardProps) {
+  const titleColor = tone === "light" ? "text-white" : "text-[var(--navy-900)]";
+  const bodyColor = tone === "light" ? "text-white/85" : "text-[var(--navy-900)]/80";
+  const isBottom = imageSide === "bottom";
+
+  const art = (
+    <div
+      className={`relative flex shrink-0 items-end justify-center ${
+        isBottom ? "mt-6 h-56 w-full lg:h-72" : "h-44 w-full sm:h-full sm:w-2/5"
+      }`}
+    >
+      {image ? (
+        <img
+          src={image.src}
+          alt={image.alt}
+          loading="lazy"
+          className="h-full w-full object-contain object-bottom"
+        />
+      ) : (
+        <PhotoPlaceholder tone="dark" className="h-full w-full" />
+      )}
+    </div>
+  );
+
+  return (
+    <div
+      data-reveal
+      className={`verbo-reveal group relative flex flex-col overflow-hidden rounded-[2rem] ${gradient} shadow-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[6px] hover:shadow-card-hover ${className}`}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div
+        className={`flex h-full flex-col gap-4 p-8 ${
+          isBottom
+            ? ""
+            : imageSide === "left"
+              ? "sm:flex-row sm:items-stretch"
+              : "sm:flex-row-reverse sm:items-stretch"
+        }`}
+      >
+        {!isBottom && art}
+        <div className="min-w-0 flex-1">
+          <h3 className={`text-2xl font-bold leading-tight tracking-tight ${titleColor}`}>
+            {title}
+          </h3>
+          <p className={`mt-3 text-sm leading-relaxed ${bodyColor}`}>{body}</p>
+        </div>
+      </div>
+      {isBottom && <div className="px-8 pb-0">{art}</div>}
+    </div>
+  );
+}
+
+
 function Landing() {
   const cardsRef = useRevealOnScroll<HTMLDivElement>();
 
