@@ -4,7 +4,7 @@ import { Logo } from "@/components/verbo/Logo";
 import { Footer } from "@/components/verbo/Footer";
 import { Preloader } from "@/components/verbo/Preloader";
 import { PhotoPlaceholder } from "@/components/verbo/ui";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero_image.png.asset.json";
 
 export const Route = createFileRoute("/")({
