@@ -60,10 +60,11 @@ type BenefitCardProps = {
   delay: number;
   className?: string;
   image?: { src: string; alt: string };
+  artClassName?: string;
   watermarks?: React.ReactNode;
 };
 
-/** Colored benefit card with cut-out artwork that overflows the card edges. */
+/** Colored benefit card with an oversized cut-out that overflows the card edges. */
 function BenefitCard({
   gradient,
   tone,
@@ -73,33 +74,46 @@ function BenefitCard({
   delay,
   className = "",
   image,
+  artClassName = "",
   watermarks,
 }: BenefitCardProps) {
   const titleColor = tone === "light" ? "text-white" : "text-[var(--navy-900)]";
   const bodyColor = tone === "light" ? "text-white/85" : "text-[var(--navy-900)]/80";
   const isBottom = imageSide === "bottom";
 
+  // Desktop: width-driven artwork sitting on the card floor, clipped by the card sides
+  // but free to break the top edge.
+  const imgPos = isBottom
+    ? "sm:right-[-6%] sm:w-[72%]"
+    : imageSide === "left"
+      ? "sm:left-[-14%] sm:w-[80%]"
+      : "sm:right-[-14%] sm:w-[80%]";
+
   const art = image ? (
-    <div
-      className={`relative flex shrink-0 items-end justify-center ${
-        isBottom
-          ? "-mb-8 mt-6 h-64 w-full lg:h-80"
-          : "-mb-10 -mt-6 h-48 w-full self-end sm:h-auto sm:w-2/5 sm:self-stretch"
-      }`}
-    >
+    <div className="relative mt-6 h-56 w-full sm:absolute sm:inset-x-0 sm:bottom-0 sm:-top-[42%] sm:mt-0 sm:h-auto sm:overflow-hidden sm:rounded-[2rem]">
       <img
         src={image.src}
         alt={image.alt}
         loading="lazy"
-        className="h-full w-full origin-bottom scale-[1.18] object-contain object-bottom drop-shadow-[0_18px_28px_rgba(1,48,74,0.18)] transition-transform duration-300 ease-out group-hover:scale-[1.24]"
+        className={`h-full w-full object-contain object-bottom drop-shadow-[0_18px_28px_rgba(1,48,74,0.22)] transition-transform duration-300 ease-out group-hover:-translate-y-1 sm:absolute sm:bottom-0 sm:h-auto ${imgPos} ${artClassName}`}
       />
     </div>
   ) : null;
 
+
+
+
+
+  const textAlign = isBottom
+    ? ""
+    : imageSide === "left"
+      ? "sm:ml-auto sm:w-[46%]"
+      : "sm:mr-auto sm:w-[46%]";
+
   return (
     <div
       data-reveal
-      className={`verbo-reveal group relative flex flex-col rounded-[2rem] ${gradient} shadow-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[6px] hover:shadow-card-hover ${className}`}
+      className={`verbo-reveal group relative flex min-h-[280px] flex-col rounded-[2rem] ${gradient} shadow-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[6px] hover:shadow-card-hover ${className}`}
       style={{ animationDelay: `${delay}ms` }}
     >
       {watermarks && (
@@ -110,27 +124,18 @@ function BenefitCard({
           {watermarks}
         </div>
       )}
-      <div
-        className={`relative flex h-full flex-col gap-4 p-8 ${
-          isBottom
-            ? ""
-            : imageSide === "left"
-              ? "sm:flex-row sm:items-stretch"
-              : "sm:flex-row-reverse sm:items-stretch"
-        }`}
-      >
-        {!isBottom && art}
-        <div className="min-w-0 flex-1">
-          <h3 className={`text-2xl font-bold leading-tight tracking-tight ${titleColor}`}>
-            {title}
-          </h3>
-          <p className={`mt-3 text-sm leading-relaxed ${bodyColor}`}>{body}</p>
-        </div>
+
+      <div className={`relative z-10 flex flex-col p-8 ${textAlign}`}>
+        <h3 className={`text-2xl font-bold leading-tight tracking-tight ${titleColor}`}>{title}</h3>
+        <p className={`mt-3 text-sm leading-relaxed ${bodyColor}`}>{body}</p>
       </div>
-      {isBottom && <div className="relative px-8 pb-0">{art}</div>}
+
+      {art}
+
     </div>
   );
 }
+
 
 
 
@@ -289,18 +294,20 @@ function Landing() {
                   delay={140}
                   className="md:col-span-2 lg:col-span-1 lg:row-span-2"
                   image={{ src: redCardImage.url, alt: "Students taking on challenges together" }}
+                  
                   watermarks={
                     <>
-                      <Gift
-                        className="absolute -left-8 top-24 h-48 w-48 opacity-[0.08]"
-                        strokeWidth={1.5}
-                      />
                       <Zap
-                        className="absolute -right-6 top-6 h-40 w-40 opacity-[0.08]"
-                        strokeWidth={1.5}
+                        className="absolute -left-10 top-1/4 h-72 w-72 rotate-6 opacity-[0.08]"
+                        strokeWidth={1.2}
+                      />
+                      <Gift
+                        className="absolute -right-10 top-8 h-56 w-56 -rotate-12 opacity-[0.08]"
+                        strokeWidth={1.2}
                       />
                     </>
                   }
+
                   title="Level Up with Fun Challenges"
                   body={
                     <>
@@ -331,6 +338,8 @@ function Landing() {
                   imageSide="left"
                   delay={280}
                   image={{ src: navyCardImage.url, alt: "Verbo Academy instructors" }}
+                  
+
                   title="Guided by expert Instructors"
                   body={
                     <>

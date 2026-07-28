@@ -1,58 +1,39 @@
-## Objetivo
+## Goal
 
-Reemplazar por completo la sección 2 del homepage (`src/routes/index.tsx`, sección `id="how"`) — hoy 3 cards con `PhotoPlaceholder` — por el grid de 5 cards de la referencia, con personas recortadas en PNG transparente y gradientes de color.
+Make the artwork in the 5 benefit cards of the homepage match the reference screenshot: large cut-outs anchored to a card edge, bottom-aligned to the card floor, and clearly overflowing above the card's top edge — instead of the current small images tucked inside the padding.
 
-## Lo que necesito de ti antes de implementar
+## What's wrong today
 
-Las **5 imágenes PNG con fondo transparente**, una por card:
+In `src/routes/index.tsx`, `BenefitCard` renders the art as an in-flow flex column (`w-2/5`, `h-48`, small negative margins). That keeps the image inside the padded content row, so it stays small, vertically centered-ish, and never breaks the top edge.
 
-1. Hombre con celular (chaqueta de mezclilla) → card amarilla "Learn on Your Own Terms"
-2. Dos personas conversando → card morada "Speak with confidence, not pressure"
-3. Mujer celebrando con celular → card verde "Track real, tangible progress"
-4. Dos instructores brazos cruzados → card navy "Guided by expert Instructors"
-5. Pareja riendo con celulares → card roja "Level Up with Fun Challenges"
+## Fix
 
-Sin ellas puedo dejar la estructura lista, pero las cards quedarían sin arte.
-
-## Layout
+Rewrite the art layer in `BenefitCard` as an **absolutely positioned** element, so its size no longer depends on the text block:
 
 ```text
-Desktop (lg+)                          Mobile
-┌──────────┬──────────┬──────────┐     ┌──────────┐
-│ Amarilla │ Morada   │          │     │  1 card  │
-├──────────┼──────────┤   Roja   │     ├──────────┤
-│  Verde   │  Navy    │  (alta)  │     │  1 card  │
-└──────────┴──────────┴──────────┘     └──────────┘  ...apiladas
+card (relative, overflow-visible, rounded-[2rem])
+├── watermark layer   (absolute inset-0, overflow-hidden, clipped)
+├── art               (absolute, bottom-0, left-0 or right-0, w-[52%], h-[125%])
+└── text column       (relative, z-10, padded, 48% width on the free side)
 ```
 
-- Grid de 3 columnas × 2 filas en `lg`; la card roja usa `row-span-2`.
-- En `md`: 2 columnas, la roja pasa a ancho completo.
-- En mobile: una columna apilada, imagen arriba y texto abajo en cada card.
-- Se mantiene la animación de reveal escalonado (`data-reveal` / `verbo-reveal`) que ya existe.
+Per-card anchoring, matching the reference:
 
-## Cards — contenido y tratamiento
+| Card | Art anchor | Notes |
+|---|---|---|
+| Gold — Learn on Your Own Terms | bottom-left | text right |
+| Orchid — Speak with confidence | bottom-right | text left |
+| Crimson — Level Up (tall card) | bottom-right, wide | overflows bottom edge slightly |
+| Lime — Track real progress | bottom-right | text left |
+| Navy — Guided by Instructors | bottom-left, flush | sits inside bottom, minimal top overflow |
 
-| Card | Gradiente | Texto | Imagen |
-|---|---|---|---|
-| Learn on Your Own Terms | `card-gradient-gold` | navy | izquierda |
-| Speak with confidence, not pressure | `card-gradient-orchid` | navy | derecha |
-| Track real, tangible progress | `card-gradient-lime` | navy | derecha |
-| Guided by expert Instructors | `card-gradient-navy` | blanco | izquierda |
-| Level Up with Fun Challenges | **nuevo** `card-gradient-crimson` | blanco | abajo, grande |
+Technical details:
+- Art: `object-contain object-bottom`, height greater than 100% of the card (`h-[128%]`) so the head breaks the top edge; no `overflow-hidden` on the card itself (already the case).
+- Text column: gets an explicit width on `sm+` (`w-[48%]`) and is pushed to the side opposite the art via `ml-auto` / `mr-auto`, with `z-10` so it always sits above the artwork.
+- Mobile (< sm): art returns to a stacked layout under the text at a controlled height so nothing overlaps the copy.
+- Keep the existing gradients, texts, reveal animation, hover lift and the 8% white watermark icons untouched; only geometry changes.
+- Enlarge/rotate the crimson card's lightning bolt watermark to the reference's scale (big diagonal bolt on the left) and the gift shape on the right.
 
-Textos exactos de la captura, respetando los **bolds** internos (`24/7, 365`, `anywhere in the world`, `Insights & Book Clubs`, `Clear milestones and visual tracking`, `qualified, human instructors`).
+## Verification
 
-Encabezado de la sección: se mantiene "Built around you, not the other way around." con **"Built around you,"** en naranja de marca, y el subtítulo cambia a *"Learning designed around your routine, not the other way around. Study on your time, practice with purpose, and see results that stick"*.
-
-## Detalles técnicos
-
-- **`src/styles.css`**: nueva utility `@utility card-gradient-crimson` con `linear-gradient(150deg, #c2410c 0%, #b52904 55%, #760137 100%)`, junto a las demás `card-gradient-*`.
-- **Assets**: cada imagen se sube con `lovable-assets create` desde `/mnt/user-uploads/` y se referencia vía su `.asset.json` en `src/assets/` — sin binarios en el repo.
-- **`src/routes/index.tsx`**: se extrae un componente local `BenefitCard` (props: gradiente, tono de texto, eyebrow, título, cuerpo, imagen, posición de imagen) para no repetir markup 5 veces. Se elimina el uso de `PhotoPlaceholder` en esta sección y el import si queda sin uso.
-- Imágenes con `object-contain`, ancladas al borde inferior de la card, `alt` descriptivo y `loading="lazy"`.
-- Responsive: `min-w-0` en los contenedores de texto y `shrink-0` en el arte para evitar clipping en pantallas angostas.
-- Sin cambios en lógica de datos ni en `DATA_MODEL.md` (es puramente presentacional).
-
-## Siguiente paso
-
-Adjunta las 5 imágenes y las integro; si prefieres, puedo dejar primero la estructura con los gradientes y sumar el arte después.
+Screenshot the section at desktop width and compare against the reference, then check `md` and mobile widths for text/art collisions.
