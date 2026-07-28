@@ -358,7 +358,7 @@ function NextEventCard({ events, onEventClick }: { events: CalendarEvent[]; onEv
         src={nextUpArt.url}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-[6%] right-[-2%] z-[1] h-[112%] w-auto select-none object-contain object-bottom"
+        className="pointer-events-none absolute bottom-0 right-[-4%] z-[1] h-[100%] w-auto select-none object-contain object-bottom"
       />
       <div className="relative z-10 flex items-center justify-between gap-2">
         <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(1, 48, 74, 0.7)" }}>
