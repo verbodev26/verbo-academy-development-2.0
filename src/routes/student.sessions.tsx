@@ -43,7 +43,7 @@ import {
 import { Card, PrimaryButton, GhostButton } from "@/components/verbo/ui";
 import { X, Video, AlertTriangle, Sparkles, CalendarClock, RefreshCcw, ArrowLeft, ChevronRight, Users as UsersIcon, BookOpen, Star } from "lucide-react";
 import spotlightArt from "@/assets/spotlight1.png.asset.json";
-import nextUpArt from "@/assets/up_next.png.asset.json";
+import nextUpArt from "@/assets/Verbot_up_next.svg.asset.json";
 import { getLessonPlan } from "@/lib/lesson-plans-store";
 import { resolvePlanTopic } from "@/lib/product-courses-store";
 import { unitsForStudent } from "@/lib/vip-courses-store";
@@ -358,7 +358,7 @@ function NextEventCard({ events, onEventClick }: { events: CalendarEvent[]; onEv
         src={nextUpArt.url}
         alt=""
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 right-0 z-[1] h-[85%] w-auto select-none object-contain"
+        className="pointer-events-none absolute bottom-0 right-0 z-[1] h-[92%] w-auto select-none object-contain object-bottom"
       />
       <div className="relative z-10 flex items-center justify-between gap-2">
         <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(1, 48, 74, 0.7)" }}>
