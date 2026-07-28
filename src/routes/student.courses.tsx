@@ -707,7 +707,7 @@ function LevelCard({
   const isReopened = state.kind === "reopened";
   const isCurrent = state.kind === "current";
   const pct = state.totalUnits === 0 ? 0 : Math.round((state.passedUnits / state.totalUnits) * 100);
-  const coverImage = level.id === "ENTERPRISE-L2" ? citySunsetAsset.url : mountainsSunsetAsset.url;
+  const coverImage = level.id === "ENTERPRISE-L2" ? airportSunsetAsset.url : mountainsSunsetAsset.url;
 
   const clickable = !isLocked && !isCompleted;
 
