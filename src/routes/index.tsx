@@ -345,7 +345,7 @@ function Landing() {
                   imageSide="left"
                   delay={280}
                   image={{ src: navyCardImage.url, alt: "Verbo Academy instructors" }}
-                  artClassName="sm:left-[-7%] sm:bottom-[-2%] sm:h-[97%]"
+                  artClassName="sm:left-[-2%] sm:bottom-[-2%] sm:h-[97%]"
                   
 
                   title={<><span className="sm:whitespace-nowrap">Guided by expert</span><br />Instructors</>}
