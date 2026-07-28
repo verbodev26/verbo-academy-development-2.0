@@ -252,7 +252,7 @@ function Landing() {
                   imageSide="left"
                   delay={0}
                   image={{ src: yellowCardImage.url, alt: "Student learning on his phone" }}
-                  artClassName="sm:left-[-5%] sm:bottom-[-6%] sm:h-[102%]"
+                  artClassName="sm:left-[-5%] sm:bottom-[-7%] sm:h-[102%]"
                   title="Learn on Your Own Terms"
                   body={
                     <>
@@ -269,7 +269,7 @@ function Landing() {
                   imageSide="right"
                   delay={70}
                   image={{ src: purpleCardImage.url, alt: "Two people talking in English" }}
-                  artClassName="sm:right-0 sm:bottom-0 sm:h-[84%]"
+                  artClassName="sm:right-0 sm:bottom-[-8%] sm:h-[84%]"
                   watermarks={
                     <>
                       <MessageCircle
@@ -299,7 +299,7 @@ function Landing() {
                   delay={140}
                   className="md:col-span-2 lg:col-span-1 lg:row-span-2"
                   image={{ src: redCardImage.url, alt: "Students taking on challenges together" }}
-                  artClassName="sm:left-1/2 sm:-translate-x-1/2 sm:bottom-0 sm:h-[55%]"
+                  artClassName="sm:left-1/2 sm:-translate-x-1/2 sm:bottom-[-1%] sm:h-[64%]"
                   
                   watermarks={
                     <>
@@ -329,7 +329,7 @@ function Landing() {
                   imageSide="right"
                   delay={210}
                   image={{ src: greenCardImage.url, alt: "Student celebrating her progress" }}
-                  artClassName="sm:right-[-5%] sm:bottom-[-6%] sm:h-[102%]"
+                  artClassName="sm:right-0 sm:bottom-[-7%] sm:h-[102%]"
                   title="Track real, tangible progress"
                   body={
                     <>
@@ -345,10 +345,10 @@ function Landing() {
                   imageSide="left"
                   delay={280}
                   image={{ src: navyCardImage.url, alt: "Verbo Academy instructors" }}
-                  artClassName="sm:left-0 sm:bottom-0 sm:h-[88%]"
+                  artClassName="sm:left-0 sm:bottom-[-3%] sm:h-[101%]"
                   
 
-                  title="Guided by expert Instructors"
+                  title={<>Guided by expert<br />Instructors</>}
                   body={
                     <>
                       Learn from{" "}
