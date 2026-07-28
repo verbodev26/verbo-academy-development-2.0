@@ -56,9 +56,10 @@ type BenefitCardProps = {
   delay: number;
   className?: string;
   image?: { src: string; alt: string };
+  watermarks?: React.ReactNode;
 };
 
-/** Colored benefit card with cut-out artwork and text side by side. */
+/** Colored benefit card with cut-out artwork that overflows the card edges. */
 function BenefitCard({
   gradient,
   tone,
@@ -68,38 +69,45 @@ function BenefitCard({
   delay,
   className = "",
   image,
+  watermarks,
 }: BenefitCardProps) {
   const titleColor = tone === "light" ? "text-white" : "text-[var(--navy-900)]";
   const bodyColor = tone === "light" ? "text-white/85" : "text-[var(--navy-900)]/80";
   const isBottom = imageSide === "bottom";
 
-  const art = (
+  const art = image ? (
     <div
       className={`relative flex shrink-0 items-end justify-center ${
-        isBottom ? "mt-6 h-56 w-full lg:h-72" : "h-44 w-full sm:h-full sm:w-2/5"
+        isBottom
+          ? "-mb-8 mt-6 h-64 w-full lg:h-80"
+          : "-mb-10 -mt-6 h-48 w-full self-end sm:h-auto sm:w-2/5 sm:self-stretch"
       }`}
     >
-      {image ? (
-        <img
-          src={image.src}
-          alt={image.alt}
-          loading="lazy"
-          className="h-full w-full object-contain object-bottom"
-        />
-      ) : (
-        <PhotoPlaceholder tone="dark" className="h-full w-full" />
-      )}
+      <img
+        src={image.src}
+        alt={image.alt}
+        loading="lazy"
+        className="h-full w-full origin-bottom scale-[1.18] object-contain object-bottom drop-shadow-[0_18px_28px_rgba(1,48,74,0.18)] transition-transform duration-300 ease-out group-hover:scale-[1.24]"
+      />
     </div>
-  );
+  ) : null;
 
   return (
     <div
       data-reveal
-      className={`verbo-reveal group relative flex flex-col overflow-hidden rounded-[2rem] ${gradient} shadow-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[6px] hover:shadow-card-hover ${className}`}
+      className={`verbo-reveal group relative flex flex-col rounded-[2rem] ${gradient} shadow-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[6px] hover:shadow-card-hover ${className}`}
       style={{ animationDelay: `${delay}ms` }}
     >
+      {watermarks && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem] text-white"
+        >
+          {watermarks}
+        </div>
+      )}
       <div
-        className={`flex h-full flex-col gap-4 p-8 ${
+        className={`relative flex h-full flex-col gap-4 p-8 ${
           isBottom
             ? ""
             : imageSide === "left"
@@ -115,10 +123,11 @@ function BenefitCard({
           <p className={`mt-3 text-sm leading-relaxed ${bodyColor}`}>{body}</p>
         </div>
       </div>
-      {isBottom && <div className="px-8 pb-0">{art}</div>}
+      {isBottom && <div className="relative px-8 pb-0">{art}</div>}
     </div>
   );
 }
+
 
 
 function Landing() {
