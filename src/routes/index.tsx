@@ -4,7 +4,7 @@ import { Logo } from "@/components/verbo/Logo";
 import { Footer } from "@/components/verbo/Footer";
 import { Preloader } from "@/components/verbo/Preloader";
 import { PhotoPlaceholder } from "@/components/verbo/ui";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero_image.png.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -46,6 +46,80 @@ function useRevealOnScroll<T extends HTMLElement>() {
   }, []);
   return ref;
 }
+
+type BenefitCardProps = {
+  gradient: string;
+  tone: "navy" | "light";
+  imageSide: "left" | "right" | "bottom";
+  title: string;
+  body: React.ReactNode;
+  delay: number;
+  className?: string;
+  image?: { src: string; alt: string };
+};
+
+/** Colored benefit card with cut-out artwork and text side by side. */
+function BenefitCard({
+  gradient,
+  tone,
+  imageSide,
+  title,
+  body,
+  delay,
+  className = "",
+  image,
+}: BenefitCardProps) {
+  const titleColor = tone === "light" ? "text-white" : "text-[var(--navy-900)]";
+  const bodyColor = tone === "light" ? "text-white/85" : "text-[var(--navy-900)]/80";
+  const isBottom = imageSide === "bottom";
+
+  const art = (
+    <div
+      className={`relative flex shrink-0 items-end justify-center ${
+        isBottom ? "mt-6 h-56 w-full lg:h-72" : "h-44 w-full sm:h-full sm:w-2/5"
+      }`}
+    >
+      {image ? (
+        <img
+          src={image.src}
+          alt={image.alt}
+          loading="lazy"
+          className="h-full w-full object-contain object-bottom"
+        />
+      ) : (
+        <PhotoPlaceholder tone="dark" className="h-full w-full" />
+      )}
+    </div>
+  );
+
+  return (
+    <div
+      data-reveal
+      className={`verbo-reveal group relative flex flex-col overflow-hidden rounded-[2rem] ${gradient} shadow-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[6px] hover:shadow-card-hover ${className}`}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div
+        className={`flex h-full flex-col gap-4 p-8 ${
+          isBottom
+            ? ""
+            : imageSide === "left"
+              ? "sm:flex-row sm:items-stretch"
+              : "sm:flex-row-reverse sm:items-stretch"
+        }`}
+      >
+        {!isBottom && art}
+        <div className="min-w-0 flex-1">
+          <h3 className={`text-2xl font-bold leading-tight tracking-tight ${titleColor}`}>
+            {title}
+          </h3>
+          <p className={`mt-3 text-sm leading-relaxed ${bodyColor}`}>{body}</p>
+        </div>
+      </div>
+      {isBottom && <div className="px-8 pb-0">{art}</div>}
+    </div>
+  );
+}
+
 
 function Landing() {
   const cardsRef = useRevealOnScroll<HTMLDivElement>();
@@ -133,103 +207,101 @@ function Landing() {
           {/* Benefits */}
           <section id="how" className="relative overflow-hidden bg-secondary">
             <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
-              <div className="mb-16 max-w-3xl">
+              <div className="mb-16 max-w-4xl">
                 <h2
                   className="verbo-fade-up text-3xl font-semibold tracking-tight text-[var(--navy-700)] md:text-5xl"
                   style={{ animationDelay: "0ms", textWrap: "balance" }}
                 >
-                  Built around you, not the other way around.
+                  <span className="text-[var(--orange-500)]">Built around you,</span> not
+                  <br className="hidden md:block" /> the other way around.
                 </h2>
                 <p
                   className="verbo-fade-up mt-5 text-lg leading-relaxed text-[var(--navy-700)]/70"
                   style={{ animationDelay: "80ms" }}
                 >
-                  A learning experience shaped by how executives actually work — flexible on time,
-                  serious on outcomes.
+                  Learning designed around your routine, not the other way around. Study on your
+                  time, practice with purpose, and see results that stick
                 </p>
               </div>
 
-              <div ref={cardsRef} className="grid gap-6 md:grid-cols-3">
-                {/* Card 1 — Navy */}
-                <div
-                  data-reveal
-                  className="verbo-reveal group flex h-full flex-col justify-between rounded-[2rem] card-gradient-navy p-8 text-white shadow-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[6px] hover:shadow-card-hover"
-                  style={{ animationDelay: "0ms" }}
-                >
-                  <div>
-                    <PhotoPlaceholder tone="dark" className="aspect-[4/3] w-full" />
-                    <div className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
-                      Your schedule
-                    </div>
-                    <h3 className="mt-2 text-xl font-bold tracking-tight text-white">
-                      Learning that fits your calendar
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-white/80">
-                      Book sessions when they work for you — before a board meeting, between flights,
-                      or on a quiet Sunday. Your materials, your pace, available every day of the year.
-                    </p>
-                  </div>
-                  <div className="mt-6 flex justify-end">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[var(--navy-700)] transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                      <ArrowUpRight className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
+              <div ref={cardsRef} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2">
+                <BenefitCard
+                  gradient="card-gradient-gold"
+                  tone="navy"
+                  imageSide="left"
+                  delay={0}
+                  title="Learn on Your Own Terms"
+                  body={
+                    <>
+                      Access content <strong className="font-bold">24/7, 365</strong>, from any
+                      device, <strong className="font-bold">anywhere in the world</strong>.
+                      <span className="mt-3 block">You decide what to do and what not to do.</span>
+                    </>
+                  }
+                />
 
-                {/* Card 2 — Lime */}
-                <div
-                  data-reveal
-                  className="verbo-reveal group flex h-full flex-col justify-between rounded-[2rem] card-gradient-lime p-8 text-[var(--navy-900)] shadow-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[6px] hover:shadow-card-hover"
-                  style={{ animationDelay: "70ms" }}
-                >
-                  <div>
-                    <PhotoPlaceholder tone="dark" className="aspect-[4/3] w-full" />
-                    <div className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--navy-900)]/75">
-                      Your progress
-                    </div>
-                    <h3 className="mt-2 text-xl font-bold tracking-tight text-[var(--navy-900)]">
-                      Progress you can measure
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-[var(--navy-900)]/80">
-                      Clear benchmarks, unit-by-unit tracking, and feedback after every session.
-                      You see exactly how your fluency evolves — and so does your team.
-                    </p>
-                  </div>
-                  <div className="mt-6 flex justify-end">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[var(--navy-900)] transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                      <ArrowUpRight className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
+                <BenefitCard
+                  gradient="card-gradient-orchid"
+                  tone="navy"
+                  imageSide="right"
+                  delay={70}
+                  title="Speak with confidence, not pressure"
+                  body={
+                    <>
+                      Join <strong className="font-bold">Insights &amp; Book Clubs</strong> with
+                      people sharing your exact level and goals. Organic Networking while you
+                      practice.
+                    </>
+                  }
+                />
 
-                {/* Card 3 — Orchid */}
-                <div
-                  data-reveal
-                  className="verbo-reveal group flex h-full flex-col justify-between rounded-[2rem] card-gradient-orchid p-8 text-[var(--navy-900)] shadow-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[6px] hover:shadow-card-hover"
-                  style={{ animationDelay: "140ms" }}
-                >
-                  <div>
-                    <PhotoPlaceholder tone="dark" className="aspect-[4/3] w-full" />
-                    <div className="mt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--navy-900)]/75">
-                      Your people
-                    </div>
-                    <h3 className="mt-2 text-xl font-bold tracking-tight text-[var(--navy-900)]">
-                      Practice with peers at your level
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-[var(--navy-900)]/80">
-                      Join conversation clubs with professionals facing the same challenges as you.
-                      Rehearse the scenarios that matter — pitches, negotiations, difficult calls.
-                    </p>
-                  </div>
-                  <div className="mt-6 flex justify-end">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[var(--navy-900)] transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                      <ArrowUpRight className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
+                <BenefitCard
+                  gradient="card-gradient-crimson"
+                  tone="light"
+                  imageSide="bottom"
+                  delay={140}
+                  className="md:col-span-2 lg:col-span-1 lg:row-span-2"
+                  title="Level Up with Fun Challenges"
+                  body={
+                    <>
+                      Take on interactive mini-challenges designed to make practice fun. Complete
+                      tasks, climb the leaderboards, and share your progress with the community.
+                    </>
+                  }
+                />
+
+                <BenefitCard
+                  gradient="card-gradient-lime"
+                  tone="navy"
+                  imageSide="right"
+                  delay={210}
+                  title="Track real, tangible progress"
+                  body={
+                    <>
+                      <strong className="font-bold">Clear milestones and visual tracking</strong> so
+                      you always know where you stand and how far you&apos;ve come.
+                    </>
+                  }
+                />
+
+                <BenefitCard
+                  gradient="card-gradient-navy"
+                  tone="light"
+                  imageSide="left"
+                  delay={280}
+                  title="Guided by expert Instructors"
+                  body={
+                    <>
+                      Learn from{" "}
+                      <strong className="font-bold">qualified, human instructors</strong> who
+                      provide real-time feedback and support your personal journey.
+                    </>
+                  }
+                />
               </div>
             </div>
           </section>
+
 
           {/* Closing CTA */}
           <section className="relative overflow-hidden bg-white">
