@@ -3,9 +3,13 @@ import { useEffect, useRef } from "react";
 import { Logo } from "@/components/verbo/Logo";
 import { Footer } from "@/components/verbo/Footer";
 import { Preloader } from "@/components/verbo/Preloader";
-import { PhotoPlaceholder } from "@/components/verbo/ui";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Gift, MessageCircle, MessageSquare, Zap } from "lucide-react";
 import heroImage from "@/assets/hero_image.png.asset.json";
+import yellowCardImage from "@/assets/yello_card_image.webp.asset.json";
+import purpleCardImage from "@/assets/purple_card_image.webp.asset.json";
+import redCardImage from "@/assets/red_card_image.webp.asset.json";
+import greenCardImage from "@/assets/green_card_image.webp.asset.json";
+import navyCardImage from "@/assets/navy_card_image.webp.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -56,9 +60,10 @@ type BenefitCardProps = {
   delay: number;
   className?: string;
   image?: { src: string; alt: string };
+  watermarks?: React.ReactNode;
 };
 
-/** Colored benefit card with cut-out artwork and text side by side. */
+/** Colored benefit card with cut-out artwork that overflows the card edges. */
 function BenefitCard({
   gradient,
   tone,
@@ -68,38 +73,45 @@ function BenefitCard({
   delay,
   className = "",
   image,
+  watermarks,
 }: BenefitCardProps) {
   const titleColor = tone === "light" ? "text-white" : "text-[var(--navy-900)]";
   const bodyColor = tone === "light" ? "text-white/85" : "text-[var(--navy-900)]/80";
   const isBottom = imageSide === "bottom";
 
-  const art = (
+  const art = image ? (
     <div
       className={`relative flex shrink-0 items-end justify-center ${
-        isBottom ? "mt-6 h-56 w-full lg:h-72" : "h-44 w-full sm:h-full sm:w-2/5"
+        isBottom
+          ? "-mb-8 mt-6 h-64 w-full lg:h-80"
+          : "-mb-10 -mt-6 h-48 w-full self-end sm:h-auto sm:w-2/5 sm:self-stretch"
       }`}
     >
-      {image ? (
-        <img
-          src={image.src}
-          alt={image.alt}
-          loading="lazy"
-          className="h-full w-full object-contain object-bottom"
-        />
-      ) : (
-        <PhotoPlaceholder tone="dark" className="h-full w-full" />
-      )}
+      <img
+        src={image.src}
+        alt={image.alt}
+        loading="lazy"
+        className="h-full w-full origin-bottom scale-[1.18] object-contain object-bottom drop-shadow-[0_18px_28px_rgba(1,48,74,0.18)] transition-transform duration-300 ease-out group-hover:scale-[1.24]"
+      />
     </div>
-  );
+  ) : null;
 
   return (
     <div
       data-reveal
-      className={`verbo-reveal group relative flex flex-col overflow-hidden rounded-[2rem] ${gradient} shadow-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[6px] hover:shadow-card-hover ${className}`}
+      className={`verbo-reveal group relative flex flex-col rounded-[2rem] ${gradient} shadow-card transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[6px] hover:shadow-card-hover ${className}`}
       style={{ animationDelay: `${delay}ms` }}
     >
+      {watermarks && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem] text-white"
+        >
+          {watermarks}
+        </div>
+      )}
       <div
-        className={`flex h-full flex-col gap-4 p-8 ${
+        className={`relative flex h-full flex-col gap-4 p-8 ${
           isBottom
             ? ""
             : imageSide === "left"
@@ -115,10 +127,11 @@ function BenefitCard({
           <p className={`mt-3 text-sm leading-relaxed ${bodyColor}`}>{body}</p>
         </div>
       </div>
-      {isBottom && <div className="px-8 pb-0">{art}</div>}
+      {isBottom && <div className="relative px-8 pb-0">{art}</div>}
     </div>
   );
 }
+
 
 
 function Landing() {
@@ -224,12 +237,13 @@ function Landing() {
                 </p>
               </div>
 
-              <div ref={cardsRef} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2" ref={cardsRef}>
                 <BenefitCard
                   gradient="card-gradient-gold"
                   tone="navy"
                   imageSide="left"
                   delay={0}
+                  image={{ src: yellowCardImage.url, alt: "Student learning on his phone" }}
                   title="Learn on Your Own Terms"
                   body={
                     <>
@@ -245,6 +259,19 @@ function Landing() {
                   tone="navy"
                   imageSide="right"
                   delay={70}
+                  image={{ src: purpleCardImage.url, alt: "Two people talking in English" }}
+                  watermarks={
+                    <>
+                      <MessageCircle
+                        className="absolute -left-6 top-6 h-40 w-40 opacity-[0.08]"
+                        strokeWidth={1.5}
+                      />
+                      <MessageSquare
+                        className="absolute bottom-4 left-24 h-24 w-24 opacity-[0.08]"
+                        strokeWidth={1.5}
+                      />
+                    </>
+                  }
                   title="Speak with confidence, not pressure"
                   body={
                     <>
@@ -261,6 +288,19 @@ function Landing() {
                   imageSide="bottom"
                   delay={140}
                   className="md:col-span-2 lg:col-span-1 lg:row-span-2"
+                  image={{ src: redCardImage.url, alt: "Students taking on challenges together" }}
+                  watermarks={
+                    <>
+                      <Gift
+                        className="absolute -left-8 top-24 h-48 w-48 opacity-[0.08]"
+                        strokeWidth={1.5}
+                      />
+                      <Zap
+                        className="absolute -right-6 top-6 h-40 w-40 opacity-[0.08]"
+                        strokeWidth={1.5}
+                      />
+                    </>
+                  }
                   title="Level Up with Fun Challenges"
                   body={
                     <>
@@ -275,6 +315,7 @@ function Landing() {
                   tone="navy"
                   imageSide="right"
                   delay={210}
+                  image={{ src: greenCardImage.url, alt: "Student celebrating her progress" }}
                   title="Track real, tangible progress"
                   body={
                     <>
@@ -289,6 +330,7 @@ function Landing() {
                   tone="light"
                   imageSide="left"
                   delay={280}
+                  image={{ src: navyCardImage.url, alt: "Verbo Academy instructors" }}
                   title="Guided by expert Instructors"
                   body={
                     <>
@@ -299,6 +341,7 @@ function Landing() {
                   }
                 />
               </div>
+
             </div>
           </section>
 
