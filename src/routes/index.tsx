@@ -55,7 +55,7 @@ type BenefitCardProps = {
   gradient: string;
   tone: "navy" | "light";
   imageSide: "left" | "right" | "bottom";
-  title: string;
+  title: React.ReactNode;
   body: React.ReactNode;
   delay: number;
   className?: string;
