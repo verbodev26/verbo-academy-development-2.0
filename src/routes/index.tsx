@@ -227,7 +227,7 @@ function Landing() {
 
           {/* Benefits */}
           <section id="how" className="relative overflow-hidden bg-secondary">
-            <div className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
+            <div className="mx-auto max-w-[85rem] px-6 py-24 lg:py-32">
               <div className="mb-16 max-w-4xl">
                 <h2
                   className="verbo-fade-up text-3xl font-semibold tracking-tight text-[var(--navy-700)] md:text-5xl"
@@ -245,14 +245,14 @@ function Landing() {
                 </p>
               </div>
 
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2" ref={cardsRef}>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-[4fr_4fr_3fr] lg:grid-rows-2" ref={cardsRef}>
                 <BenefitCard
                   gradient="card-gradient-gold"
                   tone="navy"
                   imageSide="left"
                   delay={0}
                   image={{ src: yellowCardImage.url, alt: "Student learning on his phone" }}
-                  artClassName="sm:left-[-6%] sm:bottom-[-7%] sm:h-[105%]"
+                  artClassName="sm:left-[-5%] sm:bottom-[-6%] sm:h-[102%]"
                   title="Learn on Your Own Terms"
                   body={
                     <>
@@ -269,7 +269,7 @@ function Landing() {
                   imageSide="right"
                   delay={70}
                   image={{ src: purpleCardImage.url, alt: "Two people talking in English" }}
-                  artClassName="sm:right-[2%] sm:bottom-0 sm:h-[90%]"
+                  artClassName="sm:right-0 sm:bottom-0 sm:h-[84%]"
                   watermarks={
                     <>
                       <MessageCircle
@@ -299,7 +299,7 @@ function Landing() {
                   delay={140}
                   className="md:col-span-2 lg:col-span-1 lg:row-span-2"
                   image={{ src: redCardImage.url, alt: "Students taking on challenges together" }}
-                  artClassName="sm:left-[-4%] sm:bottom-[-2%] sm:h-[52%]"
+                  artClassName="sm:left-1/2 sm:-translate-x-1/2 sm:bottom-0 sm:h-[55%]"
                   
                   watermarks={
                     <>
@@ -329,7 +329,7 @@ function Landing() {
                   imageSide="right"
                   delay={210}
                   image={{ src: greenCardImage.url, alt: "Student celebrating her progress" }}
-                  artClassName="sm:right-[-7%] sm:bottom-[-8%] sm:h-[105%]"
+                  artClassName="sm:right-[-5%] sm:bottom-[-6%] sm:h-[102%]"
                   title="Track real, tangible progress"
                   body={
                     <>
@@ -345,7 +345,7 @@ function Landing() {
                   imageSide="left"
                   delay={280}
                   image={{ src: navyCardImage.url, alt: "Verbo Academy instructors" }}
-                  artClassName="sm:left-[3%] sm:bottom-0 sm:h-[97%]"
+                  artClassName="sm:left-0 sm:bottom-0 sm:h-[88%]"
                   
 
                   title="Guided by expert Instructors"
