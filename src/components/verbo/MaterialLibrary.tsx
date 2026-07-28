@@ -6,7 +6,7 @@ import type { MaterialType } from "@/lib/mock-data";
 import { PremiumBadge } from "@/components/verbo/PremiumGate";
 import { useAuth } from "@/lib/auth";
 import { groupsByStudentId } from "@/lib/groups-store";
-import spotlightArt from "@/assets/spotlight1.png.asset.json";
+
 
 import {
   Book,
@@ -18,6 +18,7 @@ import {
   Eye,
   ChevronRight,
   ArrowLeft,
+  ArrowRight,
   X,
   Search,
   Sparkles,
@@ -171,68 +172,124 @@ function PremiumUpsellModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+type CardButton = {
+  variant: "label" | "arrow-circle" | "arrow-pill";
+  color: string;
+  align?: "left" | "right";
+};
+
 /**
- * Category card — reuses the "Spotlight Session" visual language from
- * student.sessions.tsx (gradient surface, artwork pinned bottom-right, label,
- * paragraph, wide pill button), without the Sparkles icon.
+ * Category card — configurable layout per category: text block alignment,
+ * optional side-by-side description, and label/arrow button variants.
+ * `art` renders an optional decorative pattern behind the content.
  */
 function SpotlightCategoryCard({
   name,
   subtitle,
   bgClass,
   textStyle,
-  buttonStyle,
   neutral = false,
   compact = false,
+  align = "left",
+  descRight = false,
+  button,
+  art,
   onClick,
 }: {
   name: string;
   subtitle: string;
   bgClass: string;
   textStyle: React.CSSProperties;
-  buttonStyle?: React.CSSProperties;
   neutral?: boolean;
   compact?: boolean;
+  align?: "left" | "right" | "center";
+  descRight?: boolean;
+  button?: CardButton;
+  art?: { src: string; className: string };
   onClick: () => void;
 }) {
+  const alignClass =
+    align === "right" ? "items-end text-right" : align === "center" ? "items-center text-center" : "items-start text-left";
+  const btn = button ?? { variant: "label" as const, color: "#01304a" };
+  const btnRowClass = btn.align === "right" ? "justify-end" : "justify-start";
+
+  const buttonEl = neutral ? (
+    <PrimaryButton className="!text-xs" onClick={onClick}>
+      Browse Material
+    </PrimaryButton>
+  ) : btn.variant === "label" ? (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-xs font-semibold transition-transform duration-200 active:scale-[0.97]"
+      style={{ color: btn.color }}
+    >
+      Browse Material
+    </button>
+  ) : btn.variant === "arrow-circle" ? (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`Browse ${name} material`}
+      className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-white transition-transform duration-200 active:scale-[0.97]"
+    >
+      <ArrowRight className="h-5 w-5" style={{ color: btn.color }} />
+    </button>
+  ) : (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`Browse ${name} material`}
+      className="inline-flex cursor-pointer items-center justify-center rounded-full bg-white px-6 py-2.5 transition-transform duration-200 active:scale-[0.97]"
+    >
+      <ArrowRight className="h-5 w-5" style={{ color: btn.color }} />
+    </button>
+  );
+
+  const titleEl = (
+    <h3
+      className={`text-lg font-semibold tracking-tight ${neutral ? "text-foreground" : "text-white"}`}
+      style={neutral ? undefined : textStyle}
+    >
+      {name}
+    </h3>
+  );
+
+  const descEl = (
+    <p
+      className={`text-xs leading-relaxed ${neutral ? "text-muted-foreground" : "text-white opacity-90"}`}
+      style={neutral ? undefined : textStyle}
+    >
+      {subtitle}
+    </p>
+  );
+
   return (
     <div
-      className={`${bgClass} relative h-full ${compact ? "min-h-[140px]" : "min-h-[200px]"} overflow-hidden rounded-3xl border border-border p-6 shadow-elevated`}
+      className={`${bgClass} relative flex h-full ${compact ? "min-h-[140px]" : "min-h-[260px]"} flex-col justify-between overflow-hidden rounded-3xl border border-border p-6 shadow-elevated`}
     >
-      <img
-        src={spotlightArt.url}
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 right-0 h-[110%] w-auto translate-y-[6%] select-none object-contain"
-      />
-      <div className="relative z-10 w-[58%]">
-        <h3
-          className={`text-base font-semibold tracking-tight ${neutral ? "text-foreground" : ""}`}
-          style={neutral ? undefined : textStyle}
-        >
-          {name}
-        </h3>
-        <p
-          className={`mt-3 text-xs leading-relaxed ${neutral ? "text-muted-foreground" : ""}`}
-          style={neutral ? undefined : { ...textStyle, opacity: 0.8 }}
-        >
-          {subtitle}
-        </p>
-        {neutral ? (
-          <PrimaryButton className="mt-4 w-full !text-xs" onClick={onClick}>
-            Browse Material
-          </PrimaryButton>
+      {art && (
+        <img
+          src={art.src}
+          alt=""
+          aria-hidden="true"
+          className={"pointer-events-none absolute z-0 select-none " + art.className}
+        />
+      )}
+      <div className="relative z-10">
+        {descRight ? (
+          <div className="flex items-start justify-between gap-4">
+            {titleEl}
+            <div className="max-w-[40%] text-right">{descEl}</div>
+          </div>
         ) : (
-          <button
-            type="button"
-            onClick={onClick}
-            className="mt-4 inline-flex w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-3 py-2.5 text-xs font-semibold transition-transform duration-200 active:scale-[0.97]"
-            style={buttonStyle ?? { color: "#01304a" }}
-          >
-            Browse Material
-          </button>
+          <div className={`flex flex-col ${alignClass}`}>
+            {titleEl}
+            <div className="mt-3 max-w-[85%]">{descEl}</div>
+          </div>
         )}
       </div>
+      <div className={`relative z-10 mt-6 flex ${btnRowClass}`}>{buttonEl}</div>
     </div>
   );
 }
@@ -345,9 +402,17 @@ export function MaterialLibrary({
     letterRefs.current[l]?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const NAVY = "#01304a";
   const WHITE = "#ffffff";
-  const knownNames = ["Grammar", "Vocabulary", "Business", "Speaking", "Troubleshooting", "Getting Started", "Study Tips"];
+  const knownNames = [
+    "Grammar",
+    "Vocabulary",
+    "Business",
+    "Speaking",
+    "Listening",
+    "Troubleshooting",
+    "Getting Started",
+    "Study Tips",
+  ];
   const extraCategories = Array.from(new Set([...storeCategories, ...Object.keys(grouped)]))
     .filter((c) => !knownNames.includes(c))
     .sort();
@@ -357,58 +422,79 @@ export function MaterialLibrary({
     subtitle: string;
     bgClass: string;
     textStyle: React.CSSProperties;
-    buttonStyle?: React.CSSProperties;
+    align?: "left" | "right" | "center";
+    descRight?: boolean;
+    button?: CardButton;
     onClick: () => void;
   }[] = [
     {
+      name: "Listening",
+      subtitle: "Audio practice and listening exercises to train your ear.",
+      bgClass: "bg-gradient-to-br from-[#f8ab31] via-[#ef8f14] to-[#dd7208]",
+      textStyle: { color: WHITE },
+      button: { variant: "arrow-circle", color: "#dd7208", align: "left" },
+      onClick: () => openCategory("Listening"),
+    },
+    {
       name: "Grammar",
       subtitle: "Structures and practice sheets to sharpen your grammar.",
-      bgClass: "card-gradient-lime",
-      textStyle: { color: NAVY },
+      bgClass: "bg-gradient-to-br from-[#a5d938] via-[#54b42d] to-[#157f36]",
+      textStyle: { color: WHITE },
+      button: { variant: "label", color: "#157f36", align: "left" },
       onClick: () => openCategory("Grammar"),
     },
     {
       name: "Vocabulary",
       subtitle: "Word lists and expressions to grow your everyday vocabulary.",
-      bgClass: "bg-gradient-to-br from-[#7c2d12] via-[#c2410c] to-[#f97316]",
+      bgClass: "bg-gradient-to-r from-[#63a4f8] to-[#2f6fe4]",
       textStyle: { color: WHITE },
+      align: "right",
+      button: { variant: "arrow-pill", color: "#2f6fe4", align: "right" },
       onClick: () => openCategory("Vocabulary"),
+    },
+    {
+      name: "Speaking",
+      subtitle: "Prompts and exercises to build real speaking confidence.",
+      bgClass: "bg-gradient-to-br from-[#f07ad3] via-[#e256bb] to-[#d13da4]",
+      textStyle: { color: WHITE },
+      button: { variant: "arrow-circle", color: "#d13da4", align: "right" },
+      onClick: () => openCategory("Speaking"),
+    },
+    {
+      name: "Premium",
+      subtitle: "Deep-dive guides and exclusive practice packs for Advance tier and up.",
+      bgClass: "bg-gradient-to-br from-[#a78bfa] via-[#8b5cf6] to-[#6d28d9]",
+      textStyle: { color: WHITE },
+      align: "right",
+      button: { variant: "label", color: "#6d28d9", align: "right" },
+      onClick: () => openCategory(PREMIUM_KEY),
+    },
+    {
+      name: "Getting Started",
+      subtitle: "Everything you need to take your first steps with confidence.",
+      bgClass: "bg-gradient-to-r from-[#ffd731] via-[#fdaa1d] to-[#f97316]",
+      textStyle: { color: WHITE },
+      descRight: true,
+      button: { variant: "arrow-pill", color: "#f97316", align: "left" },
+      onClick: () => openCategory("Getting Started"),
+    },
+    {
+      name: "Study Tips",
+      subtitle: "Habits, routines and techniques to study smarter every week.",
+      bgClass: "bg-gradient-to-br from-[#ef4b4b] via-[#d92c3f] to-[#a41630]",
+      textStyle: { color: WHITE },
+      descRight: true,
+      button: { variant: "label", color: "#a41630", align: "left" },
+      onClick: () => openCategory("Study Tips"),
     },
     {
       name: "Business",
       subtitle: "Templates and phrases for professional communication.",
       bgClass: "card-gradient-navy",
       textStyle: { color: WHITE },
+      align: "center",
+      button: { variant: "arrow-circle", color: "#01304a", align: "right" },
       onClick: () => openCategory("Business"),
-    },
-    {
-      name: "Speaking",
-      subtitle: "Prompts and exercises to build real speaking confidence.",
-      bgClass: "card-gradient-teal",
-      textStyle: { color: NAVY },
-      onClick: () => openCategory("Speaking"),
-    },
-    {
-      name: "Premium",
-      subtitle: "Deep-dive guides and exclusive practice packs for Advance tier and up.",
-      bgClass: "card-gradient-violet",
-      textStyle: { color: WHITE },
-      buttonStyle: { color: "var(--violet-900)" },
-      onClick: () => openCategory(PREMIUM_KEY),
-    },
-    {
-      name: "Getting Started",
-      subtitle: "Everything you need to take your first steps with confidence.",
-      bgClass: "bg-gradient-to-br from-[#ffc700] via-[#ffdb4d] to-[#ffe680]",
-      textStyle: { color: NAVY },
-      onClick: () => openCategory("Getting Started"),
-    },
-    {
-      name: "Study Tips",
-      subtitle: "Habits, routines and techniques to study smarter every week.",
-      bgClass: "card-gradient-gold",
-      textStyle: { color: NAVY },
-      onClick: () => openCategory("Study Tips"),
     },
     ...extraCategories.map((c, i) => ({
       name: c,
@@ -451,7 +537,7 @@ export function MaterialLibrary({
               <SpotlightCategoryCard
                 name="Troubleshooting"
                 subtitle="Quick fixes and answers for common technical issues."
-                bgClass="bg-secondary border-border"
+                bgClass="bg-gradient-to-br from-[#f7f7f7] to-[#d9d9d9]"
                 textStyle={{}}
                 neutral
                 compact
@@ -468,7 +554,9 @@ export function MaterialLibrary({
                 subtitle={c.subtitle}
                 bgClass={c.bgClass}
                 textStyle={c.textStyle}
-                buttonStyle={c.buttonStyle}
+                align={c.align}
+                descRight={c.descRight}
+                button={c.button}
                 onClick={c.onClick}
               />
             ))}
