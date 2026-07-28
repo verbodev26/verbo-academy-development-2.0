@@ -418,17 +418,24 @@ function StudentDashboard() {
   return (
     <div className="space-y-10">
       <header className="verbo-fade-up motion-reduce:animate-none flex flex-wrap items-center justify-between gap-4" style={{ animationDelay: "0ms" }}>
-        <div>
-          <div className="text-sm text-muted-foreground">Welcome back</div>
-          <div className="mt-1 flex items-center gap-3">
-            <h1 className="text-3xl font-semibold tracking-tight" style={{ color: "#01304a" }}>
-              {user.name.split(" ")[0]}
-            </h1>
-            <FeaturedProfileBadge user={user} />
-            {user.access_plan === "Elite" && <Pill tone="elite">Elite</Pill>}
-            {productLabel && <Pill tone="muted">{productLabel}</Pill>}
+        <div className="flex items-center gap-3">
+          <img
+            src={verbotGif.url}
+            alt="Verbo mascot"
+            className="h-24 w-auto shrink-0"
+          />
+          <div className="pl-3">
+            <div className="text-sm text-muted-foreground">Welcome back</div>
+            <div className="mt-1 flex items-center gap-3">
+              <h1 className="text-3xl font-semibold tracking-tight" style={{ color: "#01304a" }}>
+                {user.name.split(" ")[0]}
+              </h1>
+              <FeaturedProfileBadge user={user} />
+              {user.access_plan === "Elite" && <Pill tone="elite">Elite</Pill>}
+              {productLabel && <Pill tone="muted">{productLabel}</Pill>}
+            </div>
+            <p className="mt-1.5 text-xs text-muted-foreground">{welcomeLine}</p>
           </div>
-          <p className="mt-1.5 text-xs text-muted-foreground">{welcomeLine}</p>
         </div>
         <div className="flex items-center gap-3">
           {user.product_type === "performance" && (() => {
