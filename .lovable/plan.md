@@ -1,66 +1,58 @@
 ## Objetivo
 
-Reemplazar el selector de iconos de lucide-react en el modal de Badges por un **uploader de imagen** que acepte `.gif` (y también `.png/.jpg/.webp` para no romper los badges existentes). La imagen subida se mostrará tanto en Admin > Challenges > Badges como en Student > Challenges cuando el badge esté ganado (manteniendo el `Lock` cuando aún no).
+Reemplazar por completo la sección 2 del homepage (`src/routes/index.tsx`, sección `id="how"`) — hoy 3 cards con `PhotoPlaceholder` — por el grid de 5 cards de la referencia, con personas recortadas en PNG transparente y gradientes de color.
 
-## Cambios de datos (`src/lib/badges-store.ts`)
+## Lo que necesito de ti antes de implementar
 
-El campo `icon: BadgeIconId` se reemplaza por:
+Las **5 imágenes PNG con fondo transparente**, una por card:
 
-- `image: string` — data URL de la imagen (`data:image/gif;base64,...`).
+1. Hombre con celular (chaqueta de mezclilla) → card amarilla "Learn on Your Own Terms"
+2. Dos personas conversando → card morada "Speak with confidence, not pressure"
+3. Mujer celebrando con celular → card verde "Track real, tangible progress"
+4. Dos instructores brazos cruzados → card navy "Guided by expert Instructors"
+5. Pareja riendo con celulares → card roja "Level Up with Fun Challenges"
 
-Los 8 badges seed dejan de tener `icon`. Para no romper la primera carga después del deploy:
-- El seed vendrá con `image: ""` (vacío) en todos los badges.
-- Si `image` está vacío, el UI muestra un placeholder neutral (un círculo con el ícono `ImageIcon` de lucide en gris) tanto en Admin como en Student. Así los admins pueden subir la imagen real de cada badge y el catálogo sigue funcionando mientras tanto.
-- Se elimina `BADGE_ICON_OPTIONS`, `BadgeIconId` y las constantes/mapa de iconos que ya no aplican.
+Sin ellas puedo dejar la estructura lista, pero las cards quedarían sin arte.
 
-Migración de localStorage: si al cargar se detecta el shape viejo (`icon: string` sin `image`), se descarta silenciosamente y se vuelve al seed nuevo — es mock data, no hay riesgo de pérdida.
+## Layout
 
-## Cambios de UI
+```text
+Desktop (lg+)                          Mobile
+┌──────────┬──────────┬──────────┐     ┌──────────┐
+│ Amarilla │ Morada   │          │     │  1 card  │
+├──────────┼──────────┤   Roja   │     ├──────────┤
+│  Verde   │  Navy    │  (alta)  │     │  1 card  │
+└──────────┴──────────┴──────────┘     └──────────┘  ...apiladas
+```
 
-### `src/routes/admin.challenges.tsx` — `BadgeModal`
+- Grid de 3 columnas × 2 filas en `lg`; la card roja usa `row-span-2`.
+- En `md`: 2 columnas, la roja pasa a ancho completo.
+- En mobile: una columna apilada, imagen arriba y texto abajo en cada card.
+- Se mantiene la animación de reveal escalonado (`data-reveal` / `verbo-reveal`) que ya existe.
 
-- Se borra la sección `<Field label="Icon">` con los 9 botones de icono.
-- Se reemplaza por `<Field label="Image">` con:
-  - Preview cuadrado (h-20 w-20, rounded-full, `object-cover`) de la imagen actual, o un placeholder si aún no hay imagen.
-  - Botón **Upload image** que abre un `<input type="file" accept="image/gif,image/png,image/jpeg,image/webp" hidden>`.
-  - Hint: "GIF, PNG, JPG or WebP. Recommended: square, up to ~500 KB."
-  - Botón **Remove** (solo si ya hay imagen) que vacía el campo.
-- Al elegir archivo:
-  1. Validar `type` (whitelist arriba) — si no, `alert("Please upload a GIF, PNG, JPG or WebP image.")`.
-  2. Validar tamaño ≤ 1 MB — si excede, `alert("Image is too large (max 1 MB).")`. Guardarail contra reventar el cupo de localStorage con GIFs pesados.
-  3. Leer con `FileReader.readAsDataURL` y guardar el resultado en el state `image` del modal.
-- Al guardar el badge (`handleSave`), se persiste `image` (string, puede ser `""`).
+## Cards — contenido y tratamiento
 
-### `src/routes/admin.challenges.tsx` — `BadgesManager`
+| Card | Gradiente | Texto | Imagen |
+|---|---|---|---|
+| Learn on Your Own Terms | `card-gradient-gold` | navy | izquierda |
+| Speak with confidence, not pressure | `card-gradient-orchid` | navy | derecha |
+| Track real, tangible progress | `card-gradient-lime` | navy | derecha |
+| Guided by expert Instructors | `card-gradient-navy` | blanco | izquierda |
+| Level Up with Fun Challenges | **nuevo** `card-gradient-crimson` | blanco | abajo, grande |
 
-En cada card de badge, la burbuja con el ícono se sustituye por:
-- Si `badge.image`: `<img src={badge.image} alt="" class="h-12 w-12 rounded-full object-cover ring-2 ring-amber-400/40" />`.
-- Si no: burbuja gris con ícono `ImageIcon` de lucide como placeholder.
+Textos exactos de la captura, respetando los **bolds** internos (`24/7, 365`, `anywhere in the world`, `Insights & Book Clubs`, `Clear milestones and visual tracking`, `qualified, human instructors`).
 
-Se elimina el `BADGE_ICON_MAP` de este archivo.
+Encabezado de la sección: se mantiene "Built around you, not the other way around." con **"Built around you,"** en naranja de marca, y el subtítulo cambia a *"Learning designed around your routine, not the other way around. Study on your time, practice with purpose, and see results that stick"*.
 
-### `src/routes/student.challenges.tsx`
+## Detalles técnicos
 
-- Se elimina la importación de `BadgeIconId` y `BADGE_ICON_MAP` local (con `Star, Flame, Target, Award, Medal, Crown`).
-- Render de cada badge cuando `earned`:
-  - Si `b.image`: `<img src={b.image} alt="" class="h-6 w-6 rounded-full object-cover" />` dentro de la burbuja amber.
-  - Si no: se sigue mostrando `Lock` (como ahora cuando el badge está locked) — un badge sin imagen configurada no se puede "vestir" todavía.
-- Cuando **no** está earned: se mantiene tal cual (`<Lock/>` gris). Sin cambios.
-- Se limpian imports lucide huérfanos.
+- **`src/styles.css`**: nueva utility `@utility card-gradient-crimson` con `linear-gradient(150deg, #c2410c 0%, #b52904 55%, #760137 100%)`, junto a las demás `card-gradient-*`.
+- **Assets**: cada imagen se sube con `lovable-assets create` desde `/mnt/user-uploads/` y se referencia vía su `.asset.json` en `src/assets/` — sin binarios en el repo.
+- **`src/routes/index.tsx`**: se extrae un componente local `BenefitCard` (props: gradiente, tono de texto, eyebrow, título, cuerpo, imagen, posición de imagen) para no repetir markup 5 veces. Se elimina el uso de `PhotoPlaceholder` en esta sección y el import si queda sin uso.
+- Imágenes con `object-contain`, ancladas al borde inferior de la card, `alt` descriptivo y `loading="lazy"`.
+- Responsive: `min-w-0` en los contenedores de texto y `shrink-0` en el arte para evitar clipping en pantallas angostas.
+- Sin cambios en lógica de datos ni en `DATA_MODEL.md` (es puramente presentacional).
 
-## `DATA_MODEL.md`
+## Siguiente paso
 
-Actualizar la ficha de `BadgeDef` (sección 4) para reflejar el cambio de `icon: BadgeIconId` → `image: string (data URL, "" si no configurada)`, y borrar la fila del enum `BadgeIconId`. Nota corta: "Persistido como data URL en `localStorage`; máx. 1 MB por badge para no reventar el cupo del navegador."
-
-## Notas técnicas
-
-- No se agrega Lovable Cloud ni Storage: el resto del proyecto usa localStorage y este cambio se mantiene dentro del mismo patrón. Un data URL de 1 MB pesa ~1.33 MB en base64, así que con 8–15 badges seguimos muy debajo del típico límite de ~5 MB por origen.
-- GIFs animados: los data URLs preservan la animación, así que el `<img>` seguirá reproduciendo el GIF sin código extra.
-- No se toca el badge Lightning Bolt ni los Season badges (siguen con su ícono/estilo actual).
-
-## Verificación
-
-1. Typecheck limpio.
-2. Admin > Challenges > tab **Badges** → editar un badge existente → subir un `.gif` → guardar → la card muestra el GIF animado en Admin.
-3. Ir a Student > Challenges → el mismo badge (si el estudiante lo tiene earned) muestra el GIF; si aún no está earned, sigue el candado.
-4. Intentar subir un archivo > 1 MB o un `.pdf` → aparece el `alert` correspondiente y no se guarda.
+Adjunta las 5 imágenes y las integro; si prefieres, puedo dejar primero la estructura con los gradientes y sumar el arte después.
