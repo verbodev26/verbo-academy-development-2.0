@@ -269,6 +269,7 @@ function Landing() {
                   imageSide="right"
                   delay={70}
                   image={{ src: purpleCardImage.url, alt: "Two people talking in English" }}
+                  artClassName="sm:right-[2%] sm:bottom-0 sm:h-[90%]"
                   watermarks={
                     <>
                       <MessageCircle
