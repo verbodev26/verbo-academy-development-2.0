@@ -291,18 +291,20 @@ function Landing() {
                   delay={140}
                   className="md:col-span-2 lg:col-span-1 lg:row-span-2"
                   image={{ src: redCardImage.url, alt: "Students taking on challenges together" }}
+                  artClassName="sm:-bottom-2 sm:left-[4%] sm:right-0 sm:h-[66%]"
                   watermarks={
                     <>
-                      <Gift
-                        className="absolute -left-8 top-24 h-48 w-48 opacity-[0.08]"
-                        strokeWidth={1.5}
-                      />
                       <Zap
-                        className="absolute -right-6 top-6 h-40 w-40 opacity-[0.08]"
-                        strokeWidth={1.5}
+                        className="absolute -left-10 top-1/4 h-72 w-72 rotate-6 opacity-[0.08]"
+                        strokeWidth={1.2}
+                      />
+                      <Gift
+                        className="absolute -right-10 top-8 h-56 w-56 -rotate-12 opacity-[0.08]"
+                        strokeWidth={1.2}
                       />
                     </>
                   }
+
                   title="Level Up with Fun Challenges"
                   body={
                     <>
