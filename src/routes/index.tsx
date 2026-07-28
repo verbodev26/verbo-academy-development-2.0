@@ -83,10 +83,10 @@ function BenefitCard({
 
   // Desktop: the artwork is width-driven, sits on the card floor and breaks the top edge.
   const anchor = isBottom
-    ? "sm:right-0 sm:bottom-0 sm:w-[86%]"
+    ? "sm:right-[-6%] sm:bottom-0 sm:w-[72%]"
     : imageSide === "left"
-      ? "sm:left-0 sm:bottom-0 sm:w-[56%]"
-      : "sm:right-0 sm:bottom-0 sm:w-[56%]";
+      ? "sm:left-[-16%] sm:bottom-0 sm:w-[82%]"
+      : "sm:right-[-16%] sm:bottom-0 sm:w-[82%]";
 
   const art = image ? (
     <div className={`relative mt-6 h-56 w-full sm:absolute sm:mt-0 sm:h-auto ${anchor} ${artClassName}`}>
