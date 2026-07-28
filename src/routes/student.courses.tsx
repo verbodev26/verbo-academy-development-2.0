@@ -34,8 +34,8 @@ import {
 import { Card, Pill, StatRing } from "@/components/verbo/ui";
 import { Confetti } from "@/components/verbo/Confetti";
 import { VerboAudioPlayer } from "@/components/verbo/VerboAudioPlayer";
+import airportSunsetAsset from "@/assets/airport-sunset.png.asset.json";
 import mountainsSunsetAsset from "@/assets/mountains-sunset.png.asset.json";
-import citySunsetAsset from "@/assets/city-sunset.png.asset.json";
 import { useAuth } from "@/lib/auth";
 import type { User } from "@/lib/mock-data";
 import { currentLoginStreak } from "@/lib/login-streak-store";
@@ -707,7 +707,7 @@ function LevelCard({
   const isReopened = state.kind === "reopened";
   const isCurrent = state.kind === "current";
   const pct = state.totalUnits === 0 ? 0 : Math.round((state.passedUnits / state.totalUnits) * 100);
-  const coverImage = level.id === "ENTERPRISE-L2" ? citySunsetAsset.url : mountainsSunsetAsset.url;
+  const coverImage = level.id === "ENTERPRISE-L2" ? airportSunsetAsset.url : mountainsSunsetAsset.url;
 
   const clickable = !isLocked && !isCompleted;
 
