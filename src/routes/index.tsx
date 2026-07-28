@@ -298,7 +298,7 @@ function Landing() {
                   delay={140}
                   className="md:col-span-2 lg:col-span-1 lg:row-span-2"
                   image={{ src: redCardImage.url, alt: "Students taking on challenges together" }}
-                  artClassName="sm:-bottom-2 sm:left-[4%] sm:right-0 sm:h-[66%]"
+                  artClassName="sm:-top-[6%]"
                   watermarks={
                     <>
                       <Zap
