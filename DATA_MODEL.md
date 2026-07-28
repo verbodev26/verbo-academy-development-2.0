@@ -331,7 +331,7 @@ Reglas de gating (student.courses.tsx): el override MÁS RECIENTE por `(studentI
 | id | string | requerido | |
 | title | string | requerido | |
 | material_type | `MaterialType` | requerido | |
-| category | string | requerido | libre, catálogo dinámico. `SEED_CATEGORIES` = Grammar, Vocabulary, Business, Speaking, Troubleshooting, Getting Started, Study Tips (las 3 últimas nacen vacías, sin materiales) |
+| category | string | requerido | libre, catálogo dinámico. `SEED_CATEGORIES` = Grammar, Vocabulary, Business, Speaking, Listening, Troubleshooting, Getting Started, Study Tips (las 4 últimas nacen vacías, sin materiales). `loadCategories()` devuelve la unión sin duplicados de `SEED_CATEGORIES` + lo guardado en localStorage (seeds primero), para que nuevas categorías semilla aparezcan en navegadores con datos previos |
 | upload_url | string | requerido | dataURL del archivo real subido por el admin (PDF/video/imagen según `material_type`, máx. 8MB vía `MAX_MATERIAL_FILE_BYTES` / `isFileTooLarge`). `"#"` o `""` = archivo pendiente: `hasUploadedFile()` es `false` y `MaterialLibrary` deshabilita Preview/Download mostrando "Coming soon — file pending upload". Al editar sin subir archivo nuevo se conserva el valor previo. |
 | cover_image | string | opcional | dataURL de portada (misma validación de tamaño) |
 | restrict_product | `"go"\|"enterprise"\|"international"` | opcional | filtro de visibilidad |

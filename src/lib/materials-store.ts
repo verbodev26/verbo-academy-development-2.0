@@ -40,6 +40,7 @@ const SEED_CATEGORIES = [
   "Vocabulary",
   "Business",
   "Speaking",
+  "Listening",
   "Troubleshooting",
   "Getting Started",
   "Study Tips",
@@ -127,7 +128,16 @@ export function loadCategories(): string[] {
   const raw = localStorage.getItem(CATEGORIES_KEY);
   if (raw) {
     try {
-      return JSON.parse(raw) as string[];
+      const saved = JSON.parse(raw) as string[];
+      // Union (seeds first, no duplicates) so newly seeded categories show up
+      // for browsers that already persisted an older category list.
+      const merged: string[] = [];
+      for (const c of [...SEED_CATEGORIES, ...saved]) {
+        if (typeof c === "string" && c.trim() && !merged.some((m) => m.toLowerCase() === c.toLowerCase())) {
+          merged.push(c);
+        }
+      }
+      return merged;
     } catch {
       /* noop */
     }
