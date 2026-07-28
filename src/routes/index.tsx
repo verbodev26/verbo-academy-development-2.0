@@ -329,6 +329,7 @@ function Landing() {
                   imageSide="right"
                   delay={210}
                   image={{ src: greenCardImage.url, alt: "Student celebrating her progress" }}
+                  artClassName="sm:right-[-7%] sm:bottom-[-8%] sm:h-[105%]"
                   title="Track real, tangible progress"
                   body={
                     <>
