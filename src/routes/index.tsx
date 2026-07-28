@@ -252,6 +252,7 @@ function Landing() {
                   imageSide="left"
                   delay={0}
                   image={{ src: yellowCardImage.url, alt: "Student learning on his phone" }}
+                  artClassName="sm:left-[-6%] sm:bottom-[-7%] sm:h-[105%]"
                   title="Learn on Your Own Terms"
                   body={
                     <>
