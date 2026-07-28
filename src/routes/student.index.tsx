@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import experiencesClubs from "@/assets/experiences-clubs.png.asset.json";
 import teamsLogo from "@/assets/teams-logo.webp.asset.json";
+import verbotGif from "@/assets/Verbot_1.gif.asset.json";
 
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
