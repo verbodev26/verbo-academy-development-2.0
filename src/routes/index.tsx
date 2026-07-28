@@ -81,25 +81,32 @@ function BenefitCard({
   const bodyColor = tone === "light" ? "text-white/85" : "text-[var(--navy-900)]/80";
   const isBottom = imageSide === "bottom";
 
-  // Desktop: the artwork is absolutely anchored to the card floor and breaks the top edge.
+  // Desktop: the artwork is clipped sideways by the card edge but is free to break the top edge.
   const anchor = isBottom
-    ? "sm:inset-x-0 sm:bottom-0 sm:h-[62%]"
+    ? "sm:inset-x-0 sm:-top-[14%] sm:bottom-0 sm:rounded-b-[2rem]"
     : imageSide === "left"
-      ? "sm:left-0 sm:bottom-0 sm:w-[54%] sm:h-[128%]"
-      : "sm:right-0 sm:bottom-0 sm:w-[54%] sm:h-[128%]";
+      ? "sm:left-0 sm:-top-[30%] sm:bottom-0 sm:w-[54%] sm:rounded-bl-[2rem]"
+      : "sm:right-0 sm:-top-[30%] sm:bottom-0 sm:w-[54%] sm:rounded-br-[2rem]";
+
+  const imgSide = isBottom
+    ? "sm:left-1/2 sm:-translate-x-1/2"
+    : imageSide === "left"
+      ? "sm:left-0"
+      : "sm:right-0";
 
   const art = image ? (
     <div
-      className={`relative mt-6 h-56 w-full sm:absolute sm:mt-0 sm:h-auto ${anchor} ${artClassName}`}
+      className={`relative mt-6 h-56 w-full sm:absolute sm:mt-0 sm:h-auto sm:overflow-hidden ${anchor} ${artClassName}`}
     >
       <img
         src={image.src}
         alt={image.alt}
         loading="lazy"
-        className="h-full w-full object-contain object-bottom drop-shadow-[0_18px_28px_rgba(1,48,74,0.22)] transition-transform duration-300 ease-out group-hover:-translate-y-1"
+        className={`h-full w-full object-contain object-bottom drop-shadow-[0_18px_28px_rgba(1,48,74,0.22)] transition-transform duration-300 ease-out group-hover:-translate-y-1 sm:absolute sm:bottom-0 sm:w-auto sm:max-w-none ${imgSide}`}
       />
     </div>
   ) : null;
+
 
   const textAlign = isBottom
     ? ""
