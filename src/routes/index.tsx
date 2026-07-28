@@ -83,16 +83,16 @@ function BenefitCard({
 
   // Desktop: the artwork is clipped sideways by the card edge but is free to break the top edge.
   const anchor = isBottom
-    ? "sm:inset-x-0 sm:-top-[14%] sm:bottom-0 sm:rounded-b-[2rem]"
+    ? "sm:inset-x-0 sm:top-[26%] sm:bottom-0 sm:rounded-b-[2rem]"
     : imageSide === "left"
-      ? "sm:left-0 sm:-top-[30%] sm:bottom-0 sm:w-[54%] sm:rounded-bl-[2rem]"
-      : "sm:right-0 sm:-top-[30%] sm:bottom-0 sm:w-[54%] sm:rounded-br-[2rem]";
+      ? "sm:left-0 sm:-top-[16%] sm:bottom-0 sm:w-[78%] sm:rounded-bl-[2rem]"
+      : "sm:right-0 sm:-top-[16%] sm:bottom-0 sm:w-[78%] sm:rounded-br-[2rem]";
 
   const imgSide = isBottom
     ? "sm:left-1/2 sm:-translate-x-1/2"
     : imageSide === "left"
-      ? "sm:left-0"
-      : "sm:right-0";
+      ? "sm:left-[-24%]"
+      : "sm:right-[-24%]";
 
   const art = image ? (
     <div
@@ -106,6 +106,7 @@ function BenefitCard({
       />
     </div>
   ) : null;
+
 
 
   const textAlign = isBottom
