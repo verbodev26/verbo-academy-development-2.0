@@ -117,6 +117,7 @@ import { BadgePickerModal, BadgeVisual } from "@/components/verbo/ProfileModal";
 import fireIconAsset from "@/assets/fire-animation.svg.asset.json";
 import trophyIconAsset from "@/assets/trophy-animation.svg.asset.json";
 import confettiIconAsset from "@/assets/success-confetti.svg.asset.json";
+import verbotHeroAsset from "@/assets/Verbot_Challenges_hero.svg.asset.json";
 import crownIconAsset from "@/assets/crown-animation.svg.asset.json";
 import winnerBadgeAsset from "@/assets/winner-badge.svg.asset.json";
 import silverCoinAsset from "@/assets/silver-coin.svg.asset.json";
@@ -1815,6 +1816,16 @@ function ChallengesHero({
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="verbo-hero-shine absolute inset-y-0 -left-1/3 w-1/3 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       </div>
+
+      {/* Verbot mascot — cropped at the banner's right edge */}
+      <img
+        src={verbotHeroAsset.url}
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute -bottom-[19%] right-[-4%] hidden h-[140%] w-auto select-none object-contain sm:block"
+      />
+
+
 
       <div className="relative">
         <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/90 shadow-inner">
