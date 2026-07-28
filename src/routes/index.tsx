@@ -3,9 +3,13 @@ import { useEffect, useRef } from "react";
 import { Logo } from "@/components/verbo/Logo";
 import { Footer } from "@/components/verbo/Footer";
 import { Preloader } from "@/components/verbo/Preloader";
-import { PhotoPlaceholder } from "@/components/verbo/ui";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Gift, MessageCircle, MessageSquare, Zap } from "lucide-react";
 import heroImage from "@/assets/hero_image.png.asset.json";
+import yellowCardImage from "@/assets/yello_card_image.webp.asset.json";
+import purpleCardImage from "@/assets/purple_card_image.webp.asset.json";
+import redCardImage from "@/assets/red_card_image.webp.asset.json";
+import greenCardImage from "@/assets/green_card_image.webp.asset.json";
+import navyCardImage from "@/assets/navy_card_image.webp.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
