@@ -1152,42 +1152,97 @@ function SeasonModal({
             />
           </Field>
 
-          <Field label="Accent Color">
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={accentColor}
-                onChange={(e) => setAccentColor(e.target.value)}
-                className="h-10 w-16 cursor-pointer rounded-lg border border-border bg-background"
-              />
-              <input
-                value={accentColor}
-                onChange={(e) => setAccentColor(e.target.value)}
-                className={inputCls}
-                placeholder="#7e22ce"
-              />
+          <Field label="Background fill">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setFillMode("solid")}
+                className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${fillMode === "solid" ? "border-accent bg-accent/10 text-foreground" : "border-border bg-background text-muted-foreground hover:bg-secondary"}`}
+              >
+                Solid color
+              </button>
+              <button
+                type="button"
+                onClick={() => setFillMode("gradient")}
+                className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${fillMode === "gradient" ? "border-accent bg-accent/10 text-foreground" : "border-border bg-background text-muted-foreground hover:bg-secondary"}`}
+              >
+                Gradient
+              </button>
             </div>
           </Field>
 
-          <Field label="Accent Color — To (optional)">
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={accentColorTo || "#111827"}
-                onChange={(e) => setAccentColorTo(e.target.value)}
-                className="h-10 w-16 cursor-pointer rounded-lg border border-border bg-background"
-              />
-              <input
-                value={accentColorTo}
-                onChange={(e) => setAccentColorTo(e.target.value)}
-                className={inputCls}
-                placeholder="#f59e0b (leave empty for default)"
-              />
-            </div>
-            <div className="mt-1 text-[11px] text-muted-foreground">
-              When set, the Season gradient blends from the accent color into this one.
-            </div>
-          </Field>
+          {fillMode === "solid" ? (
+            <Field label="Accent Color">
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className="h-10 w-16 cursor-pointer rounded-lg border border-border bg-background"
+                />
+                <input
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className={inputCls}
+                  placeholder="#7e22ce"
+                />
+              </div>
+            </Field>
+          ) : (
+            <Field label="Color stops">
+              <div className="space-y-2">
+                {stops.map((stop, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={stop.color}
+                      onChange={(e) => updateStop(i, { color: e.target.value })}
+                      className="h-10 w-14 shrink-0 cursor-pointer rounded-lg border border-border bg-background"
+                    />
+                    <input
+                      value={stop.color}
+                      onChange={(e) => updateStop(i, { color: e.target.value })}
+                      className={inputCls}
+                      placeholder="#7e22ce"
+                    />
+                    <div className="flex shrink-0 items-center gap-1">
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={stop.position}
+                        onChange={(e) => updateStop(i, { position: Math.max(0, Math.min(100, Number(e.target.value) || 0)) })}
+                        className={`${inputCls} w-20`}
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={stops.length <= 2}
+                      onClick={() => removeStop(i)}
+                      title={stops.length <= 2 ? "At least 2 stops required" : "Remove stop"}
+                      className="shrink-0 rounded-md p-2 text-muted-foreground hover:bg-secondary hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addStop}
+                className="mt-2 rounded-lg border border-dashed border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                + Add color stop
+              </button>
+              <div className="mt-3">
+                <div className="mb-1 text-[11px] text-muted-foreground">Preview</div>
+                <div className="h-10 w-full rounded-lg border border-border" style={{ background: barGradient }} />
+              </div>
+            </Field>
+          )}
+
+
 
 
 
