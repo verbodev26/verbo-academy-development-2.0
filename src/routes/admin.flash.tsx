@@ -1054,12 +1054,34 @@ function SeasonModal({
   const [fontPreset, setFontPreset] = useState<FontPreset>(editing?.font_preset ?? "Festive");
   const [customFont, setCustomFont] = useState(editing?.custom_font_name ?? "");
   const [active, setActive] = useState<boolean>(editing?.active ?? false);
+  const [fillMode, setFillMode] = useState<SeasonFillMode>(editing?.fill_mode ?? "solid");
+  const [stops, setStops] = useState<GradientStop[]>(
+    editing?.gradient_stops && editing.gradient_stops.length >= 2
+      ? editing.gradient_stops
+      : [
+          { color: editing?.accent_color || "#7e22ce", position: 0 },
+          { color: editing?.accent_color_to || "#111827", position: 100 },
+        ],
+  );
+
+  const updateStop = (i: number, patch: Partial<GradientStop>) =>
+    setStops((prev) => prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+  const addStop = () =>
+    setStops((prev) => [...prev, { color: "#ffffff", position: 50 }]);
+  const removeStop = (i: number) =>
+    setStops((prev) => (prev.length <= 2 ? prev : prev.filter((_, idx) => idx !== i)));
 
   const family = fontFamilyFor({ font_preset: fontPreset, custom_font_name: customFont });
   const previewGradient = seasonGradientCss({
     accent_color: accentColor,
     accent_color_to: accentColorTo.trim() || undefined,
+    fill_mode: fillMode,
+    gradient_stops: stops,
   });
+  const barGradient = seasonGradientCss(
+    { accent_color: accentColor, accent_color_to: accentColorTo.trim() || undefined, fill_mode: fillMode, gradient_stops: stops },
+    90,
+  );
   useEffect(() => { ensureGoogleFont(family); }, [family]);
 
   const handleSave = () => {
