@@ -74,6 +74,7 @@ import {
   subscribeFlashChallenges,
   subscribeFlashConfig,
   flashChallengesFor,
+  seasonChallengesFor,
   loadLightning,
   subscribeLightning,
   acceptLightning,
