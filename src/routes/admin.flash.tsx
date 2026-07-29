@@ -747,10 +747,9 @@ function SeasonTab() {
                 style={{
                   background: s.theme_image_url
                     ? `center / cover no-repeat url(${s.theme_image_url})`
-                    : s.accent_color
-                    ? `linear-gradient(135deg, ${s.accent_color}, rgba(0,0,0,0.15))`
-                    : "linear-gradient(135deg, #94a3b8, #64748b)",
+                    : seasonGradientCss(s),
                 }}
+
               >
                 <div className="absolute inset-0 bg-black/25" />
                 <div
