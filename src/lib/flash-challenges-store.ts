@@ -263,6 +263,9 @@ export interface FlashSeason {
   id: string;
   display_name: string; // shown to student, always English
   theme_image_url?: string;
+  /** Optional decorative image (e.g. transparent PNG) that replaces the giant
+   *  text watermark on the student Season banner when defined. */
+  watermark_image_url?: string;
   accent_color?: string;
   /** Optional second color; when set the Season gradient goes accent_color -> accent_color_to. */
   accent_color_to?: string;
