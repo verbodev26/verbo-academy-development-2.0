@@ -797,7 +797,127 @@ function Page() {
 /** Full-width Verbo Flash banner — shared shell for Season, Lightning and
  *  Mystery Box. The whole banner uses ONE background; the left zone holds the
  *  art/icon (wiggling) and the right zone the copy + CTA. */
+/** Season banner — full-bleed theme image fading into the season gradient,
+ *  hero title + watermark, and up to 5 circular challenge pickers. */
+function SeasonFlashBanner({
+  season,
+  challenges,
+  onOpenChallenge,
+}: {
+  season: FlashSeason;
+  challenges: FlashChallenge[];
+  onOpenChallenge: (challenge: FlashChallenge) => void;
+}) {
+  const [moreOpen, setMoreOpen] = useState(false);
+  const available = challenges.length > 0;
+  const font = `"${fontFamilyFor(season)}", system-ui, sans-serif`;
+  const visible = challenges.length > 5 ? challenges.slice(0, 4) : challenges.slice(0, 5);
+  const rest = challenges.length > 5 ? challenges.slice(4) : [];
+
+  return (
+    <div
+      className={`relative w-full overflow-hidden rounded-3xl border border-white/15 shadow-elevated ${
+        available ? "" : "opacity-60 saturate-50"
+      }`}
+      style={{ background: seasonGradientCss(season) }}
+    >
+      {season.theme_image_url && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-cover bg-left bg-no-repeat"
+          style={{
+            backgroundImage: `url(${season.theme_image_url})`,
+            WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 58%)",
+            maskImage: "linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 58%)",
+          }}
+        />
+      )}
+
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 left-[40%] flex select-none items-center overflow-hidden whitespace-nowrap text-[110px] font-black leading-none tracking-tight text-white/10 sm:text-[150px]"
+        style={{ fontFamily: font }}
+      >
+        {season.display_name}
+      </span>
+
+      <div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:p-8 sm:pl-[26%]">
+        <div className="min-w-0">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
+            Verbo Flash · Season
+          </div>
+          <div
+            className="mt-2 truncate text-3xl font-black tracking-tight text-white drop-shadow-md sm:text-5xl"
+            style={{ fontFamily: font }}
+          >
+            {season.display_name}
+          </div>
+          <div className="mt-2 text-xs text-white/85">
+            {available ? "Choose the challenge you like the most" : "Coming soon"}
+          </div>
+        </div>
+
+        {available && (
+          <div className="flex shrink-0 items-center justify-end gap-3">
+            {visible.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => onOpenChallenge(c)}
+                title={c.title}
+                className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/50 bg-white/15 shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
+              >
+                {c.icon_image_url ? (
+                  <img src={c.icon_image_url} alt={c.title} className="h-full w-full object-cover" />
+                ) : (
+                  <Sparkles className="h-7 w-7 text-white" strokeWidth={1.6} />
+                )}
+              </button>
+            ))}
+            {rest.length > 0 && (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setMoreOpen((v) => !v)}
+                  className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/50 bg-white/20 text-sm font-bold text-white shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
+                >
+                  +{rest.length}
+                </button>
+                {moreOpen && (
+                  <div className="absolute right-0 z-20 mt-2 w-60 overflow-hidden rounded-2xl border border-border bg-card p-1 shadow-elevated">
+                    {rest.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          setMoreOpen(false);
+                          onOpenChallenge(c);
+                        }}
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-foreground hover:bg-muted"
+                      >
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
+                          {c.icon_image_url ? (
+                            <img src={c.icon_image_url} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <Sparkles className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </span>
+                        <span className="truncate">{c.title}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function VerboFlashBanner({
+
   icon,
   eyebrow,
   title,
