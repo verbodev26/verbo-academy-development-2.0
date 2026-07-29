@@ -1475,7 +1475,7 @@ function SeasonRevealModal({
           <div className="flex flex-col items-center justify-center gap-4 p-10">
             <div
               className="verbo-box-shake flex h-32 w-32 items-center justify-center rounded-2xl text-white shadow-elevated"
-              style={{ animation: "verbo-box-shake 0.5s ease-in-out infinite", background: `linear-gradient(135deg, ${accent}, #111)` }}
+              style={{ animation: "verbo-box-shake 0.5s ease-in-out infinite", background: seasonGradient }}
             >
               <Sparkles className="h-16 w-16" />
             </div>
@@ -1504,7 +1504,7 @@ function SeasonRevealModal({
                   <span className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/15 text-amber-600 ring-2 ring-amber-400/40">
                     <Lock className="h-6 w-6" />
                   </span>
-                  <AccessGateNotice accent={accent} />
+                  <AccessGateNotice accent={season.accent_color || "#7e22ce"} />
 
                 </div>
               )}
