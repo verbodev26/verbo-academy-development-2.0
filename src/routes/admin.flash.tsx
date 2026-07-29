@@ -31,6 +31,7 @@ import {
   subscribeSeasons,
   upsertSeason,
   deleteSeason,
+  seasonGradientCss,
 } from "@/lib/flash-challenges-store";
 import {
   loadCategories,
@@ -746,10 +747,9 @@ function SeasonTab() {
                 style={{
                   background: s.theme_image_url
                     ? `center / cover no-repeat url(${s.theme_image_url})`
-                    : s.accent_color
-                    ? `linear-gradient(135deg, ${s.accent_color}, rgba(0,0,0,0.15))`
-                    : "linear-gradient(135deg, #94a3b8, #64748b)",
+                    : seasonGradientCss(s),
                 }}
+
               >
                 <div className="absolute inset-0 bg-black/25" />
                 <div
@@ -813,11 +813,16 @@ function SeasonModal({
   const [displayName, setDisplayName] = useState(editing?.display_name ?? "");
   const [themeImageUrl, setThemeImageUrl] = useState(editing?.theme_image_url ?? "");
   const [accentColor, setAccentColor] = useState(editing?.accent_color ?? "#7e22ce");
+  const [accentColorTo, setAccentColorTo] = useState(editing?.accent_color_to ?? "");
   const [fontPreset, setFontPreset] = useState<FontPreset>(editing?.font_preset ?? "Festive");
   const [customFont, setCustomFont] = useState(editing?.custom_font_name ?? "");
   const [active, setActive] = useState<boolean>(editing?.active ?? false);
 
   const family = fontFamilyFor({ font_preset: fontPreset, custom_font_name: customFont });
+  const previewGradient = seasonGradientCss({
+    accent_color: accentColor,
+    accent_color_to: accentColorTo.trim() || undefined,
+  });
   useEffect(() => { ensureGoogleFont(family); }, [family]);
 
   const handleSave = () => {
@@ -829,6 +834,7 @@ function SeasonModal({
       display_name: name,
       theme_image_url: themeImageUrl.trim() || undefined,
       accent_color: accentColor || undefined,
+      accent_color_to: accentColorTo.trim() || undefined,
       font_preset: fontPreset,
       custom_font_name: fontPreset === "Custom" ? customFont.trim() || undefined : undefined,
       active,
@@ -844,8 +850,8 @@ function SeasonModal({
           className="flex items-start justify-between gap-4 p-6 text-white"
           style={{
             background: themeImageUrl
-              ? `center / cover no-repeat url(${themeImageUrl}), linear-gradient(135deg, ${accentColor}, #111)`
-              : `linear-gradient(135deg, ${accentColor}, #111827)`,
+              ? `center / cover no-repeat url(${themeImageUrl}), ${previewGradient}`
+              : previewGradient,
           }}
         >
           <div>
@@ -899,6 +905,28 @@ function SeasonModal({
               />
             </div>
           </Field>
+
+          <Field label="Accent Color — To (optional)">
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={accentColorTo || "#111827"}
+                onChange={(e) => setAccentColorTo(e.target.value)}
+                className="h-10 w-16 cursor-pointer rounded-lg border border-border bg-background"
+              />
+              <input
+                value={accentColorTo}
+                onChange={(e) => setAccentColorTo(e.target.value)}
+                className={inputCls}
+                placeholder="#f59e0b (leave empty for default)"
+              />
+            </div>
+            <div className="mt-1 text-[11px] text-muted-foreground">
+              When set, the Season gradient blends from the accent color into this one.
+            </div>
+          </Field>
+
+
 
           <Field label="Typography">
             <select

@@ -410,7 +410,7 @@ Ranking del leaderboard: **global** — `USERS` filtrados solo por `role === "st
 | duration_hours | number | |
 | accepted_student_ids | string[] | N:M embebido como array |
 
-**`FlashSeason`**: `id, display_name, theme_image_url?, accent_color?, font_preset, custom_font_name?, active, badge_name, created_at`. 13 temporadas semilla.
+**`FlashSeason`**: `id, display_name, theme_image_url?, accent_color?, accent_color_to?, font_preset, custom_font_name?, active, badge_name, created_at`. 13 temporadas semilla. El gradiente de cada Season se construye SIEMPRE con `seasonGradientCss(season, angle = 135)` (única fuente): usa `accent_color → accent_color_to` cuando el segundo color existe, si no `accent_color → #111827`.
 
 **`FlashConfig`**: `{ box_art_url?: string }`.
 
