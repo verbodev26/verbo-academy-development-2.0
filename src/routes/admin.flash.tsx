@@ -24,6 +24,8 @@ import {
   activateLightning,
   endLightningEarly,
   type FlashSeason,
+  type GradientStop,
+  type SeasonFillMode,
   type FontPreset,
   FONT_PRESET_ORDER,
   fontFamilyFor,
