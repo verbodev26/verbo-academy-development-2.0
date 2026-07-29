@@ -566,14 +566,15 @@ function Page() {
         const activeSeasons = seasons.filter((s) => s.active);
 
         const openSeasonBanner = (season: FlashSeason) => {
-          if (pool.length === 0) return;
+          const seasonPool = seasonChallengesFor(flashList, season.id, flashProduct);
+          if (seasonPool.length === 0) return;
           if (!openSeason(student.id, season.id)) {
             setSeasonState({ season, opening: false, reveal: null, blocked: true });
             return;
           }
           setSeasonState({ season, opening: true, reveal: null, blocked: false });
           setTimeout(() => {
-            const pick = pool[Math.floor(Math.random() * pool.length)];
+            const pick = seasonPool[Math.floor(Math.random() * seasonPool.length)];
             setSeasonState({ season, opening: false, reveal: pick, blocked: false });
           }, 900);
         };
