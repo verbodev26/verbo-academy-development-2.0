@@ -19,6 +19,8 @@ export interface FlashChallenge {
   skill_tags?: string[];
   /** Only for format === "season": the FlashSeason this challenge belongs to. */
   season_id?: string;
+  /** Optional circular icon image (data URL or remote URL). */
+  icon_image_url?: string;
 }
 
 export interface FlashConfig {
