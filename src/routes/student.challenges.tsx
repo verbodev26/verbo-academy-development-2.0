@@ -1293,27 +1293,35 @@ function LightningRevealModal({
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
       {completed && <Confetti theme="lightning" />}
       <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-card shadow-elevated">
-        <div className="flex items-start justify-between gap-4 bg-gradient-to-br from-[#1e3a8a] via-[#0284c7] to-[#facc15] p-6 text-white">
-          <div>
-            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/80">
-              <Zap className="h-3.5 w-3.5" /> Verbo Flash · Lightning
+        <style>{FLASH_HEADER_KEYFRAMES}</style>
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#1e3a8a] via-[#0284c7] to-[#facc15] p-6 text-white">
+          <FlashHeaderDecor watermark={<Zap className="h-40 w-40" strokeWidth={1} />} />
+          <div className="relative flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/80" style={flashEyebrowStyle}>
+                <span className="verbo-flash-pop inline-flex" style={flashPopStyle}>
+                  <Zap className="h-3.5 w-3.5" />
+                </span>{" "}
+                Verbo Flash · Lightning
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <CategoryBadge name={challenge.category} />
+                {challenge.premium && <PremiumBadge />}
+                {isLive && (
+                  <span className="rounded-full bg-white/20 px-2.5 py-0.5 font-mono text-xs font-bold tabular-nums">
+                    {formatHMS(remaining)}
+                  </span>
+                )}
+              </div>
+              <div className="mt-2 text-base font-semibold tracking-tight" style={flashTitleStyle}>{challenge.title}</div>
+              <div className="mt-1 text-xs text-white/80">⚡ {acceptedCount} student{acceptedCount === 1 ? "" : "s"} accepted this</div>
             </div>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <CategoryBadge name={challenge.category} />
-              {challenge.premium && <PremiumBadge />}
-              {isLive && (
-                <span className="rounded-full bg-white/20 px-2.5 py-0.5 font-mono text-xs font-bold tabular-nums">
-                  {formatHMS(remaining)}
-                </span>
-              )}
-            </div>
-            <div className="mt-2 text-base font-semibold tracking-tight">{challenge.title}</div>
-            <div className="mt-1 text-xs text-white/80">⚡ {acceptedCount} student{acceptedCount === 1 ? "" : "s"} accepted this</div>
+            <button onClick={onClose} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close">
+              <X className="h-4 w-4" />
+            </button>
           </div>
-          <button onClick={onClose} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close">
-            <X className="h-4 w-4" />
-          </button>
         </div>
+
 
         <div className="relative p-6">
           <div className={locked ? "pointer-events-none select-none blur-sm" : ""}>
