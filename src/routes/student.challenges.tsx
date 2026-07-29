@@ -981,26 +981,34 @@ function MysteryRevealModal({
             80% { transform: translateX(4px) rotate(6deg); }
           }
           @media (prefers-reduced-motion: reduce) { .verbo-box-shake { animation: none !important; } }
+          ${FLASH_HEADER_KEYFRAMES}
         `}</style>
-        <div className="flex items-start justify-between gap-4 bg-gradient-to-br from-[#4a044e] via-[#7e22ce] to-[#f59e0b] p-6 text-white">
-          <div>
-            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/80">
-              <Zap className="h-3.5 w-3.5" /> Verbo Flash · Mystery Box
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#4a044e] via-[#7e22ce] to-[#f59e0b] p-6 text-white">
+          <FlashHeaderDecor watermark={<Gift className="h-40 w-40" strokeWidth={1} />} />
+          <div className="relative flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/80" style={flashEyebrowStyle}>
+                <span className="verbo-flash-pop inline-flex" style={flashPopStyle}>
+                  <Zap className="h-3.5 w-3.5" />
+                </span>{" "}
+                Verbo Flash · Mystery Box
+              </div>
+              {challenge && !opening && (
+                <>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <CategoryBadge name={challenge.category} />
+                    {challenge.premium && <PremiumBadge />}
+                  </div>
+                  <div className="mt-2 text-base font-semibold tracking-tight" style={flashTitleStyle}>{challenge.title}</div>
+                </>
+              )}
             </div>
-            {challenge && !opening && (
-              <>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <CategoryBadge name={challenge.category} />
-                  {challenge.premium && <PremiumBadge />}
-                </div>
-                <div className="mt-2 text-base font-semibold tracking-tight">{challenge.title}</div>
-              </>
-            )}
+            <button onClick={onClose} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close">
+              <X className="h-4 w-4" />
+            </button>
           </div>
-          <button onClick={onClose} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close">
-            <X className="h-4 w-4" />
-          </button>
         </div>
+
 
         {opening || !challenge ? (
           <div className="flex flex-col items-center justify-center gap-4 p-10">
