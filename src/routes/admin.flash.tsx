@@ -285,6 +285,9 @@ function FlashModal({
   categories,
   existing,
   editing,
+  seasonId,
+  headerBackground,
+  titleOverride,
   onAddCategory,
   onClose,
   onSave,
@@ -294,6 +297,9 @@ function FlashModal({
   categories: string[];
   existing: FlashChallenge[];
   editing?: FlashChallenge;
+  seasonId?: string;
+  headerBackground?: string;
+  titleOverride?: string;
   onAddCategory: (name: string) => void;
   onClose: () => void;
   onSave: (c: FlashChallenge) => void;
