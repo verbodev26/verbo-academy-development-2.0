@@ -923,73 +923,85 @@ function SeasonFlashBanner({
         </div>
 
         {available && (
-          <div className="flex shrink-0 flex-col items-center gap-1.5 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-dashed border-white/50 bg-white/10 backdrop-blur sm:h-16 sm:w-16">
-              <Medal className="h-7 w-7 text-white/70" strokeWidth={1.6} />
-            </div>
-            <div className="max-w-[130px] text-[11px] font-semibold leading-tight text-white/90">
-              {season.badge_name}
-            </div>
-            <div className="max-w-[130px] text-[10px] leading-tight text-white/65">
-              Complete all challenges to unlock this badge
-            </div>
-          </div>
-        )}
-
-        {available && (
-          <div className="flex shrink-0 items-center justify-end gap-3">
-            {visible.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => onOpenChallenge(c)}
-                title={c.title}
-                style={{ animation: "verbo-season-glow 2.2s ease-in-out infinite" }}
-                className="verbo-season-glow flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/50 bg-white/15 shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
+          <div className="flex shrink-0 flex-col items-center gap-6 sm:flex-row sm:items-center">
+            <div className="flex shrink-0 flex-col items-center gap-1.5 text-center">
+              <div
+                className={`relative flex h-16 w-16 items-center justify-center rounded-full border-2 backdrop-blur transition-transform duration-200 sm:h-20 sm:w-20 ${
+                  earned
+                    ? "border-white/80 bg-white/25"
+                    : "verbo-badge-locked-pulse border-dashed border-white/50 bg-white/10"
+                }`}
+                style={!earned ? { animation: "verbo-badge-locked-pulse 2.2s ease-in-out infinite" } : undefined}
               >
-                {c.icon_image_url ? (
-                  <img src={c.icon_image_url} alt={c.title} className="h-full w-full object-cover" />
-                ) : (
-                  <Sparkles className="h-7 w-7 text-white" strokeWidth={1.6} />
-                )}
-              </button>
-            ))}
-            {rest.length > 0 && (
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setMoreOpen((v) => !v)}
-                  style={{ animation: "verbo-season-glow 2.2s ease-in-out infinite" }}
-                  className="verbo-season-glow flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/50 bg-white/20 text-sm font-bold text-white shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
-                >
-                  +{rest.length}
-                </button>
-                {moreOpen && (
-                  <div className="absolute right-0 z-20 mt-2 w-60 overflow-hidden rounded-2xl border border-border bg-card p-1 shadow-elevated">
-                    {rest.map((c) => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => {
-                          setMoreOpen(false);
-                          onOpenChallenge(c);
-                        }}
-                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-foreground hover:bg-muted"
-                      >
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
-                          {c.icon_image_url ? (
-                            <img src={c.icon_image_url} alt="" className="h-full w-full object-cover" />
-                          ) : (
-                            <Sparkles className="h-4 w-4 text-muted-foreground" />
-                          )}
-                        </span>
-                        <span className="truncate">{c.title}</span>
-                      </button>
-                    ))}
-                  </div>
+                <Medal className={`h-8 w-8 sm:h-9 sm:w-9 ${earned ? "text-white" : "text-white/70"}`} strokeWidth={1.6} />
+                {!earned && (
+                  <span className="absolute inset-0 flex items-center justify-center rounded-full bg-black/20 backdrop-blur-[1px]">
+                    <Lock className="h-5 w-5 text-white sm:h-6 sm:w-6" strokeWidth={2} />
+                  </span>
                 )}
               </div>
-            )}
+              <div className="max-w-[130px] text-[11px] font-semibold leading-tight text-white/90">
+                {season.badge_name}
+              </div>
+              <div className="max-w-[130px] text-[10px] leading-tight text-white/65">
+                Complete all challenges to unlock this badge
+              </div>
+            </div>
+
+            <div className="flex shrink-0 items-center justify-end gap-3">
+              {visible.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => onOpenChallenge(c)}
+                  title={c.title}
+                  style={{ animation: "verbo-season-glow 2.2s ease-in-out infinite" }}
+                  className="verbo-season-glow flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/50 bg-white/15 shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
+                >
+                  {c.icon_image_url ? (
+                    <img src={c.icon_image_url} alt={c.title} className="h-full w-full object-cover" />
+                  ) : (
+                    <Sparkles className="h-7 w-7 text-white" strokeWidth={1.6} />
+                  )}
+                </button>
+              ))}
+              {rest.length > 0 && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setMoreOpen((v) => !v)}
+                    style={{ animation: "verbo-season-glow 2.2s ease-in-out infinite" }}
+                    className="verbo-season-glow flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/50 bg-white/20 text-sm font-bold text-white shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
+                  >
+                    +{rest.length}
+                  </button>
+                  {moreOpen && (
+                    <div className="absolute right-0 z-20 mt-2 w-60 overflow-hidden rounded-2xl border border-border bg-card p-1 shadow-elevated">
+                      {rest.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            setMoreOpen(false);
+                            onOpenChallenge(c);
+                          }}
+                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-foreground hover:bg-muted"
+                        >
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
+                            {c.icon_image_url ? (
+                              <img src={c.icon_image_url} alt="" className="h-full w-full object-cover" />
+                            ) : (
+                              <Sparkles className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </span>
+                          <span className="truncate">{c.title}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
