@@ -558,69 +558,156 @@ function Page() {
         })}
       </div>
 
-      {/* ---------------- Verbo Flash family: Mystery Box + Seasons + Lightning ---------------- */}
-      {(["enterprise", "go", "international"] as const).includes(productId as FlashProductId) && (
-        <section className="space-y-6">
-          <VerboFlashSection
-            boxArtUrl={flashConfig.box_art_url}
-            available={flashChallengesFor(flashList, "mystery_box", productId as FlashProductId).length > 0}
-            activeSeasons={seasons.filter((s) => s.active)}
-            onOpen={() => {
-              const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
-              if (pool.length === 0) return;
-              if (!openMysteryBox(student.id)) {
-                setMystery({ opening: false, reveal: null, blocked: true });
-                return;
-              }
-              setMystery({ opening: true, reveal: null, blocked: false });
-              // Suspenseful reveal delay — the box animates then the challenge is revealed.
-              setTimeout(() => {
-                const pick = pool[Math.floor(Math.random() * pool.length)];
-                setMystery({ opening: false, reveal: pick, blocked: false });
-              }, 900);
-            }}
-            onOpenSeason={(season) => {
-              const pool = flashChallengesFor(flashList, "mystery_box", productId as FlashProductId);
-              if (pool.length === 0) return;
-              if (!openSeason(student.id, season.id)) {
-                setSeasonState({ season, opening: false, reveal: null, blocked: true });
-                return;
-              }
-              setSeasonState({ season, opening: true, reveal: null, blocked: false });
-              setTimeout(() => {
-                const pick = pool[Math.floor(Math.random() * pool.length)];
-                setSeasonState({ season, opening: false, reveal: pick, blocked: false });
-              }, 900);
-            }}
-          />
+      {/* ---------------- Verbo Flash family: Seasons + Lightning + Mystery Box ---------------- */}
+      {(["enterprise", "go", "international"] as const).includes(productId as FlashProductId) && (() => {
+        const flashProduct = productId as FlashProductId;
+        const pool = flashChallengesFor(flashList, "mystery_box", flashProduct);
+        const available = pool.length > 0;
+        const activeSeasons = seasons.filter((s) => s.active);
 
-          {/* Lightning card */}
-          {isLightningVisibleForStudents(lightning)
-            && lightning.product === productId && (() => {
-              const ch = flashList.find((c) => c.id === lightning.challenge_id);
-              if (!ch) return null;
+        const openSeasonBanner = (season: FlashSeason) => {
+          if (pool.length === 0) return;
+          if (!openSeason(student.id, season.id)) {
+            setSeasonState({ season, opening: false, reveal: null, blocked: true });
+            return;
+          }
+          setSeasonState({ season, opening: true, reveal: null, blocked: false });
+          setTimeout(() => {
+            const pick = pool[Math.floor(Math.random() * pool.length)];
+            setSeasonState({ season, opening: false, reveal: pick, blocked: false });
+          }, 900);
+        };
+
+        const openMystery = () => {
+          if (pool.length === 0) return;
+          if (!openMysteryBox(student.id)) {
+            setMystery({ opening: false, reveal: null, blocked: true });
+            return;
+          }
+          setMystery({ opening: true, reveal: null, blocked: false });
+          setTimeout(() => {
+            const pick = pool[Math.floor(Math.random() * pool.length)];
+            setMystery({ opening: false, reveal: pick, blocked: false });
+          }, 900);
+        };
+
+        const lightningVisible = isLightningVisibleForStudents(lightning) && lightning.product === productId;
+        const lightningChallenge = lightningVisible
+          ? flashList.find((c) => c.id === lightning.challenge_id)
+          : undefined;
+
+        return (
+          <div className="flex flex-col gap-4">
+            <style>{`
+              @keyframes verbo-box-wiggle {
+                0%, 92%, 100% { transform: rotate(0deg); }
+                94% { transform: rotate(-6deg); }
+                96% { transform: rotate(6deg); }
+                98% { transform: rotate(-3deg); }
+              }
+              @keyframes verbo-lightning-glow {
+                0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.55), 0 0 30px 4px rgba(14, 165, 233, 0.35); }
+                50% { box-shadow: 0 0 0 6px rgba(250, 204, 21, 0.0), 0 0 40px 10px rgba(14, 165, 233, 0.6); }
+              }
+              @keyframes verbo-lightning-urgent {
+                0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.65), 0 0 30px 4px rgba(239, 68, 68, 0.5); }
+                50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.0), 0 0 40px 12px rgba(239, 68, 68, 0.8); }
+              }
+              @media (prefers-reduced-motion: reduce) {
+                .verbo-box-wiggle, .verbo-lightning-live { animation: none !important; }
+              }
+            `}</style>
+
+            {activeSeasons.map((s) => (
+              <VerboFlashBanner
+                key={s.id}
+                background={seasonGradientCss(s)}
+                eyebrow="Verbo Flash · Season"
+                title={s.display_name}
+                titleStyle={{ fontFamily: `"${fontFamilyFor(s)}", system-ui, sans-serif` }}
+                status="Tap to open today's challenge"
+                cta={<ChevronRight className="h-6 w-6 text-white/90" />}
+                icon={
+                  s.theme_image_url ? (
+                    <img src={s.theme_image_url} alt={s.display_name} className="h-full w-full rounded-2xl object-contain drop-shadow-lg" />
+                  ) : (
+                    <Sparkles className="h-20 w-20 text-white drop-shadow-lg" strokeWidth={1.4} />
+                  )
+                }
+                onClick={() => openSeasonBanner(s)}
+              />
+            ))}
+
+            {lightningChallenge && (() => {
               const remaining = lightning.expires_at ? +new Date(lightning.expires_at) - nowTick : 0;
               const isLive = lightning.status === "live" && remaining > 0;
               const accepted = lightning.accepted_student_ids.includes(student.id);
-              const completed = hasCompletedChallenge(student.id, ch.id);
+              const completed = hasCompletedChallenge(student.id, lightningChallenge.id);
+              const acceptedCount = lightning.accepted_student_ids.length;
+              const urgent = isLive && remaining > 0 && remaining < 60 * 60 * 1000;
+              const ch = lightningChallenge;
+
+              if (!isLive) {
+                return (
+                  <VerboFlashBanner
+                    background="linear-gradient(135deg, #1e3a8a, #0284c7, #facc15)"
+                    className="opacity-70 saturate-50"
+                    eyebrow={completed ? "⚡ Completed" : "⚡ Expired — you missed this one"}
+                    title={ch.title || "Lightning Challenge"}
+                    status={completed ? "You completed this Lightning." : "This Lightning has passed. The next one could strike anytime — stay ready."}
+                    icon={<Zap className="h-20 w-20 text-white/80 drop-shadow-lg" strokeWidth={1.4} />}
+                  />
+                );
+              }
+
               return (
-                <LightningCard
-                  challenge={ch}
-                  isLive={isLive}
-                  remainingMs={remaining}
-                  acceptedCount={lightning.accepted_student_ids.length}
-                  accepted={accepted}
-                  completed={completed}
-                  onOpen={() => {
+                <VerboFlashBanner
+                  background="linear-gradient(135deg, #1e3a8a, #0284c7, #facc15)"
+                  className="verbo-lightning-live"
+                  style={{ animation: urgent ? "verbo-lightning-urgent 0.9s ease-in-out infinite" : "verbo-lightning-glow 1.8s ease-in-out infinite" }}
+                  eyebrow="🔥 Live now"
+                  title={ch.title || "Lightning Challenge"}
+                  status={`${formatHMS(remaining)} left · ⚡ ${acceptedCount} student${acceptedCount === 1 ? "" : "s"} accepted this`}
+                  icon={<Zap className="h-20 w-20 text-yellow-300 drop-shadow-lg" strokeWidth={1.4} />}
+                  cta={
+                    completed ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white">
+                        <CheckCircle2 className="h-3.5 w-3.5" /> Completed
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-4 py-2 text-xs font-semibold text-[#0f172a]">
+                        {accepted ? "Continue the challenge →" : "Accept the Challenge ⚡"}
+                      </span>
+                    )
+                  }
+                  onClick={() => {
                     if (isLive && !accepted) acceptLightning(student.id);
                     setLightningOpen(ch);
                   }}
                 />
               );
             })()}
-        </section>
 
-      )}
+            <VerboFlashBanner
+              background="linear-gradient(135deg, #4a044e 0%, #7e22ce 55%, #f59e0b 100%)"
+              eyebrow="Verbo Flash"
+              title="Mystery Box"
+              status={available ? "Tap to open" : "Coming soon"}
+              disabled={!available}
+              cta={<ChevronRight className="h-6 w-6 text-white/90" />}
+              icon={
+                flashConfig.box_art_url ? (
+                  <img src={flashConfig.box_art_url} alt="Mystery Box" className="h-full w-full object-contain drop-shadow-lg" />
+                ) : (
+                  <Gift className="h-20 w-20 text-white drop-shadow-lg" strokeWidth={1.4} />
+                )
+              }
+              onClick={openMystery}
+            />
+          </div>
+        );
+      })()}
+
 
 
 
