@@ -251,6 +251,14 @@ export function isLightningVisibleForStudents(state: LightningState): boolean {
 
 export type FontPreset = "Playful" | "Elegant" | "Spooky" | "Festive" | "Minimal" | "Custom";
 
+/** One color stop of a multi-stop Season gradient. position is 0-100 (%). */
+export interface GradientStop {
+  color: string;
+  position: number;
+}
+
+export type SeasonFillMode = "solid" | "gradient";
+
 export interface FlashSeason {
   id: string;
   display_name: string; // shown to student, always English
@@ -258,6 +266,10 @@ export interface FlashSeason {
   accent_color?: string;
   /** Optional second color; when set the Season gradient goes accent_color -> accent_color_to. */
   accent_color_to?: string;
+  /** "solid" uses accent_color only; "gradient" uses gradient_stops. */
+  fill_mode?: SeasonFillMode;
+  /** Multi-stop gradient (2+ stops). Falls back to accent_color/_to when absent. */
+  gradient_stops?: GradientStop[];
   font_preset: FontPreset;
   custom_font_name?: string;
   active: boolean;
@@ -267,9 +279,17 @@ export interface FlashSeason {
 
 /** Single source of truth for a Season's gradient background. */
 export function seasonGradientCss(
-  season: Pick<FlashSeason, "accent_color" | "accent_color_to">,
+  season: Pick<FlashSeason, "accent_color" | "accent_color_to" | "fill_mode" | "gradient_stops">,
   angle = 135,
 ): string {
+  const stops = season.gradient_stops;
+  if (season.fill_mode === "gradient" && stops && stops.length >= 2) {
+    const parts = [...stops]
+      .sort((a, b) => a.position - b.position)
+      .map((s) => `${s.color} ${Math.max(0, Math.min(100, s.position))}%`)
+      .join(", ");
+    return `linear-gradient(${angle}deg, ${parts})`;
+  }
   const from = season.accent_color || "#7e22ce";
   if (season.accent_color_to) {
     return `linear-gradient(${angle}deg, ${from}, ${season.accent_color_to})`;
