@@ -617,6 +617,7 @@ function Page() {
                 season={s}
                 challenges={seasonChallengesFor(flashList, s.id, flashProduct)}
                 onOpenChallenge={(c) => openSeasonChallenge(s, c)}
+                earned={(student.season_completions?.[s.id] ?? 0) >= 1}
               />
             ))}
 
@@ -803,10 +804,12 @@ function SeasonFlashBanner({
   season,
   challenges,
   onOpenChallenge,
+  earned,
 }: {
   season: FlashSeason;
   challenges: FlashChallenge[];
   onOpenChallenge: (challenge: FlashChallenge) => void;
+  earned: boolean;
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const available = challenges.length > 0;
@@ -837,7 +840,7 @@ function SeasonFlashBanner({
 
   return (
     <div
-      className={`relative w-full min-h-[210px] overflow-hidden rounded-3xl border border-white/15 shadow-elevated sm:min-h-[260px] ${
+      className={`relative flex items-center w-full min-h-[210px] overflow-hidden rounded-3xl border border-white/15 shadow-elevated sm:min-h-[260px] ${
         available ? "verbo-season-pulse" : "opacity-60 saturate-50"
       }`}
       style={{
@@ -854,8 +857,12 @@ function SeasonFlashBanner({
           0%, 100% { box-shadow: 0 0 0px 0px rgba(255,255,255,0), 0 4px 10px rgba(0,0,0,0.25); }
           50% { box-shadow: 0 0 16px 4px rgba(255,255,255,0.55), 0 4px 10px rgba(0,0,0,0.25); }
         }
+        @keyframes verbo-badge-locked-pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.18); }
+          50% { box-shadow: 0 0 0 6px rgba(255,255,255,0); }
+        }
         @media (prefers-reduced-motion: reduce) {
-          .verbo-season-pulse, .verbo-season-glow { animation: none !important; }
+          .verbo-season-pulse, .verbo-season-glow, .verbo-badge-locked-pulse { animation: none !important; }
         }
       `}</style>
 
