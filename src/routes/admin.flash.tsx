@@ -314,6 +314,18 @@ function FlashModal({
   const [videoUrl, setVideoUrl] = useState(editing?.video_url ?? "");
   const [premium, setPremium] = useState<boolean>(editing?.premium ?? false);
   const [videoSource, setVideoSource] = useState<"url" | "upload">("url");
+  const [iconImageUrl, setIconImageUrl] = useState(editing?.icon_image_url ?? "");
+  const [iconError, setIconError] = useState("");
+
+  const handleIconFile = (file?: File | null) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { setIconError("Please choose an image file."); return; }
+    if (file.size > 2 * 1024 * 1024) { setIconError("Image must be 2MB or smaller."); return; }
+    setIconError("");
+    const reader = new FileReader();
+    reader.onload = () => setIconImageUrl(String(reader.result || ""));
+    reader.readAsDataURL(file);
+  };
 
   const commitNewCategory = () => {
     const t = newCat.trim();
@@ -336,6 +348,7 @@ function FlashModal({
       video_url: videoUrl.trim() || undefined,
       premium,
       skill_tags: editing?.skill_tags ?? [],
+      icon_image_url: iconImageUrl || undefined,
       ...(format === "season" ? { season_id: seasonId } : {}),
     });
   };
