@@ -789,6 +789,13 @@ function SeasonTab() {
                 </div>
                 <div className="flex items-center gap-1">
                   <button
+                    onClick={() => setChallengesSeason(s)}
+                    className="flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-[#7e22ce]"
+                    aria-label="Challenges"
+                  >
+                    <Package className="h-4 w-4" /> Challenges
+                  </button>
+                  <button
                     onClick={() => setModal({ mode: "edit", season: s })}
                     className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-[#7e22ce]"
                     aria-label="Edit"
@@ -814,6 +821,171 @@ function SeasonTab() {
           editing={modal.mode === "edit" ? modal.season : undefined}
           onClose={() => setModal(null)}
           onSave={(s) => { upsertSeason(s); setModal(null); }}
+        />
+      )}
+
+      {challengesSeason && (
+        <SeasonChallengesModal season={challengesSeason} onClose={() => setChallengesSeason(null)} />
+      )}
+    </div>
+  );
+}
+
+/* -------------------- Season challenges manager -------------------- */
+
+function SeasonChallengesModal({ season, onClose }: { season: FlashSeason; onClose: () => void }) {
+  const [list, setList] = useState<FlashChallenge[]>(loadFlashChallenges);
+  const [categories, setCategories] = useState<string[]>(loadCategories);
+  const [product, setProduct] = useState<FlashProductId>("enterprise");
+  const [modal, setModal] = useState<{ mode: "create" | "edit"; challenge?: FlashChallenge } | null>(null);
+
+  useEffect(() => {
+    setList(loadFlashChallenges());
+    setCategories(loadCategories());
+    const un1 = subscribeFlashChallenges(() => setList(loadFlashChallenges()));
+    const un2 = subscribeCategories(() => setCategories(loadCategories()));
+    return () => { un1(); un2(); };
+  }, []);
+
+  const filtered = useMemo(
+    () => seasonChallengesFor(list, season.id, product),
+    [list, season.id, product],
+  );
+
+  const save = (c: FlashChallenge) => {
+    setList((prev) => {
+      const next = [...prev.filter((x) => x.id !== c.id), c];
+      persistFlashChallenges(next);
+      return next;
+    });
+  };
+  const del = (id: string) => {
+    if (!confirm("Delete this challenge?")) return;
+    setList((prev) => {
+      const next = prev.filter((c) => c.id !== id);
+      persistFlashChallenges(next);
+      return next;
+    });
+  };
+  const addCategory = (name: string) => {
+    setCategories((prev) => {
+      if (prev.includes(name)) return prev;
+      const next = [...prev, name];
+      persistCategories(next);
+      return next;
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 backdrop-blur-sm">
+      <div className="my-8 w-full max-w-3xl overflow-hidden rounded-2xl border border-border bg-card shadow-elevated">
+        <div
+          className="flex items-start justify-between gap-4 p-6 text-white"
+          style={{ background: seasonGradientCss(season) }}
+        >
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.18em] text-white/70">Verbo Flash · Season</div>
+            <div className="mt-0.5 text-base font-semibold tracking-tight">{season.display_name} Challenges</div>
+          </div>
+          <button onClick={onClose} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
+        </div>
+
+        <div className="space-y-5 p-6">
+          <div className="flex flex-wrap gap-2">
+            {FLASH_PRODUCT_ORDER.map((p) => (
+              <button
+                key={p}
+                onClick={() => setProduct(p)}
+                className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                  product === p
+                    ? "border-[#7e22ce] bg-[#7e22ce]/10 text-[#7e22ce]"
+                    : "border-border bg-background text-muted-foreground hover:bg-secondary"
+                }`}
+              >
+                {FLASH_PRODUCT_LABEL[p]}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              {filtered.length} challenge{filtered.length === 1 ? "" : "s"} for {FLASH_PRODUCT_LABEL[product]}
+            </div>
+            <GhostButton onClick={() => setModal({ mode: "create" })}>
+              <Plus className="h-3.5 w-3.5" /> Add Challenge
+            </GhostButton>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border py-10 text-center text-sm text-muted-foreground">
+              <Sparkles className="h-8 w-8 text-muted-foreground/60" />
+              No challenges yet for this Season — add one below.
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {filtered.map((c) => (
+                <div key={c.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {c.category ? (
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${categoryColor(c.category)}`}>
+                        {c.category}
+                      </span>
+                    ) : (
+                      <Pill tone="muted">No category</Pill>
+                    )}
+                    {c.premium && (
+                      <span className="inline-flex items-center rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600">
+                        Premium
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-foreground">{c.title || "Untitled"}</div>
+                    <p className="mt-1 line-clamp-3 text-xs text-muted-foreground">{c.description || "No description yet."}</p>
+                  </div>
+                  <div className="mt-auto flex items-center justify-between pt-1">
+                    <span className="text-[11px] text-muted-foreground">{c.video_url ? "🎬 Video attached" : "No attachment"}</span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setModal({ mode: "edit", challenge: c })}
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-[#7e22ce]"
+                        aria-label="Edit"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => del(c.id)}
+                        className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-destructive"
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
+          <GhostButton onClick={onClose}>Close</GhostButton>
+        </div>
+      </div>
+
+      {modal && (
+        <FlashModal
+          format="season"
+          product={product}
+          categories={categories}
+          existing={list}
+          editing={modal.mode === "edit" ? modal.challenge : undefined}
+          seasonId={season.id}
+          headerBackground={seasonGradientCss(season)}
+          titleOverride={`${modal.mode === "edit" ? "Edit" : "New"} ${season.display_name} Challenge`}
+          onAddCategory={addCategory}
+          onClose={() => setModal(null)}
+          onSave={(c) => { save(c); setModal(null); }}
         />
       )}
     </div>
