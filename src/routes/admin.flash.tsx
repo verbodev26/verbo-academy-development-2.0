@@ -1154,6 +1154,20 @@ function SeasonModal({
             />
           </Field>
 
+          <Field label="Watermark Image URL (optional)">
+            <input
+              value={watermarkImageUrl}
+              onChange={(e) => setWatermarkImageUrl(e.target.value)}
+              className={inputCls}
+              placeholder="https://... (imagen con fondo transparente recomendada, ej. PNG)"
+            />
+            <div className="mt-1 text-[11px] text-muted-foreground">
+              Reemplaza el watermark de texto del banner. Se muestra del lado derecho, detrás de los
+              círculos de retos, con opacidad tenue. Si se deja vacío, se sigue usando el nombre de la
+              season como texto de fondo.
+            </div>
+          </Field>
+
           <Field label="Background fill">
             <div className="grid grid-cols-2 gap-2">
               <button
