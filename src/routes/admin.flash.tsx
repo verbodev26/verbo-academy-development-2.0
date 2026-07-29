@@ -1051,6 +1051,7 @@ function SeasonModal({
   const isEdit = !!editing;
   const [displayName, setDisplayName] = useState(editing?.display_name ?? "");
   const [themeImageUrl, setThemeImageUrl] = useState(editing?.theme_image_url ?? "");
+  const [watermarkImageUrl, setWatermarkImageUrl] = useState(editing?.watermark_image_url ?? "");
   const [accentColor, setAccentColor] = useState(editing?.accent_color ?? "#7e22ce");
   const [accentColorTo, setAccentColorTo] = useState(editing?.accent_color_to ?? "");
   const [fontPreset, setFontPreset] = useState<FontPreset>(editing?.font_preset ?? "Festive");
