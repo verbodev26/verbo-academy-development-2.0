@@ -811,99 +811,71 @@ function Page() {
 /* -------------------------------------------------------------------------- */
 /* Verbo Flash — Mystery Box card + reveal modal                              */
 /* -------------------------------------------------------------------------- */
-function VerboFlashSection({
-  boxArtUrl,
-  available,
-  activeSeasons,
-  onOpen,
-  onOpenSeason,
+/** Full-width Verbo Flash banner — shared shell for Season, Lightning and
+ *  Mystery Box. The whole banner uses ONE background; the left zone holds the
+ *  art/icon (wiggling) and the right zone the copy + CTA. */
+function VerboFlashBanner({
+  icon,
+  eyebrow,
+  title,
+  titleStyle,
+  status,
+  cta,
+  background,
+  disabled,
+  onClick,
+  className,
+  style,
 }: {
-  boxArtUrl?: string;
-  available: boolean;
-  activeSeasons: FlashSeason[];
-  onOpen: () => void;
-  onOpenSeason: (season: FlashSeason) => void;
+  icon?: React.ReactNode;
+  eyebrow: string;
+  title: string;
+  titleStyle?: React.CSSProperties;
+  status: string;
+  cta?: React.ReactNode;
+  background: string;
+  disabled?: boolean;
+  onClick?: () => void;
+  className?: string;
+  style?: React.CSSProperties;
 }) {
-  return (
-    <div>
-      <style>{`
-        @keyframes verbo-box-wiggle {
-          0%, 92%, 100% { transform: rotate(0deg); }
-          94% { transform: rotate(-6deg); }
-          96% { transform: rotate(6deg); }
-          98% { transform: rotate(-3deg); }
-        }
-        @media (prefers-reduced-motion: reduce) { .verbo-box-wiggle { animation: none !important; } }
-      `}</style>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <button
-          type="button"
-          disabled={!available}
-          onClick={onOpen}
-          className={`group relative aspect-square rounded-2xl bg-transparent p-6 text-center transition-transform ${
-            available
-              ? "text-foreground hover:-translate-y-1"
-              : "cursor-not-allowed text-muted-foreground opacity-60"
-          }`}
+  const shell = `group relative w-full overflow-hidden rounded-3xl border border-white/15 text-left shadow-elevated transition-transform duration-300 ease-out ${
+    disabled ? "cursor-not-allowed opacity-60 saturate-50" : onClick ? "hover:-translate-y-1.5" : ""
+  } ${className ?? ""}`;
+
+  const inner = (
+    <div className="flex flex-col sm:flex-row sm:items-center">
+      <div className="flex items-center justify-center px-6 pt-6 sm:w-1/4 sm:shrink-0 sm:py-8">
+        <div
+          className="verbo-box-wiggle flex h-20 w-20 items-center justify-center sm:h-28 sm:w-28"
+          style={{ animation: "verbo-box-wiggle 3.4s ease-in-out infinite", transformOrigin: "50% 90%" }}
         >
-          <div className="flex h-full flex-col items-center justify-center gap-4">
-            <div
-              className="verbo-box-wiggle flex h-32 w-32 items-center justify-center"
-              style={{ animation: "verbo-box-wiggle 3.4s ease-in-out infinite", transformOrigin: "50% 90%" }}
-            >
-              {boxArtUrl ? (
-                <img src={boxArtUrl} alt="Mystery Box" className="h-full w-full object-contain drop-shadow-lg" />
-              ) : (
-                <Gift className="h-24 w-24 text-[#7e22ce] drop-shadow-lg" strokeWidth={1.4} />
-              )}
-            </div>
-            <div>
-              <div className="text-lg font-semibold tracking-tight">Mystery Box</div>
-              <div className="mt-1 text-xs text-muted-foreground">{available ? "Tap to open" : "Coming soon"}</div>
-            </div>
+          {icon}
+        </div>
+      </div>
+      <div className="flex flex-1 flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-8 sm:pl-0">
+        <div className="min-w-0">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">{eyebrow}</div>
+          <div className="mt-1 truncate text-xl font-semibold tracking-tight text-white drop-shadow-sm" style={titleStyle}>
+            {title}
           </div>
-        </button>
-
-        {activeSeasons.map((s) => {
-          const accent = s.accent_color || "#7e22ce";
-          const family = fontFamilyFor(s);
-          return (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => onOpenSeason(s)}
-              className="group relative aspect-square rounded-2xl bg-transparent p-6 text-center transition-transform hover:-translate-y-1"
-            >
-              <div className="relative flex h-full flex-col items-center justify-center gap-4">
-                <div
-                  className="verbo-box-wiggle flex h-32 w-32 items-center justify-center"
-                  style={{ animation: "verbo-box-wiggle 3.4s ease-in-out infinite", transformOrigin: "50% 90%" }}
-                >
-                  {s.theme_image_url ? (
-                    <img src={s.theme_image_url} alt={s.display_name} className="h-full w-full rounded-2xl object-contain drop-shadow-lg" />
-                  ) : (
-                    <Sparkles className="h-24 w-24 drop-shadow-lg" strokeWidth={1.4} style={{ color: accent }} />
-                  )}
-                </div>
-                <div>
-                  <div
-                    className="text-lg font-semibold tracking-tight text-foreground"
-                    style={{ fontFamily: `"${family}", system-ui, sans-serif` }}
-                  >
-                    {s.display_name}
-                  </div>
-                  <div className="mt-1 text-xs text-muted-foreground">Tap to open</div>
-                </div>
-              </div>
-
-            </button>
-          );
-        })}
+          <div className="mt-1 text-xs text-white/85">{status}</div>
+        </div>
+        {cta && <div className="flex w-full justify-center sm:w-auto sm:shrink-0 sm:justify-end">{cta}</div>}
       </div>
     </div>
+  );
 
+  if (!onClick) {
+    return <div className={shell} style={{ background, ...style }}>{inner}</div>;
+  }
+  return (
+    <button type="button" disabled={disabled} onClick={onClick} className={shell} style={{ background, ...style }}>
+      {inner}
+    </button>
   );
 }
+
 
 function MysteryCooldownModal({ onClose }: { onClose: () => void }) {
   return (
