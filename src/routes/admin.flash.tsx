@@ -1095,6 +1095,7 @@ function SeasonModal({
       id,
       display_name: name,
       theme_image_url: themeImageUrl.trim() || undefined,
+      watermark_image_url: watermarkImageUrl.trim() || undefined,
       accent_color: accentColor || undefined,
       accent_color_to: accentColorTo.trim() || undefined,
       fill_mode: fillMode,
