@@ -850,8 +850,8 @@ function SeasonModal({
           className="flex items-start justify-between gap-4 p-6 text-white"
           style={{
             background: themeImageUrl
-              ? `center / cover no-repeat url(${themeImageUrl}), linear-gradient(135deg, ${accentColor}, #111)`
-              : `linear-gradient(135deg, ${accentColor}, #111827)`,
+              ? `center / cover no-repeat url(${themeImageUrl}), ${previewGradient}`
+              : previewGradient,
           }}
         >
           <div>
