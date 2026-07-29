@@ -82,6 +82,7 @@ import {
   subscribeSeasons,
   fontFamilyFor,
   ensureGoogleFont,
+  seasonGradientCss,
 } from "@/lib/flash-challenges-store";
 import {
   completeLightningChallenge,
