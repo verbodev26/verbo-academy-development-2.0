@@ -1374,14 +1374,14 @@ function LightningRevealModal({
 /* Season — cooldown + reveal modals (skinned per Season)                     */
 /* -------------------------------------------------------------------------- */
 function SeasonCooldownModal({ season, onClose }: { season: FlashSeason; onClose: () => void }) {
-  const accent = season.accent_color || "#7e22ce";
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
       <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card p-6 text-center shadow-elevated" onClick={(e) => e.stopPropagation()}>
         <div
           className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-white"
-          style={{ background: `linear-gradient(135deg, ${accent}, #111)` }}
+          style={{ background: seasonGradientCss(season) }}
         >
+
           <Sparkles className="h-7 w-7" />
         </div>
         <p className="mt-4 text-sm font-medium text-foreground">
