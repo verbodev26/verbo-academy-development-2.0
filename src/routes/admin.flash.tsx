@@ -906,6 +906,28 @@ function SeasonModal({
             </div>
           </Field>
 
+          <Field label="Accent Color — To (optional)">
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={accentColorTo || "#111827"}
+                onChange={(e) => setAccentColorTo(e.target.value)}
+                className="h-10 w-16 cursor-pointer rounded-lg border border-border bg-background"
+              />
+              <input
+                value={accentColorTo}
+                onChange={(e) => setAccentColorTo(e.target.value)}
+                className={inputCls}
+                placeholder="#f59e0b (leave empty for default)"
+              />
+            </div>
+            <div className="mt-1 text-[11px] text-muted-foreground">
+              When set, the Season gradient blends from the accent color into this one.
+            </div>
+          </Field>
+
+
+
           <Field label="Typography">
             <select
               value={fontPreset}
