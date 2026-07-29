@@ -453,6 +453,36 @@ function FlashModal({
               <div className="mt-2 rounded-lg border border-dashed border-border bg-secondary/40 px-3 py-3 text-xs text-muted-foreground">Coming soon</div>
             )}
           </Field>
+
+          <Field label="Icon image (circular) — optional">
+            <div className="flex items-center gap-3">
+              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full border border-border bg-secondary/50">
+                {iconImageUrl ? (
+                  <img src={iconImageUrl} alt="Challenge icon preview" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">None</div>
+                )}
+              </div>
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleIconFile(e.target.files?.[0])}
+                  className="block w-full text-xs text-muted-foreground file:mr-3 file:rounded-md file:border file:border-border file:bg-secondary file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-foreground"
+                />
+                {iconImageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setIconImageUrl("")}
+                    className="mt-1.5 text-[11px] font-medium text-muted-foreground underline hover:text-foreground"
+                  >
+                    Remove image
+                  </button>
+                )}
+                {iconError && <div className="mt-1 text-[11px] text-destructive">{iconError}</div>}
+              </div>
+            </div>
+          </Field>
         </div>
         <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
           <GhostButton onClick={onClose}>Cancel</GhostButton>
