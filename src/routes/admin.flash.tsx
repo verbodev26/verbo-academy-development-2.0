@@ -819,6 +819,10 @@ function SeasonModal({
   const [active, setActive] = useState<boolean>(editing?.active ?? false);
 
   const family = fontFamilyFor({ font_preset: fontPreset, custom_font_name: customFont });
+  const previewGradient = seasonGradientCss({
+    accent_color: accentColor,
+    accent_color_to: accentColorTo.trim() || undefined,
+  });
   useEffect(() => { ensureGoogleFont(family); }, [family]);
 
   const handleSave = () => {
