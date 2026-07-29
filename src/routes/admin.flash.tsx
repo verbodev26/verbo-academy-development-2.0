@@ -24,6 +24,8 @@ import {
   activateLightning,
   endLightningEarly,
   type FlashSeason,
+  type GradientStop,
+  type SeasonFillMode,
   type FontPreset,
   FONT_PRESET_ORDER,
   fontFamilyFor,
@@ -314,6 +316,18 @@ function FlashModal({
   const [videoUrl, setVideoUrl] = useState(editing?.video_url ?? "");
   const [premium, setPremium] = useState<boolean>(editing?.premium ?? false);
   const [videoSource, setVideoSource] = useState<"url" | "upload">("url");
+  const [iconImageUrl, setIconImageUrl] = useState(editing?.icon_image_url ?? "");
+  const [iconError, setIconError] = useState("");
+
+  const handleIconFile = (file?: File | null) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { setIconError("Please choose an image file."); return; }
+    if (file.size > 2 * 1024 * 1024) { setIconError("Image must be 2MB or smaller."); return; }
+    setIconError("");
+    const reader = new FileReader();
+    reader.onload = () => setIconImageUrl(String(reader.result || ""));
+    reader.readAsDataURL(file);
+  };
 
   const commitNewCategory = () => {
     const t = newCat.trim();
@@ -336,6 +350,7 @@ function FlashModal({
       video_url: videoUrl.trim() || undefined,
       premium,
       skill_tags: editing?.skill_tags ?? [],
+      icon_image_url: iconImageUrl || undefined,
       ...(format === "season" ? { season_id: seasonId } : {}),
     });
   };
@@ -439,6 +454,36 @@ function FlashModal({
             ) : (
               <div className="mt-2 rounded-lg border border-dashed border-border bg-secondary/40 px-3 py-3 text-xs text-muted-foreground">Coming soon</div>
             )}
+          </Field>
+
+          <Field label="Icon image (circular) — optional">
+            <div className="flex items-center gap-3">
+              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full border border-border bg-secondary/50">
+                {iconImageUrl ? (
+                  <img src={iconImageUrl} alt="Challenge icon preview" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-[10px] text-muted-foreground">None</div>
+                )}
+              </div>
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleIconFile(e.target.files?.[0])}
+                  className="block w-full text-xs text-muted-foreground file:mr-3 file:rounded-md file:border file:border-border file:bg-secondary file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-foreground"
+                />
+                {iconImageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setIconImageUrl("")}
+                    className="mt-1.5 text-[11px] font-medium text-muted-foreground underline hover:text-foreground"
+                  >
+                    Remove image
+                  </button>
+                )}
+                {iconError && <div className="mt-1 text-[11px] text-destructive">{iconError}</div>}
+              </div>
+            </div>
           </Field>
         </div>
         <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
@@ -1011,12 +1056,34 @@ function SeasonModal({
   const [fontPreset, setFontPreset] = useState<FontPreset>(editing?.font_preset ?? "Festive");
   const [customFont, setCustomFont] = useState(editing?.custom_font_name ?? "");
   const [active, setActive] = useState<boolean>(editing?.active ?? false);
+  const [fillMode, setFillMode] = useState<SeasonFillMode>(editing?.fill_mode ?? "solid");
+  const [stops, setStops] = useState<GradientStop[]>(
+    editing?.gradient_stops && editing.gradient_stops.length >= 2
+      ? editing.gradient_stops
+      : [
+          { color: editing?.accent_color || "#7e22ce", position: 0 },
+          { color: editing?.accent_color_to || "#111827", position: 100 },
+        ],
+  );
+
+  const updateStop = (i: number, patch: Partial<GradientStop>) =>
+    setStops((prev) => prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+  const addStop = () =>
+    setStops((prev) => [...prev, { color: "#ffffff", position: 50 }]);
+  const removeStop = (i: number) =>
+    setStops((prev) => (prev.length <= 2 ? prev : prev.filter((_, idx) => idx !== i)));
 
   const family = fontFamilyFor({ font_preset: fontPreset, custom_font_name: customFont });
   const previewGradient = seasonGradientCss({
     accent_color: accentColor,
     accent_color_to: accentColorTo.trim() || undefined,
+    fill_mode: fillMode,
+    gradient_stops: stops,
   });
+  const barGradient = seasonGradientCss(
+    { accent_color: accentColor, accent_color_to: accentColorTo.trim() || undefined, fill_mode: fillMode, gradient_stops: stops },
+    90,
+  );
   useEffect(() => { ensureGoogleFont(family); }, [family]);
 
   const handleSave = () => {
@@ -1029,6 +1096,8 @@ function SeasonModal({
       theme_image_url: themeImageUrl.trim() || undefined,
       accent_color: accentColor || undefined,
       accent_color_to: accentColorTo.trim() || undefined,
+      fill_mode: fillMode,
+      gradient_stops: fillMode === "gradient" ? stops : editing?.gradient_stops,
       font_preset: fontPreset,
       custom_font_name: fontPreset === "Custom" ? customFont.trim() || undefined : undefined,
       active,
@@ -1083,42 +1152,97 @@ function SeasonModal({
             />
           </Field>
 
-          <Field label="Accent Color">
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={accentColor}
-                onChange={(e) => setAccentColor(e.target.value)}
-                className="h-10 w-16 cursor-pointer rounded-lg border border-border bg-background"
-              />
-              <input
-                value={accentColor}
-                onChange={(e) => setAccentColor(e.target.value)}
-                className={inputCls}
-                placeholder="#7e22ce"
-              />
+          <Field label="Background fill">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setFillMode("solid")}
+                className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${fillMode === "solid" ? "border-accent bg-accent/10 text-foreground" : "border-border bg-background text-muted-foreground hover:bg-secondary"}`}
+              >
+                Solid color
+              </button>
+              <button
+                type="button"
+                onClick={() => setFillMode("gradient")}
+                className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${fillMode === "gradient" ? "border-accent bg-accent/10 text-foreground" : "border-border bg-background text-muted-foreground hover:bg-secondary"}`}
+              >
+                Gradient
+              </button>
             </div>
           </Field>
 
-          <Field label="Accent Color — To (optional)">
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={accentColorTo || "#111827"}
-                onChange={(e) => setAccentColorTo(e.target.value)}
-                className="h-10 w-16 cursor-pointer rounded-lg border border-border bg-background"
-              />
-              <input
-                value={accentColorTo}
-                onChange={(e) => setAccentColorTo(e.target.value)}
-                className={inputCls}
-                placeholder="#f59e0b (leave empty for default)"
-              />
-            </div>
-            <div className="mt-1 text-[11px] text-muted-foreground">
-              When set, the Season gradient blends from the accent color into this one.
-            </div>
-          </Field>
+          {fillMode === "solid" ? (
+            <Field label="Accent Color">
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className="h-10 w-16 cursor-pointer rounded-lg border border-border bg-background"
+                />
+                <input
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  className={inputCls}
+                  placeholder="#7e22ce"
+                />
+              </div>
+            </Field>
+          ) : (
+            <Field label="Color stops">
+              <div className="space-y-2">
+                {stops.map((stop, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={stop.color}
+                      onChange={(e) => updateStop(i, { color: e.target.value })}
+                      className="h-10 w-14 shrink-0 cursor-pointer rounded-lg border border-border bg-background"
+                    />
+                    <input
+                      value={stop.color}
+                      onChange={(e) => updateStop(i, { color: e.target.value })}
+                      className={inputCls}
+                      placeholder="#7e22ce"
+                    />
+                    <div className="flex shrink-0 items-center gap-1">
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={stop.position}
+                        onChange={(e) => updateStop(i, { position: Math.max(0, Math.min(100, Number(e.target.value) || 0)) })}
+                        className={`${inputCls} w-20`}
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={stops.length <= 2}
+                      onClick={() => removeStop(i)}
+                      title={stops.length <= 2 ? "At least 2 stops required" : "Remove stop"}
+                      className="shrink-0 rounded-md p-2 text-muted-foreground hover:bg-secondary hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addStop}
+                className="mt-2 rounded-lg border border-dashed border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                + Add color stop
+              </button>
+              <div className="mt-3">
+                <div className="mb-1 text-[11px] text-muted-foreground">Preview</div>
+                <div className="h-10 w-full rounded-lg border border-border" style={{ background: barGradient }} />
+              </div>
+            </Field>
+          )}
+
+
 
 
 
