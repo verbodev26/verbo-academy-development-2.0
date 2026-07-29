@@ -834,6 +834,7 @@ function SeasonModal({
       display_name: name,
       theme_image_url: themeImageUrl.trim() || undefined,
       accent_color: accentColor || undefined,
+      accent_color_to: accentColorTo.trim() || undefined,
       font_preset: fontPreset,
       custom_font_name: fontPreset === "Custom" ? customFont.trim() || undefined : undefined,
       active,
