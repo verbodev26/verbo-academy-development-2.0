@@ -111,6 +111,17 @@ export function flashChallengesFor(
     .sort((a, b) => flashNum(a.id) - flashNum(b.id));
 }
 
+/** Challenges assigned to one specific Season (format "season" + season_id). */
+export function seasonChallengesFor(
+  list: FlashChallenge[],
+  seasonId: string,
+  product: FlashProductId,
+): FlashChallenge[] {
+  return list
+    .filter((c) => c.format === "season" && c.season_id === seasonId && c.product === product)
+    .sort((a, b) => flashNum(a.id) - flashNum(b.id));
+}
+
 /* -------------------- Config (box art, etc.) -------------------- */
 
 export function loadFlashConfig(): FlashConfig {
