@@ -335,15 +335,29 @@ function FlashModal({
       video_url: videoUrl.trim() || undefined,
       premium,
       skill_tags: editing?.skill_tags ?? [],
+      ...(format === "season" ? { season_id: seasonId } : {}),
     });
   };
+
+  const headerTitle =
+    titleOverride ??
+    `${isEdit ? "Edit" : "New"} ${format === "lightning" ? "Lightning" : "Mystery Box"} Challenge`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-card shadow-elevated" onClick={(e) => e.stopPropagation()}>
-        <div className={`flex items-start justify-between gap-4 p-6 text-white ${format === "lightning" ? "bg-gradient-to-br from-[#1e3a8a] via-[#0284c7] to-[#facc15]" : "bg-gradient-to-br from-[#4a044e] via-[#7e22ce] to-[#a855f7]"}`}>
+        <div
+          className={`flex items-start justify-between gap-4 p-6 text-white ${
+            headerBackground
+              ? ""
+              : format === "lightning"
+                ? "bg-gradient-to-br from-[#1e3a8a] via-[#0284c7] to-[#facc15]"
+                : "bg-gradient-to-br from-[#4a044e] via-[#7e22ce] to-[#a855f7]"
+          }`}
+          style={headerBackground ? { background: headerBackground } : undefined}
+        >
           <div>
-            <div className="text-base font-semibold tracking-tight">{isEdit ? `Edit ${format === "lightning" ? "Lightning" : "Mystery Box"} Challenge` : `New ${format === "lightning" ? "Lightning" : "Mystery Box"} Challenge`}</div>
+            <div className="text-base font-semibold tracking-tight">{headerTitle}</div>
             <div className="mt-0.5 text-xs text-white/70">{FLASH_PRODUCT_LABEL[product]}</div>
           </div>
           <button onClick={onClose} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
