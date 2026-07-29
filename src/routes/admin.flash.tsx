@@ -1110,7 +1110,7 @@ function SeasonModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-card shadow-elevated" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-xl max-h-[90vh] flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-elevated" onClick={(e) => e.stopPropagation()}>
         <div
           className="flex items-start justify-between gap-4 p-6 text-white"
           style={{
@@ -1131,7 +1131,7 @@ function SeasonModal({
           </div>
           <button onClick={onClose} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
         </div>
-        <div className="space-y-4 p-6">
+        <div className="space-y-4 overflow-y-auto p-6">
           <Field label="Display Name">
             <input
               value={displayName}
