@@ -620,25 +620,29 @@ function Page() {
               }
             `}</style>
 
-            {activeSeasons.map((s) => (
-              <VerboFlashBanner
-                key={s.id}
-                background={seasonGradientCss(s)}
-                eyebrow="Verbo Flash · Season"
-                title={s.display_name}
-                titleStyle={{ fontFamily: `"${fontFamilyFor(s)}", system-ui, sans-serif` }}
-                status="Tap to open today's challenge"
-                cta={<ChevronRight className="h-6 w-6 text-white/90" />}
-                icon={
-                  s.theme_image_url ? (
-                    <img src={s.theme_image_url} alt={s.display_name} className="h-full w-full rounded-2xl object-contain drop-shadow-lg" />
-                  ) : (
-                    <Sparkles className="h-20 w-20 text-white drop-shadow-lg" strokeWidth={1.4} />
-                  )
-                }
-                onClick={() => openSeasonBanner(s)}
-              />
-            ))}
+            {activeSeasons.map((s) => {
+              const seasonAvailable = seasonChallengesFor(flashList, s.id, flashProduct).length > 0;
+              return (
+                <VerboFlashBanner
+                  key={s.id}
+                  background={seasonGradientCss(s)}
+                  eyebrow="Verbo Flash · Season"
+                  title={s.display_name}
+                  titleStyle={{ fontFamily: `"${fontFamilyFor(s)}", system-ui, sans-serif` }}
+                  status={seasonAvailable ? "Tap to open today's challenge" : "Coming soon"}
+                  disabled={!seasonAvailable}
+                  cta={<ChevronRight className="h-6 w-6 text-white/90" />}
+                  icon={
+                    s.theme_image_url ? (
+                      <img src={s.theme_image_url} alt={s.display_name} className="h-full w-full rounded-2xl object-contain drop-shadow-lg" />
+                    ) : (
+                      <Sparkles className="h-20 w-20 text-white drop-shadow-lg" strokeWidth={1.4} />
+                    )
+                  }
+                  onClick={() => openSeasonBanner(s)}
+                />
+              );
+            })}
 
             {lightningChallenge && (() => {
               const remaining = lightning.expires_at ? +new Date(lightning.expires_at) - nowTick : 0;
