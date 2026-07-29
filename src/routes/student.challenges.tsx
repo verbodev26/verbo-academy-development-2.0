@@ -1436,32 +1436,40 @@ function SeasonRevealModal({
             80% { transform: translateX(4px) rotate(6deg); }
           }
           @media (prefers-reduced-motion: reduce) { .verbo-box-shake { animation: none !important; } }
+          ${FLASH_HEADER_KEYFRAMES}
         `}</style>
-        <div className="relative flex items-start justify-between gap-4 p-6 text-white" style={{ background: headerBg }}>
+        <div className="relative overflow-hidden p-6 text-white" style={{ background: headerBg }}>
           <div className="absolute inset-0 bg-black/25" />
-          <div className="relative">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/90">
-              <Sparkles className="h-3.5 w-3.5" /> Verbo Flash · {season.display_name}
+          <FlashHeaderDecor watermark={<Sparkles className="h-40 w-40" strokeWidth={1} />} />
+          <div className="relative flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/90" style={flashEyebrowStyle}>
+                <span className="verbo-flash-pop inline-flex" style={flashPopStyle}>
+                  <Sparkles className="h-3.5 w-3.5" />
+                </span>{" "}
+                Verbo Flash · {season.display_name}
+              </div>
+              {challenge && !opening && (
+                <>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <CategoryBadge name={challenge.category} />
+                    {challenge.premium && <PremiumBadge />}
+                  </div>
+                  <div
+                    className="mt-2 text-base font-semibold tracking-tight drop-shadow"
+                    style={{ fontFamily: `"${family}", system-ui, sans-serif`, ...flashTitleStyle }}
+                  >
+                    {challenge.title}
+                  </div>
+                </>
+              )}
             </div>
-            {challenge && !opening && (
-              <>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <CategoryBadge name={challenge.category} />
-                  {challenge.premium && <PremiumBadge />}
-                </div>
-                <div
-                  className="mt-2 text-base font-semibold tracking-tight drop-shadow"
-                  style={{ fontFamily: `"${family}", system-ui, sans-serif` }}
-                >
-                  {challenge.title}
-                </div>
-              </>
-            )}
+            <button onClick={onClose} className="relative rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close">
+              <X className="h-4 w-4" />
+            </button>
           </div>
-          <button onClick={onClose} className="relative rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close">
-            <X className="h-4 w-4" />
-          </button>
         </div>
+
 
         {opening || !challenge ? (
           <div className="flex flex-col items-center justify-center gap-4 p-10">
