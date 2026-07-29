@@ -14,6 +14,7 @@ import {
   persistFlashChallenges,
   subscribeFlashChallenges,
   flashChallengesFor,
+  seasonChallengesFor,
   newFlashChallengeId,
   loadFlashConfig,
   persistFlashConfig,
@@ -724,6 +725,7 @@ function LightningTab() {
 function SeasonTab() {
   const [list, setList] = useState<FlashSeason[]>(loadSeasons);
   const [modal, setModal] = useState<{ mode: "create" | "edit"; season?: FlashSeason } | null>(null);
+  const [challengesSeason, setChallengesSeason] = useState<FlashSeason | null>(null);
 
   useEffect(() => {
     setList(loadSeasons());
