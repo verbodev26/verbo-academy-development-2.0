@@ -17,6 +17,8 @@ export interface FlashChallenge {
   video_url?: string;
   premium?: boolean;
   skill_tags?: string[];
+  /** Only for format === "season": the FlashSeason this challenge belongs to. */
+  season_id?: string;
 }
 
 export interface FlashConfig {
