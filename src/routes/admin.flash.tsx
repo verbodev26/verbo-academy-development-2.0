@@ -31,6 +31,7 @@ import {
   subscribeSeasons,
   upsertSeason,
   deleteSeason,
+  seasonGradientCss,
 } from "@/lib/flash-challenges-store";
 import {
   loadCategories,
