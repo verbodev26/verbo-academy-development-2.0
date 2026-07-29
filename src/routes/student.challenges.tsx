@@ -906,13 +906,13 @@ function SeasonFlashBanner({
         </>
       )}
 
-      <div className="relative flex flex-col gap-6 p-7 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:p-10 sm:pl-[26%]">
+      <div className="relative flex w-full flex-col gap-6 p-7 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:p-10 sm:pl-[18%]">
         <div className="min-w-0">
           <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
             Verbo Flash · Season
           </div>
           <div
-            className="mt-2 truncate text-4xl font-black tracking-tight text-white drop-shadow-md sm:text-6xl"
+            className="mt-2 truncate text-5xl font-black tracking-tight text-white drop-shadow-md sm:text-7xl"
             style={{ fontFamily: font }}
           >
             {season.display_name}
