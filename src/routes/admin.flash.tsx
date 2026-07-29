@@ -1096,6 +1096,8 @@ function SeasonModal({
       theme_image_url: themeImageUrl.trim() || undefined,
       accent_color: accentColor || undefined,
       accent_color_to: accentColorTo.trim() || undefined,
+      fill_mode: fillMode,
+      gradient_stops: fillMode === "gradient" ? stops : editing?.gradient_stops,
       font_preset: fontPreset,
       custom_font_name: fontPreset === "Custom" ? customFont.trim() || undefined : undefined,
       active,
