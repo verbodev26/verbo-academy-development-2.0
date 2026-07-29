@@ -74,6 +74,7 @@ import {
   subscribeFlashChallenges,
   subscribeFlashConfig,
   flashChallengesFor,
+  seasonChallengesFor,
   loadLightning,
   subscribeLightning,
   acceptLightning,
@@ -566,14 +567,15 @@ function Page() {
         const activeSeasons = seasons.filter((s) => s.active);
 
         const openSeasonBanner = (season: FlashSeason) => {
-          if (pool.length === 0) return;
+          const seasonPool = seasonChallengesFor(flashList, season.id, flashProduct);
+          if (seasonPool.length === 0) return;
           if (!openSeason(student.id, season.id)) {
             setSeasonState({ season, opening: false, reveal: null, blocked: true });
             return;
           }
           setSeasonState({ season, opening: true, reveal: null, blocked: false });
           setTimeout(() => {
-            const pick = pool[Math.floor(Math.random() * pool.length)];
+            const pick = seasonPool[Math.floor(Math.random() * seasonPool.length)];
             setSeasonState({ season, opening: false, reveal: pick, blocked: false });
           }, 900);
         };
@@ -618,25 +620,29 @@ function Page() {
               }
             `}</style>
 
-            {activeSeasons.map((s) => (
-              <VerboFlashBanner
-                key={s.id}
-                background={seasonGradientCss(s)}
-                eyebrow="Verbo Flash · Season"
-                title={s.display_name}
-                titleStyle={{ fontFamily: `"${fontFamilyFor(s)}", system-ui, sans-serif` }}
-                status="Tap to open today's challenge"
-                cta={<ChevronRight className="h-6 w-6 text-white/90" />}
-                icon={
-                  s.theme_image_url ? (
-                    <img src={s.theme_image_url} alt={s.display_name} className="h-full w-full rounded-2xl object-contain drop-shadow-lg" />
-                  ) : (
-                    <Sparkles className="h-20 w-20 text-white drop-shadow-lg" strokeWidth={1.4} />
-                  )
-                }
-                onClick={() => openSeasonBanner(s)}
-              />
-            ))}
+            {activeSeasons.map((s) => {
+              const seasonAvailable = seasonChallengesFor(flashList, s.id, flashProduct).length > 0;
+              return (
+                <VerboFlashBanner
+                  key={s.id}
+                  background={seasonGradientCss(s)}
+                  eyebrow="Verbo Flash · Season"
+                  title={s.display_name}
+                  titleStyle={{ fontFamily: `"${fontFamilyFor(s)}", system-ui, sans-serif` }}
+                  status={seasonAvailable ? "Tap to open today's challenge" : "Coming soon"}
+                  disabled={!seasonAvailable}
+                  cta={<ChevronRight className="h-6 w-6 text-white/90" />}
+                  icon={
+                    s.theme_image_url ? (
+                      <img src={s.theme_image_url} alt={s.display_name} className="h-full w-full rounded-2xl object-contain drop-shadow-lg" />
+                    ) : (
+                      <Sparkles className="h-20 w-20 text-white drop-shadow-lg" strokeWidth={1.4} />
+                    )
+                  }
+                  onClick={() => openSeasonBanner(s)}
+                />
+              );
+            })}
 
             {lightningChallenge && (() => {
               const remaining = lightning.expires_at ? +new Date(lightning.expires_at) - nowTick : 0;

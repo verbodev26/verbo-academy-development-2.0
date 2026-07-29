@@ -398,7 +398,10 @@ Ranking del leaderboard: **global** — `USERS` filtrados solo por `role === "st
 
 ### `FlashChallenge`, `LightningState`, `FlashSeason`, `FlashConfig` (`src/lib/flash-challenges-store.ts`)
 
-**`FlashChallenge`**: `id, format: FlashFormat, product: FlashProductId, category, title, description, video_url?, premium?, skill_tags?`.
+**`FlashChallenge`**: `id, format: FlashFormat, product: FlashProductId, category, title, description, video_url?, premium?, skill_tags?, season_id?`.
+
+- `season_id?`: solo para `format === "season"`. FK → `FlashSeason.id`. Cada Season tiene su propia bolsa de retos (Admin > Flash > Season > "Challenges"), independiente de la de Mystery Box.
+- Selector: `seasonChallengesFor(list, seasonId, product)` filtra `format === "season" && season_id === seasonId && product === product` (ordenado por el número final del id). Si devuelve vacío, el banner de esa Season se muestra deshabilitado ("Coming soon") en el panel del estudiante.
 
 **`LightningState`** (singleton global):
 | campo | tipo | notas |

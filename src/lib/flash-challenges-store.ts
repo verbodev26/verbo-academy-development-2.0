@@ -17,6 +17,8 @@ export interface FlashChallenge {
   video_url?: string;
   premium?: boolean;
   skill_tags?: string[];
+  /** Only for format === "season": the FlashSeason this challenge belongs to. */
+  season_id?: string;
 }
 
 export interface FlashConfig {
@@ -106,6 +108,17 @@ export function flashChallengesFor(
 ): FlashChallenge[] {
   return list
     .filter((c) => c.format === format && c.product === product)
+    .sort((a, b) => flashNum(a.id) - flashNum(b.id));
+}
+
+/** Challenges assigned to one specific Season (format "season" + season_id). */
+export function seasonChallengesFor(
+  list: FlashChallenge[],
+  seasonId: string,
+  product: FlashProductId,
+): FlashChallenge[] {
+  return list
+    .filter((c) => c.format === "season" && c.season_id === seasonId && c.product === product)
     .sort((a, b) => flashNum(a.id) - flashNum(b.id));
 }
 
