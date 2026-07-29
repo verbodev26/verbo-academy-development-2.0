@@ -241,12 +241,27 @@ export interface FlashSeason {
   display_name: string; // shown to student, always English
   theme_image_url?: string;
   accent_color?: string;
+  /** Optional second color; when set the Season gradient goes accent_color -> accent_color_to. */
+  accent_color_to?: string;
   font_preset: FontPreset;
   custom_font_name?: string;
   active: boolean;
   badge_name: string; // auto: `${display_name} Challenger`
   created_at: string;
 }
+
+/** Single source of truth for a Season's gradient background. */
+export function seasonGradientCss(
+  season: Pick<FlashSeason, "accent_color" | "accent_color_to">,
+  angle = 135,
+): string {
+  const from = season.accent_color || "#7e22ce";
+  if (season.accent_color_to) {
+    return `linear-gradient(${angle}deg, ${from}, ${season.accent_color_to})`;
+  }
+  return `linear-gradient(${angle}deg, ${from}, #111827)`;
+}
+
 
 export const FONT_PRESET_ORDER: FontPreset[] = [
   "Playful", "Elegant", "Spooky", "Festive", "Minimal", "Custom",
