@@ -1051,6 +1051,7 @@ function SeasonModal({
   const isEdit = !!editing;
   const [displayName, setDisplayName] = useState(editing?.display_name ?? "");
   const [themeImageUrl, setThemeImageUrl] = useState(editing?.theme_image_url ?? "");
+  const [watermarkImageUrl, setWatermarkImageUrl] = useState(editing?.watermark_image_url ?? "");
   const [accentColor, setAccentColor] = useState(editing?.accent_color ?? "#7e22ce");
   const [accentColorTo, setAccentColorTo] = useState(editing?.accent_color_to ?? "");
   const [fontPreset, setFontPreset] = useState<FontPreset>(editing?.font_preset ?? "Festive");
@@ -1094,6 +1095,7 @@ function SeasonModal({
       id,
       display_name: name,
       theme_image_url: themeImageUrl.trim() || undefined,
+      watermark_image_url: watermarkImageUrl.trim() || undefined,
       accent_color: accentColor || undefined,
       accent_color_to: accentColorTo.trim() || undefined,
       fill_mode: fillMode,
@@ -1150,6 +1152,20 @@ function SeasonModal({
               className={inputCls}
               placeholder="https://... (image or .gif)"
             />
+          </Field>
+
+          <Field label="Watermark Image URL (optional)">
+            <input
+              value={watermarkImageUrl}
+              onChange={(e) => setWatermarkImageUrl(e.target.value)}
+              className={inputCls}
+              placeholder="https://... (imagen con fondo transparente recomendada, ej. PNG)"
+            />
+            <div className="mt-1 text-[11px] text-muted-foreground">
+              Reemplaza el watermark de texto del banner. Se muestra del lado derecho, detrás de los
+              círculos de retos, con opacidad tenue. Si se deja vacío, se sigue usando el nombre de la
+              season como texto de fondo.
+            </div>
           </Field>
 
           <Field label="Background fill">

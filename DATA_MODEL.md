@@ -415,7 +415,7 @@ Ranking del leaderboard: **global** — `USERS` filtrados solo por `role === "st
 | duration_hours | number | |
 | accepted_student_ids | string[] | N:M embebido como array |
 
-**`FlashSeason`**: `id, display_name, theme_image_url?, accent_color?, accent_color_to?, fill_mode?: "solid" | "gradient", gradient_stops?: GradientStop[], font_preset, custom_font_name?, active, badge_name, created_at`. 13 temporadas semilla. El gradiente de cada Season se construye SIEMPRE con `seasonGradientCss(season, angle = 135)` (única fuente):
+**`FlashSeason`**: `id, display_name, theme_image_url?, watermark_image_url?, accent_color?, accent_color_to?, fill_mode?: "solid" | "gradient", gradient_stops?: GradientStop[], font_preset, custom_font_name?, active, badge_name, created_at`. `watermark_image_url` es una imagen decorativa opcional (se edita en Admin > Flash > Season) que reemplaza el watermark de texto del banner del estudiante; si está vacía se usa `display_name` como texto de fondo. 13 temporadas semilla. El gradiente de cada Season se construye SIEMPRE con `seasonGradientCss(season, angle = 135)` (única fuente):
 
 - Si `fill_mode === "gradient"` y `gradient_stops` tiene 2+ paradas → `linear-gradient(angle, color pos%, …)` con las paradas ordenadas por `position` (0-100, clamp).
 - Si no (o `fill_mode === "solid"`) → fallback de compatibilidad: `accent_color → accent_color_to` cuando el segundo color existe, si no `accent_color → #111827`.

@@ -814,13 +814,51 @@ function SeasonFlashBanner({
   const visible = challenges.length > 5 ? challenges.slice(0, 4) : challenges.slice(0, 5);
   const rest = challenges.length > 5 ? challenges.slice(4) : [];
 
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  const refreshLabel = useMemo(() => {
+    const d = new Date(now);
+    const day = d.getDay();
+    const endOfWeek = new Date(d);
+    endOfWeek.setDate(d.getDate() + (7 - day));
+    endOfWeek.setHours(23, 59, 59, 999);
+    const diffMs = Math.max(0, endOfWeek.getTime() - now);
+    const totalMinutes = Math.floor(diffMs / 60000);
+    const days = Math.floor(totalMinutes / 1440);
+    const hours = Math.floor((totalMinutes % 1440) / 60);
+    const minutes = totalMinutes % 60;
+    if (days > 0) return `${days}d ${hours}h`;
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+  }, [now]);
+
   return (
     <div
-      className={`relative w-full overflow-hidden rounded-3xl border border-white/15 shadow-elevated ${
-        available ? "" : "opacity-60 saturate-50"
+      className={`relative w-full min-h-[210px] overflow-hidden rounded-3xl border border-white/15 shadow-elevated sm:min-h-[260px] ${
+        available ? "verbo-season-pulse" : "opacity-60 saturate-50"
       }`}
-      style={{ background: seasonGradientCss(season) }}
+      style={{
+        background: seasonGradientCss(season),
+        ...(available ? { animation: "verbo-season-pulse 2.6s ease-in-out infinite" } : null),
+      }}
     >
+      <style>{`
+        @keyframes verbo-season-pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.25); }
+          50% { box-shadow: 0 0 0 8px rgba(255,255,255,0); }
+        }
+        @keyframes verbo-season-glow {
+          0%, 100% { box-shadow: 0 0 0px 0px rgba(255,255,255,0), 0 4px 10px rgba(0,0,0,0.25); }
+          50% { box-shadow: 0 0 16px 4px rgba(255,255,255,0.55), 0 4px 10px rgba(0,0,0,0.25); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .verbo-season-pulse, .verbo-season-glow { animation: none !important; }
+        }
+      `}</style>
+
       {season.theme_image_url && (
         <div
           aria-hidden
@@ -833,29 +871,63 @@ function SeasonFlashBanner({
         />
       )}
 
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 left-[40%] flex select-none items-center overflow-hidden whitespace-nowrap text-[110px] font-black leading-none tracking-tight text-white/10 sm:text-[150px]"
-        style={{ fontFamily: font }}
-      >
-        {season.display_name}
-      </span>
+      {season.watermark_image_url ? (
+        <img
+          aria-hidden
+          src={season.watermark_image_url}
+          alt=""
+          className="pointer-events-none absolute right-6 top-1/2 h-[130%] max-h-none -translate-y-1/2 select-none object-contain opacity-10"
+        />
+      ) : (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-[40%] flex select-none items-center overflow-hidden whitespace-nowrap text-[110px] font-black leading-none tracking-tight text-white/10 sm:text-[150px]"
+          style={{ fontFamily: font }}
+        >
+          {season.display_name}
+        </span>
+      )}
 
-      <div className="relative flex flex-col gap-6 p-6 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:p-8 sm:pl-[26%]">
+      {available && (
+        <>
+          <span className="pointer-events-none absolute left-5 top-5 z-10 inline-flex items-center gap-1 rounded-full bg-black/25 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/90 backdrop-blur">
+            <Tag className="h-3 w-3" /> Limited Time
+          </span>
+          <span className="pointer-events-none absolute right-5 top-5 z-10 inline-flex items-center gap-1 rounded-full bg-black/25 px-2.5 py-1 text-[10px] font-semibold text-white/90 backdrop-blur">
+            Refreshes in {refreshLabel}
+          </span>
+        </>
+      )}
+
+      <div className="relative flex flex-col gap-6 p-7 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:p-10 sm:pl-[26%]">
         <div className="min-w-0">
           <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
             Verbo Flash · Season
           </div>
           <div
-            className="mt-2 truncate text-3xl font-black tracking-tight text-white drop-shadow-md sm:text-5xl"
+            className="mt-2 truncate text-4xl font-black tracking-tight text-white drop-shadow-md sm:text-6xl"
             style={{ fontFamily: font }}
           >
             {season.display_name}
           </div>
           <div className="mt-2 text-xs text-white/85">
-            {available ? "Choose the challenge you like the most" : "Coming soon"}
+            {available ? "Complete the challenges to unlock an exclusive badge" : "Coming soon"}
           </div>
         </div>
+
+        {available && (
+          <div className="flex shrink-0 flex-col items-center gap-1.5 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-dashed border-white/50 bg-white/10 backdrop-blur sm:h-16 sm:w-16">
+              <Medal className="h-7 w-7 text-white/70" strokeWidth={1.6} />
+            </div>
+            <div className="max-w-[130px] text-[11px] font-semibold leading-tight text-white/90">
+              {season.badge_name}
+            </div>
+            <div className="max-w-[130px] text-[10px] leading-tight text-white/65">
+              Complete all challenges to unlock this badge
+            </div>
+          </div>
+        )}
 
         {available && (
           <div className="flex shrink-0 items-center justify-end gap-3">
@@ -865,7 +937,8 @@ function SeasonFlashBanner({
                 type="button"
                 onClick={() => onOpenChallenge(c)}
                 title={c.title}
-                className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/50 bg-white/15 shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
+                style={{ animation: "verbo-season-glow 2.2s ease-in-out infinite" }}
+                className="verbo-season-glow flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/50 bg-white/15 shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
               >
                 {c.icon_image_url ? (
                   <img src={c.icon_image_url} alt={c.title} className="h-full w-full object-cover" />
@@ -879,7 +952,8 @@ function SeasonFlashBanner({
                 <button
                   type="button"
                   onClick={() => setMoreOpen((v) => !v)}
-                  className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/50 bg-white/20 text-sm font-bold text-white shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
+                  style={{ animation: "verbo-season-glow 2.2s ease-in-out infinite" }}
+                  className="verbo-season-glow flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/50 bg-white/20 text-sm font-bold text-white shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
                 >
                   +{rest.length}
                 </button>
