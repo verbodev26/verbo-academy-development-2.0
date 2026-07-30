@@ -767,12 +767,24 @@ function TeacherDashboard() {
               );
             })}
           </div>
-        </div>
+          <AccentModalFooter accent={VIOLET}>
+            <GhostButton onClick={() => setOpenPanel(null)}>Close</GhostButton>
+          </AccentModalFooter>
+        </AccentModal>
+      )}
 
-        {/* Right — Complete your sessions */}
-        <div>
-          <SectionTitle>Complete your sessions</SectionTitle>
-          <div className="space-y-3">
+      {openPanel === "complete" && (
+        <AccentModal
+          background={GREEN_BG}
+          iconTint={GREEN}
+          icon={CheckCircle2}
+          eyebrow="Complete Your Sessions"
+          title="Complete Your Sessions"
+          maxWidth="max-w-2xl"
+          onClose={() => setOpenPanel(null)}
+        >
+          <div className="max-h-[65vh] space-y-3 overflow-y-auto p-4">
+
             {upcoming.length === 0 && pendingClubEvents.length === 0 && (
               <Card><p className="text-sm text-muted-foreground">No sessions awaiting completion.</p></Card>
             )}
