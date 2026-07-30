@@ -352,7 +352,7 @@ function NextEventCard({ events, onEventClick }: { events: CalendarEvent[]; onEv
     <button
       type="button"
       onClick={() => onEventClick(next)}
-      className="group relative flex h-full min-h-[200px] w-full cursor-pointer flex-col justify-between overflow-hidden rounded-3xl p-6 text-left transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99]"
+      className="group relative flex h-full min-h-[200px] w-full cursor-pointer flex-col justify-between overflow-hidden rounded-3xl p-6 text-left transition-transform duration-200 verbo-card-hover active:scale-[0.99]"
     >
       <div className="card-gradient-lime pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-3xl border border-border shadow-elevated" />
       <img
