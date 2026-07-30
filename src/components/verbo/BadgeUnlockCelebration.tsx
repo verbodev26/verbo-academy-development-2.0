@@ -10,20 +10,11 @@ import { Award, Lock, Medal, X, Zap } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { USERS } from "@/lib/mock-data";
 import { subscribeStudents } from "@/lib/students-store";
-import { loadChallenges } from "@/lib/challenges-store";
-import {
-  loadBadges as loadChallengeBadges,
-  subscribeBadges as subscribeChallengeBadges,
-  isBadgeEarned as isChallengeBadgeEarned,
-} from "@/lib/badges-store";
-import {
-  loadBadges as loadProfileBadges,
-  subscribeBadges as subscribeProfileBadges,
-  isBadgeEarned as isProfileBadgeEarned,
-  buildProfileBadgeContext,
-} from "@/lib/profile-badges-store";
-import { loadSeasons, subscribeSeasons } from "@/lib/flash-challenges-store";
+import { subscribeBadges as subscribeChallengeBadges } from "@/lib/badges-store";
+import { subscribeBadges as subscribeProfileBadges } from "@/lib/profile-badges-store";
+import { subscribeSeasons } from "@/lib/flash-challenges-store";
 import { subscribeCourses } from "@/lib/product-courses-store";
+import { computeAllEarnedBadges, type UnlockBadge } from "@/lib/badge-unlock";
 import {
   loadEquippedChallengeBadgeIds,
   setEquippedChallengeBadgeIds,
@@ -36,93 +27,16 @@ import {
 } from "@/lib/equipped-profile-badges-store";
 import { hasSeenBadgeUnlock, markBadgeUnlockSeen } from "@/lib/badge-unlock-seen-store";
 
-type BadgeKind = "core" | "lightning" | "season" | "profile";
-
 type StudentLike = (typeof USERS)[number];
 
-interface UnlockBadge {
-  /** Globally unique id used for "seen" tracking and React keys. */
-  storageId: string;
-  /** Raw id used by the relevant equip store (unprefixed). */
-  equipId: string;
-  kind: BadgeKind;
-  name: string;
-  image?: string;
-  icon: ReactNode;
-}
+const ICON_BY_KIND: Record<UnlockBadge["iconKind"], ReactNode> = {
+  award: <Award className="h-12 w-12 text-amber-500" strokeWidth={1.6} />,
+  zap: <Zap className="h-12 w-12 text-amber-500" strokeWidth={1.6} />,
+  medal: <Medal className="h-12 w-12 text-amber-500" strokeWidth={1.6} />,
+};
 
-function computeAllEarnedBadges(student: StudentLike): UnlockBadge[] {
-  const out: UnlockBadge[] = [];
+export function BadgeUnlockModal({
 
-  const done = student.completed_challenges ?? [];
-  const map = new Map(loadChallenges().map((c) => [c.id, c]));
-  const cats = new Set<string>();
-  let premiumDone = false;
-  for (const entry of done) {
-    const ch = map.get(entry.challenge_id);
-    if (!ch) continue;
-    if (ch.category) cats.add(ch.category);
-    if (ch.premium) premiumDone = true;
-  }
-  const ctx = {
-    completedCount: done.length,
-    longestStreak: student.longest_streak ?? 0,
-    distinctCategories: cats.size,
-    hasCompletedPremium: premiumDone,
-  };
-  for (const b of loadChallengeBadges()) {
-    if (isChallengeBadgeEarned(b, ctx)) {
-      out.push({
-        storageId: b.id,
-        equipId: b.id,
-        kind: "core",
-        name: b.name,
-        image: b.image || undefined,
-        icon: <Award className="h-12 w-12 text-amber-500" strokeWidth={1.6} />,
-      });
-    }
-  }
-
-  if ((student.lightning_completions ?? 0) >= 1) {
-    out.push({
-      storageId: "lightning",
-      equipId: "lightning",
-      kind: "lightning",
-      name: "Lightning Bolt",
-      icon: <Zap className="h-12 w-12 text-amber-500" strokeWidth={1.6} />,
-    });
-  }
-
-  for (const s of loadSeasons()) {
-    if ((student.season_completions?.[s.id] ?? 0) >= 1) {
-      out.push({
-        storageId: `season-${s.id}`,
-        equipId: `season-${s.id}`,
-        kind: "season",
-        name: s.badge_name,
-        icon: <Medal className="h-12 w-12 text-amber-500" strokeWidth={1.6} />,
-      });
-    }
-  }
-
-  const profileCtx = buildProfileBadgeContext(student);
-  for (const b of loadProfileBadges()) {
-    if (isProfileBadgeEarned(b, profileCtx)) {
-      out.push({
-        storageId: `profile-${b.id}`,
-        equipId: b.id,
-        kind: "profile",
-        name: b.name,
-        image: b.image || undefined,
-        icon: <Award className="h-12 w-12 text-amber-500" strokeWidth={1.6} />,
-      });
-    }
-  }
-
-  return out;
-}
-
-function BadgeUnlockModal({
   badge,
   studentId,
   onClose,
