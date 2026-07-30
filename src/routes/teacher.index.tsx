@@ -194,6 +194,20 @@ function TeacherDashboard() {
   const warningLevel: "none" | "yellow" | "red" =
     belowTarget === 0 ? "none" : belowTarget >= 2 || anyCritical ? "red" : "yellow";
   const strikes = teacherUser ? activeStrikeCount(teacherUser.id) : 0;
+  const sessionsTaught = mySessions.filter((s) => s.status === "completed").length;
+  const ratingGlow =
+    avgRating30 == null ? CRIMSON
+    : avgRating30 >= 4.0 ? GREEN
+    : avgRating30 >= 3.5 ? YELLOW
+    : avgRating30 >= 2.5 ? ORANGE
+    : CRIMSON;
+  const compositeScore = kpis?.composite ?? 0;
+  const performanceGlow =
+    compositeScore >= 90 ? GREEN
+    : compositeScore >= 75 ? YELLOW
+    : compositeScore >= 60 ? ORANGE
+    : CRIMSON;
+
 
   // ---- Club events (Book Clubs / Insights / Spotlight) closure state ----
   // Reuse the shared calendar adapter so the enrolled-student roster is
