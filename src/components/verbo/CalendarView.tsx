@@ -257,7 +257,7 @@ function MonthGrid({
             </div>
             <div className="space-y-1">
               {dayEvents.slice(0, 3).map((e) => (
-                <EventPill key={e.id} ev={e} onClick={() => onEventClick?.(e)} pulse={!!pulseKinds?.includes(e.kind) && !isClubFull(e)} substitutionAware={substitutionAware} />
+                <EventPill key={e.id} ev={e} onClick={() => onEventClick?.(e)} pulse={(!!pulseKinds?.includes(e.kind) || e.status === "pending_reschedule") && !isClubFull(e)} substitutionAware={substitutionAware} />
               ))}
               {dayEvents.length > 3 && (
                 <div className="px-1.5 text-[10px] text-muted-foreground">+{dayEvents.length - 3} more</div>
@@ -290,7 +290,7 @@ function DayList({
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card">
       {events.map((e) => {
-        const pulse = !!pulseKinds?.includes(e.kind) && !isClubFull(e);
+        const pulse = (!!pulseKinds?.includes(e.kind) || e.status === "pending_reschedule") && !isClubFull(e);
         const display = eventPillDisplay(e, { substitutionAware });
         return (
         <button
