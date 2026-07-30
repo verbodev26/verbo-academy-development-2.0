@@ -23,20 +23,10 @@ import { loadHolidays } from "@/lib/holidays-store";
 import { computeCurrentProgress } from "@/lib/product-courses-store";
 
 
-// Status → dropdown options + distinct badge colors (no overlap).
-const STATUS_META: Record<ExtSessionStatus, { label: string; bg: string; color: string }> = {
-  scheduled: { label: "Scheduled", bg: "#f1f5f9", color: "#475569" },
-  ready: { label: "Ready", bg: "#ede9fe", color: "#7c3aed" },
-  completed: { label: "Completed", bg: "#dcfce7", color: "#15803d" },
-  absent: { label: "Absent", bg: "#fee2e2", color: "#dc2626" },
-  cancelled: { label: "Cancelled", bg: "#fce7f3", color: "#be185d" },
-  pending_reschedule: { label: "Pending Reschedule", bg: "#fef3c7", color: "#b45309" },
-  no_show: { label: "No Show", bg: "#334155", color: "#ffffff" },
-  rescheduled: { label: "Rescheduled", bg: "#f1f5f9", color: "#475569" },
-  rearranged: { label: "Rearranged", bg: "#fde68a", color: "#92400e" },
-  delayed: { label: "Delayed", bg: "#fde68a", color: "#92400e" },
-  converted_to_spotlight: { label: "Converted to Spotlight", bg: "#e0e7ff", color: "#4f46e5" },
-};
+// Status → dropdown options + badge colors. Colors come from the single
+// source of truth in calendar-events.ts / status-palette.ts.
+const STATUS_META: Record<ExtSessionStatus, { label: string; bg: string; color: string }> = WORKSHOP_STATUS_META;
+
 
 // The 7 statuses offered in the edit dropdown.
 const STATUS_OPTIONS: ExtSessionStatus[] = [
