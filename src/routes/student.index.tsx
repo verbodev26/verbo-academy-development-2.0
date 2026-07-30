@@ -21,7 +21,7 @@ import { unitsForStudent } from "@/lib/vip-courses-store";
 import { tailoredUnitsForStudent } from "@/lib/tailored-content-store";
 import { subscribeVipUnits, subscribeVipUnitCompletion } from "@/lib/vip-courses-store";
 import { useComputedMacros } from "@/components/verbo/PerformanceAnalytics";
-import { AccentModalHeader, GhostButton, Pill, PhotoPlaceholder, PrimaryButton, SectionTitle, StatRing, SuccessButton } from "@/components/verbo/ui";
+import { AccentModalHeader, GhostButton, InfoStatRow, Pill, PhotoPlaceholder, PrimaryButton, SectionTitle, StatRing, SuccessButton } from "@/components/verbo/ui";
 import {
   ArrowDown,
   ArrowRight,
@@ -43,6 +43,7 @@ import {
   Users,
   Video,
   X,
+  XCircle,
   Zap,
 } from "lucide-react";
 import {
@@ -71,7 +72,7 @@ import { loadSeasons } from "@/lib/flash-challenges-store";
 import { loadClubs, type Club } from "@/lib/clubs-store";
 import { isBooked } from "@/lib/club-bookings-store";
 import { ClubReservationModal } from "@/components/verbo/ClubReservationModal";
-import { EVENT_KIND_META, CALENDAR_STATUS_META } from "@/lib/calendar-events";
+import { EVENT_KIND_META, CALENDAR_STATUS_META, calendarEventTheme } from "@/lib/calendar-events";
 import { RatingModal } from "@/components/verbo/RatingModal";
 import { ReportConductModal } from "@/components/verbo/ReportConductModal";
 import { CantAttendRouter, RescheduleRequestModal } from "@/components/verbo/CancelSessionFlow";
@@ -129,10 +130,10 @@ function TeacherAvatar({
 }
 
 /** Section heading with a colored icon circle (Class Details modal). */
-function SectionHeadIcon({ icon, circleClass, label }: { icon: React.ReactNode; circleClass: string; label: string }) {
+function SectionHeadIcon({ icon, circleClass = "", label }: { icon: React.ReactNode; circleClass?: string; label: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span className={`flex h-7 w-7 items-center justify-center rounded-full ${circleClass}`}>{icon}</span>
+      <span className={`flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-border ${circleClass}`}>{icon}</span>
       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</h4>
     </div>
   );
@@ -1178,42 +1179,56 @@ function StudentDashboard() {
             const hasRealPdf = !!s.report_pdf_url && s.report_pdf_url !== "/mock-report.pdf";
             const isUpcoming = s.status === "scheduled" || s.status === "rescheduled" || s.status === "ready";
             const d = new Date(s.date_time);
+            // Single source of truth for the modal's colors: same palette as the
+            // calendar pill for this session's real status.
+            const theme = calendarEventTheme({
+              kind: "class",
+              status: s.status,
+              sub_status: s.attendance_sub_status,
+            } as any);
+            const StatusIcon =
+              s.status === "completed"
+                ? CheckCircle2
+                : s.status === "absent" || s.status === "no_show"
+                ? XCircle
+                : CalendarClock;
+            const statusPill = (
+              <span className={statusBadgeClass} style={statusBadgeStyle(s.status)}>{s.status}</span>
+            );
             const headerBlock = (
               <div className="space-y-2">
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  <div className="rounded-lg border border-border bg-background px-3 py-2">
-                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      <CalendarClock className="h-3.5 w-3.5" /> Date
-                    </div>
-                    <div className="mt-0.5 text-sm font-medium text-foreground">
-                      {d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
-                    </div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-background px-3 py-2">
-                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      <Clock className="h-3.5 w-3.5" /> Time
-                    </div>
-                    <div className="mt-0.5 text-sm font-medium text-foreground">
-                      {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · {s.duration_minutes} min
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <span className={statusBadgeClass} style={statusBadgeStyle(s.status)}>{s.status}</span>
-                  <span>with {teacher?.name ?? "Teacher"}</span>
-                </div>
+                <InfoStatRow
+                  items={[
+                    {
+                      icon: CalendarClock,
+                      value: d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }),
+                      label: "Date",
+                      tint: theme.solid,
+                    },
+                    {
+                      icon: Clock,
+                      value: d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                      label: "Time",
+                      tint: theme.solid,
+                    },
+                    { icon: StatusIcon, value: statusPill, label: "Status", tint: theme.solid },
+                  ]}
+                />
+                <div className="text-xs text-muted-foreground">with {teacher?.name ?? "Teacher"}</div>
                 {isAbsent && absentMsg && (
                   <div className="text-xs text-muted-foreground">{absentMsg}.</div>
                 )}
               </div>
             );
 
+
             if (isUpcoming) {
               return (
                 <>
                   <AccentModalHeader
-                    background="#6264A7"
-                    iconTint="#6264A7"
+                    background={theme.background}
+                    iconTint={theme.solid}
+                    textTone={theme.textTone}
                     icon={CalendarClock}
                     eyebrow="UPCOMING SESSION"
                     title="Session Details"
@@ -1252,6 +1267,7 @@ function StudentDashboard() {
                     </GhostButton>
                     <PrimaryButton
                       className="verbo-btn-glow"
+                      style={{ backgroundColor: theme.solid, color: "#fff", boxShadow: `0 8px 20px -6px ${theme.solid}` }}
                       onClick={() => s.teams_link && window.open(s.teams_link, "_blank")}
                     >
                       <Video className="h-3.5 w-3.5" /> Connect
@@ -1263,12 +1279,13 @@ function StudentDashboard() {
             return (
               <>
                 <AccentModalHeader
-                  background="#16a34a"
-                  iconTint="#16a34a"
-                  icon={CheckCircle2}
-                  eyebrow="COMPLETED SESSION"
+                  background={theme.background}
+                  iconTint={theme.solid}
+                  textTone={theme.textTone}
+                  icon={StatusIcon}
+                  eyebrow={`${(CALENDAR_STATUS_META[s.status as keyof typeof CALENDAR_STATUS_META]?.label ?? "").toUpperCase()} SESSION`.trim() || "SESSION"}
                   title="Session Details"
-                  watermark={{ type: "icon", icon: CheckCircle2 }}
+                  watermark={{ type: "icon", icon: StatusIcon }}
                   onClose={() => setClassDetail(null)}
                 />
                 <div className="space-y-4 px-6 py-5">
@@ -1278,8 +1295,7 @@ function StudentDashboard() {
                   <section className="vc-rise" style={{ animationDelay: "0.3s" }}>
 
                     <SectionHeadIcon
-                      icon={<BookOpen className="h-4 w-4" />}
-                      circleClass="bg-[var(--navy-100)] text-[#01304a]"
+                      icon={<BookOpen className="h-4 w-4" style={{ color: "#01304a" }} />}
                       label="What we covered"
                     />
                     {plan ? (
@@ -1303,8 +1319,7 @@ function StudentDashboard() {
                   <section className="vc-rise" style={{ animationDelay: "0.35s" }}>
 
                     <SectionHeadIcon
-                      icon={<NotebookPen className="h-4 w-4" />}
-                      circleClass="bg-[var(--orange-100)] text-[var(--orange-600)]"
+                      icon={<NotebookPen className="h-4 w-4" style={{ color: "var(--orange-600)" }} />}
                       label="Teacher's notes"
                     />
                     {s.report_comments && s.report_comments.trim().length > 0 ? (
@@ -1318,8 +1333,7 @@ function StudentDashboard() {
                   <section className="vc-rise" style={{ animationDelay: "0.4s" }}>
 
                     <SectionHeadIcon
-                      icon={<Star className="h-4 w-4" />}
-                      circleClass="bg-[var(--orange-100)] text-[var(--orange-600)]"
+                      icon={<Star className="h-4 w-4" style={{ color: "var(--orange-600)" }} />}
                       label="Your rating"
                     />
                     {s.student_rating ? (
@@ -1332,8 +1346,7 @@ function StudentDashboard() {
                   {/* Performance breakdown */}
                   <section className="vc-rise" style={{ animationDelay: "0.45s" }}>
                     <SectionHeadIcon
-                      icon={<Award className="h-4 w-4" />}
-                      circleClass="bg-[var(--violet-100)] text-[var(--violet-700)]"
+                      icon={<Award className="h-4 w-4" style={{ color: "var(--violet-700)" }} />}
                       label="Performance breakdown"
                     />
                     {rating ? (
@@ -1361,7 +1374,7 @@ function StudentDashboard() {
                   </GhostButton>
                   <PrimaryButton
                     className="verbo-btn-glow"
-                    style={{ backgroundColor: "#16a34a", color: "#fff" }}
+                    style={{ backgroundColor: theme.solid, color: "#fff", boxShadow: `0 8px 20px -6px ${theme.solid}` }}
                     onClick={() => setClassDetail(null)}
                   >
                     Close
