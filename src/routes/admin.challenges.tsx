@@ -371,6 +371,7 @@ function ChallengeModal({
   const [videoSource, setVideoSource] = useState<"url" | "upload">("url");
   const [videoUrl, setVideoUrl] = useState(editing?.video_url ?? "");
   const [premium, setPremium] = useState<boolean>(editing?.premium ?? false);
+  const [skillTags, setSkillTags] = useState<string[]>(editing?.skill_tags ?? []);
 
   const onPickCategory = (v: string) => {
     if (v === "__new__") { setCreatingCat(true); return; }
