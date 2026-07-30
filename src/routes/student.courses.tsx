@@ -1354,8 +1354,9 @@ export function UnitDetail({
       {!previewMode && (
         <ReportContentIssueModal
           studentId={studentId}
-          unitId={unit.id}
-          unitTitle={unit.title}
+          entityType="unit"
+          entityId={unit.id}
+          entityTitle={unit.title}
           open={issueOpen}
           onClose={() => setIssueOpen(false)}
         />

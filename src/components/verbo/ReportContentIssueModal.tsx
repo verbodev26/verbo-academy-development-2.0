@@ -3,8 +3,10 @@ import { GhostButton, PrimaryButton, AccentModalHeader } from "@/components/verb
 import { LifeBuoy, Bug } from "lucide-react";
 import {
   addContentIssueReport,
-  CONTENT_ISSUE_TYPES,
+  UNIT_ISSUE_TYPES,
+  CHALLENGE_ISSUE_TYPES,
   type ContentIssueType,
+  type ContentIssueEntityType,
 } from "@/lib/content-issue-reports-store";
 
 /** Same navy the design system resolves for `bg-primary`. */
@@ -12,13 +14,16 @@ const NAVY = "#01304a";
 
 interface Props {
   studentId: string;
-  unitId: string;
-  unitTitle: string;
+  entityType: ContentIssueEntityType;
+  entityId: string;
+  entityTitle: string;
   open: boolean;
   onClose: () => void;
 }
 
-export function ReportContentIssueModal({ studentId, unitId, unitTitle, open, onClose }: Props) {
+export function ReportContentIssueModal({ studentId, entityType, entityId, entityTitle, open, onClose }: Props) {
+  const issueOptions: readonly ContentIssueType[] =
+    entityType === "challenge" ? CHALLENGE_ISSUE_TYPES : UNIT_ISSUE_TYPES;
   const [issueType, setIssueType] = useState<ContentIssueType | "">("");
   const [detail, setDetail] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -38,7 +43,7 @@ export function ReportContentIssueModal({ studentId, unitId, unitTitle, open, on
       return;
     }
     setError(null);
-    addContentIssueReport({ studentId, unitId, unitTitle, issueType, detail });
+    addContentIssueReport({ studentId, entityType, entityId, entityTitle, issueType, detail });
     setSubmitted(true);
   };
 
@@ -75,7 +80,7 @@ export function ReportContentIssueModal({ studentId, unitId, unitTitle, open, on
                 className="vc-rise text-xs leading-relaxed text-muted-foreground"
                 style={{ animationDelay: "0.25s" }}
               >
-                Something not working in <strong className="text-foreground">{unitTitle}</strong>? Tell us
+                Something not working in <strong className="text-foreground">{entityTitle}</strong>? Tell us
                 what happened so we can fix it.
               </p>
 
@@ -87,7 +92,7 @@ export function ReportContentIssueModal({ studentId, unitId, unitTitle, open, on
                   className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground shadow-soft transition-shadow focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="">Select an issue</option>
-                  {CONTENT_ISSUE_TYPES.map((t) => (
+                  {issueOptions.map((t) => (
                     <option key={t} value={t}>{t}</option>
                   ))}
                 </select>

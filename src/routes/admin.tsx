@@ -44,6 +44,7 @@ const NAV_GROUPS: NavGroup[] = [
   { label: "Activity", items: [
     { to: "/admin/activity-logs", label: "Activity Logs" },
     { to: "/admin/conduct-reports", label: "Conduct Reports" },
+    { to: "/admin/content-issue-reports", label: "Technical Issues" },
   ]},
 ];
 

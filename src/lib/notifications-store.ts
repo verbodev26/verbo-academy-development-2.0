@@ -30,6 +30,9 @@ import { REPORTS_EVENT, loadStudentReports } from "./student-reports-store";
 import {
   loadConductReports, CONDUCT_REPORTS_EVENT,
 } from "./conduct-reports-store";
+import {
+  loadContentIssueReports, CONTENT_ISSUE_EVENT,
+} from "./content-issue-reports-store";
 import { ASSIGNMENTS } from "./mock-data";
 import { loadChallenges, CHALLENGES_EVENT } from "./challenges-store";
 import { STUDENTS_EVENT } from "./students-store";
@@ -78,6 +81,7 @@ export type NotificationKind =
   | "teacher_three_strikes"
   | "student_report_filed"
   | "conduct_report_filed"
+  | "content_issue_reported"
   | "financial_issue_reported"
   | "challenge_flagged"
   // student-facing
@@ -520,6 +524,20 @@ function adminNotifications(): Notification[] {
     });
   }
 
+  // ---- Technical content issues reported by students ---------------------
+  for (const r of loadContentIssueReports()) {
+    const st = USERS.find((u) => u.id === r.studentId);
+    out.push({
+      id: `content-issue:${r.id}`,
+      kind: "content_issue_reported",
+      title: "New technical issue reported",
+      body: `${st?.name ?? "Student"} · ${r.entityType} · ${r.issueType}`,
+      createdAt: r.createdAt,
+      to: "/admin/content-issue-reports",
+      read: false,
+    });
+  }
+
   // ---- Financial issues reported by teachers ----------------------------
   for (const i of loadFinancialIssues()) {
     const t = USERS.find((u) => u.id === i.teacher_id);
@@ -846,7 +864,7 @@ export function buildNotifications(role: Role, userId: string): Notification[] {
 const SOURCE_EVENTS = [
   SESSIONS_EVENT, CLUBS_EVENT, RELEASE_REQUESTS_EVENT,
   AVAIL_EVENT, STRIKES_EVENT, ANN_EVENT, NOTIF_EVENT,
-  REPORTS_EVENT, CONDUCT_REPORTS_EVENT, FIN_ISSUES_EVENT, STUDENTS_EVENT, CHALLENGES_EVENT,
+  REPORTS_EVENT, CONDUCT_REPORTS_EVENT, CONTENT_ISSUE_EVENT, FIN_ISSUES_EVENT, STUDENTS_EVENT, CHALLENGES_EVENT,
   REQUESTS_EVENT, VIP_UNITS_EVENT, TAILORED_UNITS_EVENT, LP_EVENT, LESSON_PLANS_EVENT,
   CHALLENGE_BADGES_EVENT, PROFILE_BADGES_EVENT, SEASONS_EVENT, BADGE_UNLOCK_SEEN_EVENT,
   FLASH_EVENT,
