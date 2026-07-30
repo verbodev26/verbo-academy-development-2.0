@@ -390,8 +390,23 @@ function teacherNotifications(teacherId: string): Notification[] {
           data: { studentId: sid, challengeId: done.challenge_id },
         });
       }
+      // ---- Challenge deliveries awaiting this teacher's review -------------
+      for (const s of st.challenge_submissions ?? []) {
+        if (s.status !== "pending_review") continue;
+        out.push({
+          id: `challenge-pending-review:${sid}:${s.challenge_id}:${s.submitted_at}`,
+          kind: "challenge_pending_review",
+          title: `${st.name} submitted a Challenge`,
+          body: challengeTitle(s.challenge_id),
+          createdAt: s.submitted_at,
+          to: "/teacher/challenges",
+          read: false,
+          data: { studentId: sid, challengeId: s.challenge_id },
+        });
+      }
     }
   }
+
 
   return out;
 }
