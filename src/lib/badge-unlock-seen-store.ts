@@ -3,6 +3,8 @@
 // exactly once per badge. localStorage only.
 
 export const BADGE_UNLOCK_SEEN_PREFIX = "verbo:badge-unlock-seen:";
+export const BADGE_UNLOCK_SEEN_EVENT = "verbo:badge-unlock-seen-updated";
+
 
 function keyFor(studentId: string) {
   return `${BADGE_UNLOCK_SEEN_PREFIX}${studentId}`;
