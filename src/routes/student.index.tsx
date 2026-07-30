@@ -641,7 +641,7 @@ function StudentDashboard() {
                     <div className="min-w-0">
                       <div className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">{m.key}</div>
                       <div className="text-base font-semibold tabular-nums" style={{ color: "#01304a" }}>
-                        {m.overall === null ? "--" : `${m.overall}%`}
+                        {m.overall === null ? "--" : <AnimatedNumber value={m.overall} suffix="%" />}
                       </div>
                     </div>
                   </div>
