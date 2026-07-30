@@ -142,7 +142,10 @@ export function NotificationsBell({ variant = "light" }: { variant?: "light" | "
   const onClickItem = (n: Notification) => {
     if (!n.read) markNotificationRead(user.id, n.id);
     setOpen(false);
-    if (n.kind === "student_shared_challenge_result" && n.data?.studentId && n.data?.challengeId) {
+    if (
+      (n.kind === "student_shared_challenge_result" || n.kind === "challenge_flagged") &&
+      n.data?.studentId && n.data?.challengeId
+    ) {
       setSharedModal({ studentId: n.data.studentId, challengeId: n.data.challengeId });
       return;
     }

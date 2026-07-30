@@ -1,6 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, X, Play, Upload } from "lucide-react";
+import { ArrowLeft, X, Play, Upload, ExternalLink, Check, RotateCcw, Ban } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import {
+  hydrateStudents,
+  subscribeStudents,
+  pendingSubmissionsForTeacher,
+  approveSubmission,
+  requestResubmission,
+  rejectSubmission,
+  type PendingSubmissionRow,
+} from "@/lib/students-store";
 import { Card, Pill, GhostButton } from "@/components/verbo/ui";
 import {
   type Challenge,
@@ -15,6 +25,7 @@ import {
   challengesFor,
   categoryColor,
 } from "@/lib/challenges-store";
+import { loadFlashChallenges } from "@/lib/flash-challenges-store";
 
 export const Route = createFileRoute("/teacher/challenges")({
   head: () => ({
@@ -70,11 +81,23 @@ function Page() {
   const [difficulty, setDifficulty] = useState<DifficultyId | null>(null);
   const [category, setCategory] = useState<string>("all");
   const [open, setOpen] = useState<Challenge | null>(null);
+  const [view, setView] = useState<"catalog" | "reviews">("catalog");
+  const { user } = useAuth();
+  const teacherId = user?.id ?? "";
+  const [pending, setPending] = useState<PendingSubmissionRow[]>([]);
 
   useEffect(() => {
     setChallenges(loadChallenges());
     return subscribeChallenges(() => setChallenges(loadChallenges()));
   }, []);
+
+  useEffect(() => {
+    if (!teacherId) return;
+    hydrateStudents();
+    const refresh = () => setPending(pendingSubmissionsForTeacher(teacherId));
+    refresh();
+    return subscribeStudents(refresh);
+  }, [teacherId]);
 
   const productChallenges = useMemo(
     () => challenges.filter((c) => c.product === productId),
@@ -89,6 +112,64 @@ function Page() {
       </p>
     </div>
   );
+
+  const viewPicker = (
+    <div className="flex flex-wrap items-center gap-2">
+      {([["catalog", "Catalog"], ["reviews", "Pending Reviews"]] as const).map(([id, label]) => {
+        const active = view === id;
+        return (
+          <button
+            key={id}
+            onClick={() => setView(id)}
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+              active
+                ? "border-[#f38934] bg-[#f38934]/10 text-[#f38934]"
+                : "border-border bg-background text-muted-foreground hover:bg-secondary"
+            }`}
+          >
+            {label}
+            {id === "reviews" && pending.length > 0 && (
+              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f38934] px-1.5 text-[10px] font-bold text-white">
+                {pending.length}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  if (view === "reviews") {
+    return (
+      <div className="space-y-6">
+        {viewPicker}
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Pending Reviews</h1>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+            Review the challenge deliveries from your students. Approving a delivery is what awards the completion, streak and badges.
+          </p>
+        </div>
+        {pending.length === 0 ? (
+          <Card>
+            <div className="py-10 text-center text-sm text-muted-foreground">
+              Nothing to review right now.
+            </div>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {pending.map((row) => (
+              <ReviewRow
+                key={`${row.studentId}:${row.submission.challenge_id}`}
+                row={row}
+                challenges={challenges}
+                teacherId={teacherId}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   const productPicker = (
     <div className="flex flex-wrap items-center gap-2">
@@ -121,6 +202,7 @@ function Page() {
 
     return (
       <div className="space-y-6">
+        {viewPicker}
         <div className="space-y-3">
           <GhostButton onClick={() => { setDifficulty(null); setCategory("all"); }}>
             <ArrowLeft className="h-3.5 w-3.5" /> All difficulties
@@ -200,6 +282,7 @@ function Page() {
 
   return (
     <div className="space-y-8">
+      {viewPicker}
       {header}
       {productPicker}
       <div>
@@ -226,6 +309,113 @@ function Page() {
         })}
       </div>
     </div>
+  );
+}
+
+function ReviewRow({
+  row, challenges, teacherId,
+}: { row: PendingSubmissionRow; challenges: Challenge[]; teacherId: string }) {
+  const [mode, setMode] = useState<"none" | "again" | "reject">("none");
+  const [feedback, setFeedback] = useState("");
+  const { submission: s } = row;
+  const ch = challenges.find((c) => c.id === s.challenge_id);
+  const title =
+    ch?.title ??
+    loadFlashChallenges().find((c) => c.id === s.challenge_id)?.title ??
+    s.challenge_id;
+
+  const confirm = () => {
+    const text = feedback.trim();
+    if (!text) return;
+    if (mode === "again") requestResubmission(row.studentId, s.challenge_id, teacherId, text);
+    else rejectSubmission(row.studentId, s.challenge_id, teacherId, text);
+    setMode("none");
+    setFeedback("");
+  };
+
+  return (
+    <Card>
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-1">
+            <div className="text-sm font-semibold text-foreground">{row.studentName}</div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-foreground">{title}</span>
+              {ch?.category && <CategoryBadge name={ch.category} />}
+              {s.status === "needs_resubmission" && <Pill tone="muted">Awaiting new attempt</Pill>}
+            </div>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Submitted {new Date(s.submitted_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <a
+            href={s.link}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#f38934] underline underline-offset-2 hover:opacity-80"
+          >
+            <ExternalLink className="h-3.5 w-3.5" /> Open delivery
+          </a>
+          {s.note && (
+            <p className="rounded-xl border border-border bg-secondary/50 p-3 text-xs text-muted-foreground">
+              {s.note}
+            </p>
+          )}
+        </div>
+
+        {mode === "none" ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => approveSubmission(row.studentId, s.challenge_id, teacherId)}
+              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3.5 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              <Check className="h-3.5 w-3.5" /> Approve
+            </button>
+            <button
+              onClick={() => { setMode("again"); setFeedback(""); }}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-secondary"
+            >
+              <RotateCcw className="h-3.5 w-3.5" /> Try Again
+            </button>
+            <button
+              onClick={() => { setMode("reject"); setFeedback(""); }}
+              className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-rose-500/10 px-3.5 py-1.5 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-500/20"
+            >
+              <Ban className="h-3.5 w-3.5" /> Don't Approve
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2 rounded-xl border border-border bg-secondary/40 p-3">
+            <label className="block text-xs font-semibold text-foreground">
+              {mode === "again" ? "What should the student fix?" : "Why is this not approved?"} (required)
+            </label>
+            <textarea
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              rows={3}
+              autoFocus
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-[#f38934]"
+              placeholder="Write your feedback for the student…"
+            />
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={confirm}
+                disabled={!feedback.trim()}
+                className={`rounded-full px-3.5 py-1.5 text-xs font-semibold text-white transition-opacity ${
+                  mode === "again" ? "bg-[#f38934]" : "bg-rose-600"
+                } ${!feedback.trim() ? "cursor-not-allowed opacity-50" : "hover:opacity-90"}`}
+              >
+                {mode === "again" ? "Send back" : "Confirm not approved"}
+              </button>
+              <GhostButton onClick={() => { setMode("none"); setFeedback(""); }}>Cancel</GhostButton>
+            </div>
+          </div>
+        )}
+      </div>
+    </Card>
   );
 }
 
