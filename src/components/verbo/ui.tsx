@@ -250,7 +250,14 @@ export function StatRing({
   const pct = Math.max(0, Math.min(100, value));
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
-  const offset = c - (pct / 100) * c;
+  // Start at 0 on mount so the CSS transition also plays on first render.
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setShown(pct));
+    return () => cancelAnimationFrame(raf);
+  }, [pct]);
+  const offset = c - (shown / 100) * c;
+
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
