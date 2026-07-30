@@ -484,7 +484,7 @@ function TeacherDashboard() {
 
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Link to="/teacher/students" className="block cursor-pointer">
-          <HeroStatCard className="border border-border bg-card">
+          <HeroStatCard className="!items-start border border-border bg-card">
             <div
               className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
               style={{ color: "#1f7a70", background: "rgba(62,187,173,0.14)" }}
@@ -495,9 +495,10 @@ function TeacherDashboard() {
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Assigned Students
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none" style={{ color: "#1f7a70" }}>
+              <div className="mt-2 text-5xl font-bold leading-none text-foreground">
                 <AnimatedNumber value={students.length} />
               </div>
+
             </div>
           </HeroStatCard>
         </Link>
