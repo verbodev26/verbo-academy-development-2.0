@@ -70,6 +70,7 @@ import {
   isBadgeEarned as isChallengeBadgeEarned,
   type BadgeDef as ChallengeBadgeDef,
 } from "@/lib/badges-store";
+import { isBadgeManuallyGranted } from "@/lib/badge-override-store";
 import {
   loadEquippedChallengeBadgeIds,
   subscribeEquippedChallengeBadges,

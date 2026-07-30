@@ -123,6 +123,7 @@ import {
   buildProfileBadgeContext,
   type BadgeDef as ProfileBadgeDef,
 } from "@/lib/profile-badges-store";
+import { isBadgeManuallyGranted } from "@/lib/badge-override-store";
 import {
   loadEquippedBadgeIds,
   setEquippedBadgeIds,
