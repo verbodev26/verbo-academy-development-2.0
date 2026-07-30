@@ -1267,6 +1267,7 @@ function StudentDashboard() {
                     </GhostButton>
                     <PrimaryButton
                       className="verbo-btn-glow"
+                      style={{ backgroundColor: theme.solid, color: "#fff", boxShadow: `0 8px 20px -6px ${theme.solid}` }}
                       onClick={() => s.teams_link && window.open(s.teams_link, "_blank")}
                     >
                       <Video className="h-3.5 w-3.5" /> Connect
