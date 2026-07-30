@@ -1458,6 +1458,7 @@ function MysteryRevealModal({
                 <p className="text-sm leading-relaxed text-foreground">
                   {challenge.description || "No description available."}
                 </p>
+                <SubmissionInstructions text={challenge.submission_instructions} delay="0.4s" />
                 {challenge.video_url && (
                   <a
                     href={challenge.video_url}
