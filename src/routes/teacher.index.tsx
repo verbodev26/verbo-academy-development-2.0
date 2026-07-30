@@ -15,8 +15,7 @@ import { subscribeCourses, computeCurrentProgress } from "@/lib/product-courses-
 import { loadLessonPlans, saveLessonPlan, subscribeLessonPlans, getLessonPlan, type LessonPlan } from "@/lib/lesson-plans-store";
 import { markVipUnitDone, clearVipUnitDoneForSession } from "@/lib/vip-courses-store";
 import { markTailoredUnitDone, clearTailoredUnitDoneForSession } from "@/lib/tailored-content-store";
-import { computeTeacherKpis, getBonusThreshold, ratingBand } from "@/lib/teacher-kpis";
-import { BonusBadge } from "@/components/verbo/BonusBadge";
+import { computeTeacherKpis, getBonusThreshold } from "@/lib/teacher-kpis";
 import { avgRating } from "@/lib/teacher-model";
 import { activeStrikeCount } from "@/lib/strikes-store";
 import { listChangeRequests, isTeacherAvailableAt, subscribeAvailability } from "@/lib/availability-store";
@@ -179,7 +178,6 @@ function TeacherDashboard() {
 
   // KPI/Performance card
   const kpis = teacherUser ? computeTeacherKpis(teacherUser, getBonusThreshold()) : null;
-  const rating30Band = ratingBand(avgRating30);
   const KPI_GOOD = 85;
   const KPI_CRITICAL = 70;
   const signals = kpis
