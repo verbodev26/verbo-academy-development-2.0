@@ -16,6 +16,8 @@ export interface FlashChallenge {
   description: string;
   video_url?: string;
   premium?: boolean;
+  /** Free text where the admin explains the expected delivery format. */
+  submission_instructions?: string;
   skill_tags?: string[];
   /** Only for format === "season": the FlashSeason this challenge belongs to. */
   season_id?: string;
