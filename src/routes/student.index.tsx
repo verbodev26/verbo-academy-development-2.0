@@ -530,7 +530,7 @@ function StudentDashboard() {
                 textColor="#ffffff"
               />
             </div>
-          </div>
+          </HeroStatCard>
         </div>
 
         {/* Level Progress — hero */}
