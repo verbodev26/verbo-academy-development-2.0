@@ -46,6 +46,12 @@ import {
   resolvedRemainingSeats, type AccessKind,
 } from "./club-bookings-store";
 import { groupsByStudentId } from "./groups-store";
+import { computeAllEarnedBadges } from "./badge-unlock";
+import { hasSeenBadgeUnlock, BADGE_UNLOCK_SEEN_EVENT } from "./badge-unlock-seen-store";
+import { BADGES_EVENT as CHALLENGE_BADGES_EVENT } from "./badges-store";
+import { BADGES_EVENT as PROFILE_BADGES_EVENT } from "./profile-badges-store";
+import { SEASONS_EVENT } from "./flash-challenges-store";
+
 
 
 export type NotificationKind =
