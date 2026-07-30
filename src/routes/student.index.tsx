@@ -304,13 +304,11 @@ function StudentDashboard() {
   // Overall Attendance — shared helper (studentAttendance) so Admin, Teacher
   // and Student always show the exact same % for a given student.
   const { pct: attendancePct } = studentAttendance(mySessions, user);
+  const attendanceTheme = attendanceThemeFor(attendancePct);
+  const attendanceVerbot = VERBOT_EXPRESSIONS[attendanceTheme.verbot];
 
-  // Mini attendance sparkline — last 6 gradeable sessions (oldest → newest).
   const gradeable = history.filter((s) => s.status in ATTENDANCE_SCORES);
-  const attendanceBars: number[] = gradeable
-    .slice(0, 6)
-    .map((s) => ATTENDANCE_SCORES[s.status])
-    .reverse();
+
 
   // Trend: last 30 days vs the 31–60 day window. No data → no arrow.
   const attendanceTrend: "up" | "down" | null = (() => {
