@@ -507,7 +507,7 @@ function StudentDetailModal({
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   <CalendarCheck className="h-3.5 w-3.5" /> Overall Attendance
                 </div>
-                <span className="text-2xl font-bold tabular-nums" style={{ color: "#01304a" }}>{attPct}%</span>
+                <span className="text-2xl font-bold tabular-nums text-foreground">{attPct}%</span>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <Stat label="Completed" value={String(attendance.completed)} />
