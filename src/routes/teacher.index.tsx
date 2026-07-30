@@ -473,10 +473,12 @@ function TeacherDashboard() {
     <div className="space-y-10">
       <header>
         <div className="text-sm text-muted-foreground">Good day,</div>
-        <div className="mt-1 flex flex-wrap items-center gap-2">
+        <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-3xl font-semibold tracking-tight text-black">{user.name}</h1>
           <Pill>{rankLabel(user)}</Pill>
+          <Pill className="ml-auto">{sessionsTaught} sessions taught</Pill>
         </div>
+
 
       </header>
 
