@@ -498,8 +498,8 @@ function Page() {
       title: c.title,
       format,
       mode,
-      accent: theme?.accent ?? categoryTheme(c.category).solid,
-      icon: theme?.icon ?? categoryIcon(c.category),
+      accent: theme?.accent ?? categoryTheme(c.category ?? "").solid,
+      icon: theme?.icon ?? categoryIcon(c.category ?? ""),
     });
 
 
