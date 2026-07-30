@@ -60,6 +60,10 @@ export interface CalendarEvent {
   sub_status?: AttendanceSubStatus;
   /** True when this event is a Bulk Scheduler holiday-replacement session. */
   holiday_makeup?: boolean;
+  /** True when the original teacher was replaced by a substitute. Only the
+   *  staff-facing calendars surface this (substitutionAware). */
+  covered_by_substitute?: boolean;
+
   // Passthrough refs so click handlers can open the right modal / route.
   session?: ExtSession;
   club?: Club;
