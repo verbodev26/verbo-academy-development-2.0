@@ -24,6 +24,7 @@ import {
   EQUIPPED_MAX,
 } from "@/lib/equipped-profile-badges-store";
 import { subscribeCourses, computeCurrentProgress } from "@/lib/product-courses-store";
+import { isBadgeManuallyGranted } from "@/lib/badge-override-store";
 
 interface Props {
   open: boolean;
@@ -71,7 +72,7 @@ function useProfileBadges(userId: string | undefined): {
     if (!user || !userId) return { badges: [], ctx: null, earned: [], equipped: [] };
     const badges = loadProfileBadges();
     const ctx = buildProfileBadgeContext(user);
-    const earned = badges.filter((b) => isBadgeEarned(b, ctx));
+    const earned = badges.filter((b) => isBadgeEarned(b, ctx) || isBadgeManuallyGranted(userId, b.id, "profile"));
     const equipped = loadEquippedBadgeIds(userId);
     return { badges, ctx, earned, equipped };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -354,6 +355,7 @@ function AchievementsGallery({
   badges: ProfileBadgeDef[];
   ctx: BadgeContext;
 }) {
+  const { user } = useAuth();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
@@ -371,7 +373,7 @@ function AchievementsGallery({
         ) : (
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
             {badges.map((b) => {
-              const earned = isBadgeEarned(b, ctx);
+              const earned = isBadgeEarned(b, ctx) || (user ? isBadgeManuallyGranted(user.id, b.id, "profile") : false);
               const meta = BADGE_METRIC_META[b.rule.metric];
               const progressHint =
                 !earned && meta.numeric

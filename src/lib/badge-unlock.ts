@@ -14,6 +14,7 @@ import {
   buildProfileBadgeContext,
 } from "./profile-badges-store";
 import { loadSeasons } from "./flash-challenges-store";
+import { isBadgeManuallyGranted } from "./badge-override-store";
 
 export type BadgeKind = "core" | "lightning" | "season" | "profile";
 
@@ -50,7 +51,7 @@ export function computeAllEarnedBadges(student: StudentLike): UnlockBadge[] {
     hasCompletedPremium: premiumDone,
   };
   for (const b of loadChallengeBadges()) {
-    if (isChallengeBadgeEarned(b, ctx)) {
+    if (isChallengeBadgeEarned(b, ctx) || isBadgeManuallyGranted(student.id, b.id, "challenge")) {
       out.push({
         storageId: b.id,
         equipId: b.id,
@@ -86,7 +87,7 @@ export function computeAllEarnedBadges(student: StudentLike): UnlockBadge[] {
 
   const profileCtx = buildProfileBadgeContext(student);
   for (const b of loadProfileBadges()) {
-    if (isProfileBadgeEarned(b, profileCtx)) {
+    if (isProfileBadgeEarned(b, profileCtx) || isBadgeManuallyGranted(student.id, b.id, "profile")) {
       out.push({
         storageId: `profile-${b.id}`,
         equipId: b.id,
