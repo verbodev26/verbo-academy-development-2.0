@@ -4,6 +4,8 @@ import { setCoverageNote } from "./coverage-notes-store";
 import { saveSubskillEvaluation } from "./performance-store";
 import { decrementGroupRemaining, activeMembersOf } from "./groups-store";
 import { adjustRemainingSessions } from "./students-store";
+import { STATUS_PALETTE, statusTextColor } from "./status-palette";
+
 
 export type ExtSessionStatus =
   | "scheduled"
