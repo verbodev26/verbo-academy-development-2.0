@@ -1354,7 +1354,7 @@ function StudentDashboard() {
                   </section>
                 </div>
 
-                <DialogFooter className="gap-2 sm:gap-2">
+                <div className="flex flex-wrap justify-end gap-2 border-t border-border bg-secondary/30 px-6 py-4">
                   <GhostButton
                     disabled={!hasRealPdf}
                     title={!hasRealPdf ? "Coming soon" : undefined}
@@ -1362,13 +1362,21 @@ function StudentDashboard() {
                   >
                     <Download className="h-3.5 w-3.5" /> Download report
                   </GhostButton>
-                  <PrimaryButton className="verbo-btn-glow" onClick={() => setClassDetail(null)}>Close</PrimaryButton>
-                </DialogFooter>
+                  <PrimaryButton
+                    className="verbo-btn-glow"
+                    style={{ backgroundColor: "#16a34a", color: "#fff" }}
+                    onClick={() => setClassDetail(null)}
+                  >
+                    Close
+                  </PrimaryButton>
+                </div>
               </>
             );
           })()}
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      )}
+
 
     </div>
   );
