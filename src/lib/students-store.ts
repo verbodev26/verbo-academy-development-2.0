@@ -428,7 +428,151 @@ export function resubmitChallenge(
   return true;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Teacher review of submissions (Etapa 3).                                    */
+/* Approval is the ONLY path that awards completion / counters — it delegates   */
+/* to the existing complete* functions instead of duplicating their logic.      */
+/* -------------------------------------------------------------------------- */
+
+function patchSubmission(
+  studentId: string,
+  challengeId: string,
+  patch: Partial<ChallengeSubmission>,
+): ChallengeSubmission | null {
+  const u = USERS.find((x) => x.id === studentId);
+  if (!u) return null;
+  const list = u.challenge_submissions ?? [];
+  const idx = list.findIndex((s) => s.challenge_id === challengeId);
+  if (idx < 0) return null;
+  const next = [...list];
+  next[idx] = { ...list[idx], ...patch };
+  persistStudentPatch(studentId, { challenge_submissions: next });
+  return next[idx];
+}
+
+/** Approve a delivery: marks the submission approved and applies exactly the
+ *  completion effects of the matching format by reusing completeChallenge /
+ *  completeLightningChallenge / completeSeasonChallenge. */
+export function approveSubmission(
+  studentId: string,
+  challengeId: string,
+  teacherId: string,
+): boolean {
+  const sub = getSubmission(studentId, challengeId);
+  if (!sub) return false;
+
+  const nowIso = new Date().toISOString();
+  patchSubmission(studentId, challengeId, {
+    status: "approved",
+    reviewer_id: teacherId,
+    reviewed_at: nowIso,
+    teacher_feedback: undefined,
+  });
+
+  if (sub.challenge_format === "lightning") {
+    completeLightningChallenge(studentId, challengeId);
+  } else if (sub.challenge_format === "season") {
+    const seasonId = loadFlashChallenges().find((c) => c.id === challengeId)?.season_id;
+    if (seasonId) completeSeasonChallenge(studentId, challengeId, seasonId);
+  } else {
+    // "normal" / "mystery_box" — completeChallenge owns the streak + cooldown
+    // rules. The submission already advanced last_completed_at, so clear it
+    // first so the cooldown guard doesn't block the award.
+    const u = USERS.find((x) => x.id === studentId);
+    const savedLast = u?.last_completed_at;
+    const savedStreak = u?.current_streak;
+    persistStudentPatch(studentId, {
+      last_completed_at: undefined,
+      current_streak: sub.streak_before ?? 0,
+    });
+    const ok = completeChallenge(studentId, challengeId);
+    if (!ok) {
+      persistStudentPatch(studentId, {
+        last_completed_at: savedLast,
+        current_streak: savedStreak,
+      });
+    }
+  }
+  return true;
+}
+
+/** Send a delivery back to the student for another attempt. Counters and streak
+ *  are left untouched. */
+export function requestResubmission(
+  studentId: string,
+  challengeId: string,
+  teacherId: string,
+  feedback: string,
+): boolean {
+  return !!patchSubmission(studentId, challengeId, {
+    status: "needs_resubmission",
+    teacher_feedback: feedback.trim(),
+    reviewer_id: teacherId,
+    reviewed_at: new Date().toISOString(),
+  });
+}
+
+/** Reject a delivery for good. Rolls the streak back to `streak_before` for the
+ *  streak-bearing formats and files a student report for the admin trail. */
+export function rejectSubmission(
+  studentId: string,
+  challengeId: string,
+  teacherId: string,
+  feedback: string,
+): boolean {
+  const sub = getSubmission(studentId, challengeId);
+  if (!sub) return false;
+
+  patchSubmission(studentId, challengeId, {
+    status: "rejected",
+    teacher_feedback: feedback.trim(),
+    reviewer_id: teacherId,
+    reviewed_at: new Date().toISOString(),
+  });
+
+  if (sub.challenge_format === "normal" || sub.challenge_format === "mystery_box") {
+    if (sub.streak_before !== undefined) {
+      persistStudentPatch(studentId, { current_streak: sub.streak_before });
+    }
+  }
+
+  const title =
+    loadChallenges().find((c) => c.id === challengeId)?.title ??
+    loadFlashChallenges().find((c) => c.id === challengeId)?.title ??
+    challengeId;
+  addStudentReport({
+    studentId,
+    teacherId,
+    text: `Challenge submission not approved — ${title}: ${feedback.trim()}`,
+  });
+  return true;
+}
+
+export interface PendingSubmissionRow {
+  studentId: string;
+  studentName: string;
+  submission: ChallengeSubmission;
+}
+
+/** Every submission still awaiting the student or the teacher on this teacher's
+ *  roster. The roster source is the ASSIGNMENTS table — the same one
+ *  teacherNotifications() uses in notifications-store.ts. */
+export function pendingSubmissionsForTeacher(teacherId: string): PendingSubmissionRow[] {
+  const roster = ASSIGNMENTS.filter((a) => a.teacher_id === teacherId).map((a) => a.student_id);
+  const out: PendingSubmissionRow[] = [];
+  for (const sid of roster) {
+    const st = USERS.find((x) => x.id === sid);
+    if (!st) continue;
+    for (const s of st.challenge_submissions ?? []) {
+      if (s.status !== "pending_review" && s.status !== "needs_resubmission") continue;
+      out.push({ studentId: sid, studentName: st.name, submission: s });
+    }
+  }
+  return out.sort((a, b) => +new Date(a.submission.submitted_at) - +new Date(b.submission.submitted_at));
+}
+
 export function subscribeStudents(cb: () => void): () => void {
+
   if (typeof window === "undefined") return () => {};
   const onStorage = (e: StorageEvent) => { if (e.key === PROFILE_KEY) cb(); };
   window.addEventListener(STUDENTS_EVENT, cb);
