@@ -2457,9 +2457,10 @@ function ChallengeBadgesModal({
                     clickable ? "cursor-pointer hover:scale-105" : ""
                   } ${
                     t.earned
-                      ? "bg-amber-500/15 text-amber-600 ring-2 ring-amber-400/50"
-                      : "bg-secondary text-muted-foreground grayscale"
+                      ? "verbo-badge-glow bg-amber-500/15 text-amber-600 ring-2 ring-amber-400/50"
+                      : "verbo-badge-lock-pulse bg-secondary text-muted-foreground grayscale"
                   } ${isEquipped ? "ring-4 ring-[#f38934]" : ""}`}
+                  style={{ animation: t.earned ? "verbo-badge-glow 2.2s ease-in-out infinite" : "verbo-badge-lock-pulse 2.6s ease-in-out infinite" }}
                 >
                   {t.image ? (
                     <img src={t.image} alt="" className={`h-full w-full rounded-full object-cover ${t.earned ? "" : "grayscale opacity-60"}`} />
