@@ -581,7 +581,7 @@ function Page() {
                   done={done}
                   shared={shared}
                   onOpen={() => setOpen(c)}
-                  onShare={() => setShareFor(c)}
+                  onShare={() => setOpen(c)}
                 />
               );
 
