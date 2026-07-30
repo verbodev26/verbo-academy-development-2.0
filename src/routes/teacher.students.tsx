@@ -102,11 +102,19 @@ function Page() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">My Students</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Read-only view of the {myStudents.length} students assigned to you.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <UsersIcon className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">My Students</h1>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              Read-only view of the students assigned to you.
+            </p>
+          </div>
+        </div>
+        <Pill tone="default">{myStudents.length} students</Pill>
       </div>
 
       {/* Search + group control */}
