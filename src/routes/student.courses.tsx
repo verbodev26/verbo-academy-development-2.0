@@ -27,15 +27,20 @@ import {
   Info,
   
   PartyPopper,
-  Flame,
   Medal,
   ShieldAlert,
 } from "lucide-react";
-import { Card, Pill, StatRing } from "@/components/verbo/ui";
+import { AnimatedNumber, Card, Pill, StatRing } from "@/components/verbo/ui";
 import { Confetti } from "@/components/verbo/Confetti";
 import { VerboAudioPlayer } from "@/components/verbo/VerboAudioPlayer";
 import airportSunsetAsset from "@/assets/airport-sunset.png.asset.json";
 import mountainsSunsetAsset from "@/assets/mountains-sunset.png.asset.json";
+import flamaNaranjaAsset from "@/assets/Flama_Naranja.svg.asset.json";
+import flamaAmarillaPequenaAsset from "@/assets/Flama_amarilla_pequena.svg.asset.json";
+import flamaAmarillaMedianaAsset from "@/assets/Flama_amarilla_mediana.svg.asset.json";
+import flamaRosaAsset from "@/assets/Flama_Rosa.svg.asset.json";
+import flamaNegraAsset from "@/assets/Flama_Negra.svg.asset.json";
+import smokeAsset from "@/assets/smoke.svg.asset.json";
 import { useAuth } from "@/lib/auth";
 import type { User } from "@/lib/mock-data";
 import { currentLoginStreak } from "@/lib/login-streak-store";
@@ -434,6 +439,32 @@ const STREAK_TIERS = [
   { days: 10, name: "10-Day Flame" },
   { days: 3, name: "3-Day Flame" },
 ];
+
+/** Flame artwork per streak tier. */
+const FLAME_ART: Record<string, string> = {
+  negra: flamaNegraAsset.url,
+  rosa: flamaRosaAsset.url,
+  amarilla_mediana: flamaAmarillaMedianaAsset.url,
+  amarilla_pequena: flamaAmarillaPequenaAsset.url,
+  naranja: flamaNaranjaAsset.url,
+  smoke: smokeAsset.url,
+};
+
+/** Streak tiers with the background gradient + flame artwork they use. */
+const STREAK_THEME = [
+  { days: 100, name: "100-Day Flame", gradient: ["#1c1c1c", "#000000"], flame: "negra" },
+  { days: 60, name: "60-Day Flame", gradient: ["#dea3ee", "#a34ac0"], flame: "rosa" },
+  { days: 30, name: "30-Day Flame", gradient: ["#fde68a", "#d97706"], flame: "amarilla_mediana" },
+  { days: 10, name: "10-Day Flame", gradient: ["#fef08a", "#eab308"], flame: "amarilla_pequena" },
+  { days: 3, name: "3-Day Flame", gradient: ["#fdba74", "#ea580c"], flame: "naranja" },
+];
+const STREAK_NONE_THEME = { days: 0, name: "No streak", gradient: ["#94a3b8", "#475569"], flame: "smoke" };
+
+function streakThemeFor(days: number) {
+  if (days <= 0) return STREAK_NONE_THEME;
+  return STREAK_THEME.find((t) => days >= t.days) ?? STREAK_THEME[STREAK_THEME.length - 1];
+}
+
 const MEDAL_METALS = ["Bronze", "Silver", "Gold", "Onyx"];
 
 function LevelsView({
@@ -479,6 +510,7 @@ function LevelsView({
   // Streak + medal cards read the real Profile Badges catalog data.
   const streakDays = currentLoginStreak(studentId);
   const streakTier = STREAK_TIERS.find((t) => streakDays >= t.days) ?? null;
+  const streakTheme = streakThemeFor(streakDays);
 
   const badgeCtx = user ? buildProfileBadgeContext(user) : null;
   const missionsByLevel = badgeCtx
@@ -508,10 +540,10 @@ function LevelsView({
           </div>
           <div className="relative z-10">
             <div className="relative z-10 flex flex-wrap items-center gap-5" style={{ color: "#01304a" }}>
-              <StatRing value={pct} size={104} stroke={8} valueClassName="text-2xl font-bold" />
+              <StatRing value={pct} size={104} stroke={8} valueClassName="text-2xl font-bold" label={<AnimatedNumber value={pct} suffix="%" />} />
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-semibold uppercase tracking-wider opacity-75">Overall progress</div>
-                <div className="mt-1 text-[4.5rem] font-extrabold leading-none tabular-nums">{passedUnits}</div>
+                <AnimatedNumber value={passedUnits} className="mt-1 block text-[4.5rem] font-extrabold leading-none tabular-nums" />
                 <div className="mt-1 text-lg font-semibold">of {totalUnits} units completed</div>
               </div>
               <div className="text-right">
@@ -524,27 +556,35 @@ function LevelsView({
 
         <Card className="relative border border-white/15">
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden>
-            <div className="card-gradient-lime absolute inset-0 rounded-[inherit]" />
+            <div
+              className="absolute inset-0 rounded-[inherit]"
+              style={{ backgroundImage: `linear-gradient(135deg, ${streakTheme.gradient[0]} 0%, ${streakTheme.gradient[1]} 100%)` }}
+            />
           </div>
           <div className="relative z-10">
-            <div className="relative z-10 flex items-center justify-between gap-4" style={{ color: "#01304a" }}>
+            <div className="relative z-10 flex items-center justify-between gap-4 text-white">
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-semibold uppercase tracking-wider opacity-75">Login streak</div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-white/75">Login streak</div>
                 {streakDays > 0 ? (
                   <>
-                    <div className="mt-2 text-2xl font-semibold tabular-nums">{streakDays} {streakDays === 1 ? "day" : "days"}</div>
-                    <div className="mt-0.5 text-sm font-medium opacity-80">{streakTier ? streakTier.name : "Keep going"}</div>
+                    <AnimatedNumber
+                      value={streakDays}
+                      suffix={streakDays === 1 ? " day" : " days"}
+                      className="mt-1 block text-[3.25rem] font-extrabold leading-none tracking-tight text-white tabular-nums drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)]"
+                    />
+                    <div className="mt-1.5 text-sm font-medium text-white/85">{streakTier ? streakTier.name : "Keep going"}</div>
                   </>
                 ) : (
-                  <p className="mt-2 text-sm opacity-80">Log in tomorrow to start your streak</p>
+                  <p className="mt-2 text-sm text-white/85">Log in tomorrow to start your streak</p>
                 )}
               </div>
-              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/35">
-                <Flame className="h-9 w-9" />
+              <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/25 ring-1 ring-white/40">
+                <img src={FLAME_ART[streakTheme.flame]} alt="" aria-hidden className="h-11 w-11 object-contain" />
               </span>
             </div>
           </div>
         </Card>
+
 
         <Card className="relative border border-white/15">
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden>
