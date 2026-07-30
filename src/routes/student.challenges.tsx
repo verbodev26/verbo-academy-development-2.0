@@ -1416,23 +1416,21 @@ function MysteryRevealModal({
           >
             MYSTERY BOX
           </span>
-          <div className="relative z-10 flex items-start justify-between gap-4">
-            <span className="vc-logo flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-lg" style={{ color: accent }}>
-              <Gift className="h-5 w-5" />
-            </span>
-            <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20 hover:text-white" aria-label="Close">
+          <div className="relative z-10 flex items-center justify-between gap-4">
+            <div className="vc-rise text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55" style={{ animationDelay: "0.1s" }}>
+              Verbo Flash · Mystery Box
+            </div>
+            <button onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20 hover:text-white" aria-label="Close">
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="relative z-10 mt-3">
-            <div className="vc-rise flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/85" style={{ animationDelay: "0.15s" }}>
-              <span aria-hidden className="h-px w-6 bg-white/60" />
-              Verbo Flash · Mystery Box
-            </div>
+          <div className="relative z-10 mt-2">
             {challenge && !opening && (
               <>
-                <div className="vc-rise mt-2 text-base font-semibold tracking-tight" style={{ animationDelay: "0.2s" }}>{challenge.title}</div>
-                <div className="vc-rise mt-2 flex flex-wrap items-center gap-2" style={{ animationDelay: "0.25s" }}>
+                <h3 className="vc-rise text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl" style={{ animationDelay: "0.2s", textShadow: "0 2px 16px rgba(0,0,0,0.55)" }}>
+                  {challenge.title}
+                </h3>
+                <div className="vc-rise mt-3 flex flex-wrap items-center gap-2" style={{ animationDelay: "0.25s" }}>
                   <CategoryBadge name={challenge.category} />
                   {challenge.premium && <PremiumBadge />}
                 </div>
@@ -1827,21 +1825,19 @@ function LightningRevealModal({
           >
             LIGHTNING
           </span>
-          <div className="relative z-10 flex items-start justify-between gap-4">
-            <span className="vc-logo flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-lg" style={{ color: accent }}>
-              <Zap className="h-5 w-5" />
-            </span>
-            <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20 hover:text-white" aria-label="Close">
+          <div className="relative z-10 flex items-center justify-between gap-4">
+            <div className="vc-rise text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55" style={{ animationDelay: "0.1s" }}>
+              Verbo Flash · Lightning
+            </div>
+            <button onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20 hover:text-white" aria-label="Close">
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="relative z-10 mt-3">
-            <div className="vc-rise flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/85" style={{ animationDelay: "0.15s" }}>
-              <span aria-hidden className="h-px w-6 bg-white/60" />
-              Verbo Flash · Lightning
-            </div>
-            <div className="vc-rise mt-2 text-base font-semibold tracking-tight" style={{ animationDelay: "0.2s" }}>{challenge.title}</div>
-            <div className="vc-rise mt-2 flex flex-wrap items-center gap-2" style={{ animationDelay: "0.25s" }}>
+          <div className="relative z-10 mt-2">
+            <h3 className="vc-rise text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl" style={{ animationDelay: "0.2s", textShadow: "0 2px 16px rgba(0,0,0,0.55)" }}>
+              {challenge.title}
+            </h3>
+            <div className="vc-rise mt-3 flex flex-wrap items-center gap-2" style={{ animationDelay: "0.25s" }}>
               <CategoryBadge name={challenge.category} />
               {challenge.premium && <PremiumBadge />}
               {isLive && (
@@ -1850,7 +1846,7 @@ function LightningRevealModal({
                 </span>
               )}
             </div>
-            <div className="vc-rise mt-1 text-xs text-white/80" style={{ animationDelay: "0.25s" }}>⚡ {acceptedCount} student{acceptedCount === 1 ? "" : "s"} accepted this</div>
+            <div className="vc-rise mt-1 text-xs text-white/80" style={{ animationDelay: "0.3s" }}>⚡ {acceptedCount} student{acceptedCount === 1 ? "" : "s"} accepted this</div>
           </div>
         </div>
 
@@ -1990,28 +1986,24 @@ function SeasonRevealModal({
           >
             {season.display_name.toUpperCase()}
           </span>
-          <div className="relative z-10 flex items-start justify-between gap-4">
-            <span className="vc-logo flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-lg" style={{ color: accent }}>
-              <Sparkles className="h-5 w-5" />
-            </span>
-            <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20 hover:text-white" aria-label="Close">
+          <div className="relative z-10 flex items-center justify-between gap-4">
+            <div className="vc-rise text-[10px] font-semibold uppercase tracking-[0.18em] text-white/60" style={{ animationDelay: "0.1s" }}>
+              Verbo Flash · {season.display_name}
+            </div>
+            <button onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20 hover:text-white" aria-label="Close">
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="relative z-10 mt-3">
-            <div className="vc-rise flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/90" style={{ animationDelay: "0.15s" }}>
-              <span aria-hidden className="h-px w-6 bg-white/60" />
-              Verbo Flash · {season.display_name}
-            </div>
+          <div className="relative z-10 mt-2">
             {challenge && !opening && (
               <>
-                <div
-                  className="vc-rise mt-2 text-base font-semibold tracking-tight drop-shadow"
-                  style={{ fontFamily: `"${family}", system-ui, sans-serif`, animationDelay: "0.2s" }}
+                <h3
+                  className="vc-rise text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl"
+                  style={{ fontFamily: `"${family}", system-ui, sans-serif`, animationDelay: "0.2s", textShadow: "0 2px 16px rgba(0,0,0,0.55)" }}
                 >
                   {challenge.title}
-                </div>
-                <div className="vc-rise mt-2 flex flex-wrap items-center gap-2" style={{ animationDelay: "0.25s" }}>
+                </h3>
+                <div className="vc-rise mt-3 flex flex-wrap items-center gap-2" style={{ animationDelay: "0.25s" }}>
                   <CategoryBadge name={challenge.category} />
                   {challenge.premium && <PremiumBadge />}
                 </div>
