@@ -288,11 +288,86 @@ export function categoryIcon(name: string): LucideIcon {
 function CategoryBadge({ name, className = "" }: { name: string; className?: string }) {
   if (!name) return <Pill tone="muted">No category</Pill>;
   const Icon = categoryIcon(name);
+  const theme = categoryTheme(name);
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${categoryColor(name)} ${className}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 text-[11px] font-semibold shadow-sm ${className}`}
+      style={{ color: theme.solid }}
+    >
       <Icon className="h-3 w-3 shrink-0" strokeWidth={2.25} />
       {name}
     </span>
+  );
+}
+
+function ChallengeCard({
+  challenge: c,
+  locked,
+  chosen,
+  done,
+  shared,
+  onOpen,
+  onShare,
+}: {
+  challenge: Challenge;
+  locked: boolean;
+  chosen: boolean;
+  done: boolean;
+  shared: boolean;
+  onOpen: () => void;
+  onShare: () => void;
+}) {
+  const theme = categoryTheme(c.category);
+  const CatIcon = categoryIcon(c.category);
+  return (
+    <div className="group flex h-full flex-col gap-4 rounded-[2rem] border border-border bg-secondary/50 p-5 shadow-elevated transition-transform duration-300 ease-out hover:-translate-y-1.5">
+      <button type="button" onClick={onOpen} className="flex flex-1 flex-col gap-4 text-left">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="line-clamp-2 text-base font-bold leading-snug text-foreground">{c.title}</h3>
+          <span
+            className="inline-flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors"
+            style={{ borderColor: `${theme.solid}55`, color: theme.solid, backgroundColor: `${theme.solid}14` }}
+          >
+            See details <ChevronRight className="h-3 w-3" />
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className="flex h-7 w-7 items-center justify-center rounded-full"
+            style={{ backgroundColor: `${theme.solid}1f`, color: theme.solid }}
+          >
+            <CatIcon className="h-3.5 w-3.5" strokeWidth={2.25} />
+          </span>
+          <span className="text-xs font-medium text-muted-foreground">{c.category || "Challenge"}</span>
+          {locked && <PremiumBadge />}
+          {done ? (
+            <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" />Completed</Pill>
+          ) : chosen ? (
+            <Pill tone="muted">In progress</Pill>
+          ) : null}
+        </div>
+        {c.skill_tags && c.skill_tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {c.skill_tags.map((s) => <SkillChip key={s} label={s} />)}
+          </div>
+        )}
+        <div className="mt-auto rounded-2xl bg-card px-4 py-3 shadow-sm">
+          <p className="line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+            {c.description || "Tap to see the details."}
+          </p>
+        </div>
+      </button>
+      {done && (
+        <button
+          type="button"
+          onClick={onShare}
+          className="inline-flex items-center gap-1.5 self-start text-[11px] font-semibold text-foreground/80 hover:underline"
+        >
+          <Share2 className="h-3 w-3" />
+          {shared ? "Edit shared result" : "Share result"}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -462,62 +537,16 @@ function Page() {
               const done = hasCompletedChallenge(student.id, c.id);
               const shared = !!getSharedResult(student.id, c.id);
               return (
-                <ChallengeSurface
+                <ChallengeCard
                   key={c.id}
-                  difficulty={difficulty}
-                  category={c.category}
-                  className="group h-full transition-transform duration-300 ease-out hover:-translate-y-1.5"
-                  motifClassName="h-24 w-24 opacity-60"
-                  contentClassName="flex h-full flex-col gap-3 p-5 text-left"
-                >
-                  <button
-                    type="button"
-                    onClick={() => setOpen(c)}
-                    className="flex flex-1 flex-col gap-3 text-left"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <CategoryBadge name={c.category} />
-                        {locked && <PremiumBadge />}
-                      </div>
-                      {done ? (
-                        <span className="inline-flex items-center rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold text-white ring-1 ring-inset ring-white/30">
-                          <CheckCircle2 className="mr-1 h-3 w-3" /> Completed
-                        </span>
-                      ) : chosen ? (
-                        <span className="inline-flex items-center rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold text-white ring-1 ring-inset ring-white/30">
-                          In progress
-                        </span>
-                      ) : null}
-                    </div>
-                    <div className="w-[88%]">
-                      <div className="text-base font-semibold text-white drop-shadow-sm">{c.title}</div>
-                      <p className="mt-1 line-clamp-3 text-xs text-white/80">{c.description || "Tap to see the details."}</p>
-                    </div>
-                    {c.skill_tags && c.skill_tags.length > 0 && (
-                      <div className="mt-auto flex flex-wrap items-center gap-1 pt-1">
-                        {c.skill_tags.map((s) => (
-                          <span
-                            key={s}
-                            className="inline-flex items-center rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium text-white/90 ring-1 ring-inset ring-white/20"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </button>
-                  {done && (
-                    <button
-                      type="button"
-                      onClick={() => setShareFor(c)}
-                      className="inline-flex items-center gap-1.5 self-start text-[11px] font-semibold text-white/90 hover:underline"
-                    >
-                      <Share2 className="h-3 w-3" />
-                      {shared ? "Edit shared result" : "Share result"}
-                    </button>
-                  )}
-                </ChallengeSurface>
+                  challenge={c}
+                  locked={locked}
+                  chosen={chosen}
+                  done={done}
+                  shared={shared}
+                  onOpen={() => setOpen(c)}
+                  onShare={() => setShareFor(c)}
+                />
               );
 
             })}
@@ -1512,7 +1541,7 @@ function ChallengeDetail({
       `}</style>
       <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-card shadow-elevated" onClick={(e) => e.stopPropagation()}>
         {/* HEADER — solid category color + decorative radial blobs + watermark */}
-        <div className="relative overflow-hidden p-6 text-white" style={{ backgroundColor: theme.solid }}>
+        <div className="relative overflow-hidden p-4 text-white" style={{ backgroundColor: theme.solid }}>
           <span
             aria-hidden
             className="vc-blob pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full blur-2xl"
@@ -1525,17 +1554,17 @@ function ChallengeDetail({
           />
           <span
             aria-hidden
-            className="pointer-events-none absolute -right-6 -top-8 z-0 select-none whitespace-nowrap text-[86px] font-black leading-none tracking-tighter text-white/[0.13]"
+            className="pointer-events-none absolute -right-3 top-1 z-0 select-none whitespace-nowrap text-[92px] font-black leading-none tracking-tighter text-white/[0.13]"
           >
             {catLabel}
           </span>
 
           <div className="relative z-10 flex items-start justify-between gap-4">
             <span
-              className="vc-logo flex h-[52px] w-[52px] items-center justify-center rounded-2xl bg-white shadow-lg"
+              className="vc-logo flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-lg"
               style={{ color: theme.solid }}
             >
-              <CatIcon className="h-6 w-6" />
+              <CatIcon className="h-5 w-5" />
             </span>
             <div className="flex items-center gap-2">
               {challenge.premium && <PremiumBadge />}
@@ -1549,16 +1578,16 @@ function ChallengeDetail({
             </div>
           </div>
 
-          <div className="relative z-10 mt-5">
-            <div className="vc-rise flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/85" style={{ animationDelay: "0.15s" }}>
+          <div className="relative z-10 mt-3">
+            <div className="vc-rise flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/85" style={{ animationDelay: "0.15s" }}>
               <span aria-hidden className="h-px w-6 bg-white/60" />
               {catLabel}
             </div>
-            <h3 className="vc-rise mt-2 text-2xl font-bold tracking-tight" style={{ animationDelay: "0.2s" }}>
+            <h3 className="vc-rise mt-1.5 text-lg font-bold tracking-tight" style={{ animationDelay: "0.2s" }}>
               {challenge.title}
             </h3>
             {challenge.skill_tags && challenge.skill_tags.length > 0 && (
-              <div className="vc-rise mt-3 flex flex-wrap gap-1" style={{ animationDelay: "0.25s" }}>
+              <div className="vc-rise mt-2 flex flex-wrap gap-1" style={{ animationDelay: "0.25s" }}>
                 {challenge.skill_tags.map((s) => <SkillChip key={s} label={s} />)}
               </div>
             )}
@@ -1624,12 +1653,12 @@ function ChallengeDetail({
               onClick={onComplete}
               disabled={onCooldown}
               title={onCooldown ? COOLDOWN_MSG : undefined}
-              style={{ boxShadow: `0 8px 20px -6px ${theme.solid}` }}
+              style={{ backgroundColor: theme.solid, color: "#fff", boxShadow: `0 8px 20px -6px ${theme.solid}` }}
             >
               <CheckCircle2 className="h-3.5 w-3.5" /> Mark as Completed
             </SuccessButton>
           ) : (
-            <PrimaryButton onClick={onChoose} style={{ boxShadow: `0 8px 20px -6px ${theme.solid}` }}>
+            <PrimaryButton onClick={onChoose} style={{ backgroundColor: theme.solid, color: "#fff", boxShadow: `0 8px 20px -6px ${theme.solid}` }}>
               Let's do it!
             </PrimaryButton>
           )}
