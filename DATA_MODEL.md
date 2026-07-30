@@ -949,3 +949,17 @@ Datos de presentación editables para **teachers y admins** (el equivalente staf
 
 ### Contraseña
 El cambio de contraseña usa `updateProfile({ currentPassword, newPassword })` de `auth.tsx` + `validatePasswordComplexity()` (misma regla que el alumno: ≥4 chars, 1 mayúscula, 1 número). Sin contraseña actual correcta no se aplica el cambio. "Forgot password" es solo UI por ahora (sin lógica).
+
+## Overrides manuales de badges (`src/lib/badge-override-store.ts`)
+
+Log append-only en localStorage (`verbo:badge-override-log`, evento `verbo:badge-override-updated`), mismo patrón que el log de unit access de `activities-store.ts`: el evento más reciente para cada terna `(studentId, badgeId, system)` gana.
+
+**`BadgeOverrideEvent`**: `id, studentId, badgeId, system: BadgeSystem ("profile" | "challenge"), action: "granted" | "revoked", actorId, actorRole: "admin", at`.
+
+- `setBadgeOverride(studentId, badgeId, system, action, actorId)` — hace push de un evento nuevo.
+- `getBadgeOverride(studentId, badgeId, system)` — acción más reciente o `null` (sin override → aplica la regla automática del badge).
+- `isBadgeManuallyGranted(studentId, badgeId, system)` — `=== "granted"`.
+
+**Efecto en la evaluación de "earned"**: en todos los call sites de `isBadgeEarned` la condición pasa a ser `earned_por_regla || isBadgeManuallyGranted(studentId, badge.id, system)`. Call sites cubiertos: `badge-unlock.ts` (core challenge + profile), `ProfileModal.tsx` (lista de earned y galería), `student.index.tsx` (franja de badges equipados: challenge y profile), `student.challenges.tsx` (profile badges del PlayerProfileCard y tiles core del ChallengeBadgesModal). Un override nunca revoca un badge ya ganado por regla: `"revoked"` solo devuelve el badge a evaluación automática.
+
+**Admin UI**: Admin > Students > modal de alumno > tab "Badges" (`BadgesOverridePanel` en `src/routes/admin.students.tsx`), con dos secciones (Profile Badges vía `profile-badges-store.loadBadges`, Challenge Badges vía `badges-store.loadBadges`) y toggle Grant/Auto por badge.
