@@ -1180,22 +1180,37 @@ function StudentDashboard() {
             }
             const hasRealPdf = !!s.report_pdf_url && s.report_pdf_url !== "/mock-report.pdf";
             const isUpcoming = s.status === "scheduled" || s.status === "rescheduled" || s.status === "ready";
+            const d = new Date(s.date_time);
             const headerBlock = (
-              <div className="rounded-lg border border-border bg-secondary/40 p-3 text-xs">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">{fmt(s.date_time)}</div>
-                    <div className="mt-0.5 text-muted-foreground">
-                      {s.duration_minutes} min · with {teacher?.name ?? "Teacher"}
+              <div className="space-y-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <div className="rounded-lg border border-border bg-background px-3 py-2">
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      <CalendarClock className="h-3.5 w-3.5" /> Date
+                    </div>
+                    <div className="mt-0.5 text-sm font-medium text-foreground">
+                      {d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
                     </div>
                   </div>
+                  <div className="rounded-lg border border-border bg-background px-3 py-2">
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      <Clock className="h-3.5 w-3.5" /> Time
+                    </div>
+                    <div className="mt-0.5 text-sm font-medium text-foreground">
+                      {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · {s.duration_minutes} min
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <span className={statusBadge(s.status)}>{s.status}</span>
+                  <span>with {teacher?.name ?? "Teacher"}</span>
                 </div>
                 {isAbsent && absentMsg && (
-                  <div className="mt-2 text-muted-foreground">{absentMsg}.</div>
+                  <div className="text-xs text-muted-foreground">{absentMsg}.</div>
                 )}
               </div>
             );
+
             if (isUpcoming) {
               return (
                 <>
