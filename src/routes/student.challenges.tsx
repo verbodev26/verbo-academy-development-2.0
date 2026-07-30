@@ -429,8 +429,14 @@ function Page() {
   const [difficulty, setDifficulty] = useState<DifficultyId | null>(null);
   const [category, setCategory] = useState<string | "all">("all");
   const [open, setOpen] = useState<Challenge | null>(null);
-  const [shareFor, setShareFor] = useState<Challenge | null>(null);
-  const [shareForTheme, setShareForTheme] = useState<{ accent: string; icon: LucideIcon } | null>(null);
+  const [submitFor, setSubmitFor] = useState<{
+    id: string;
+    title: string;
+    format: ChallengeSubmissionFormat;
+    accent: string;
+    icon: LucideIcon;
+    mode: "submit" | "resubmit";
+  } | null>(null);
   const [mystery, setMystery] = useState<{ opening: boolean; reveal: FlashChallenge | null; blocked: boolean }>({ opening: false, reveal: null, blocked: false });
   const [lightning, setLightning] = useState<LightningState>(loadLightning);
   const [lightningOpen, setLightningOpen] = useState<FlashChallenge | null>(null);
