@@ -183,6 +183,24 @@ function MysteryBoxTab() {
         </div>
       </Card>
 
+      {/* Banner theme */}
+      <BannerThemeCard
+        key={`mystery-theme-${JSON.stringify({
+          t: config.theme_image_url,
+          w: config.watermark_image_url,
+          a: config.accent_color,
+          b: config.accent_color_to,
+          f: config.fill_mode,
+          g: config.gradient_stops,
+        })}`}
+        title="Mystery Box banner"
+        description="Controls how the Mystery Box banner looks on the student side."
+        value={config}
+        onSave={(theme) => persistFlashConfig({ ...config, ...theme })}
+      />
+
+
+
       {/* Product selector */}
       <div className="flex flex-wrap gap-2">
         {FLASH_PRODUCT_ORDER.map((p) => (
