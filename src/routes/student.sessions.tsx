@@ -585,29 +585,44 @@ function EventDetailsModal({
           onClose={onClose}
         />
         <div className="px-6 py-5">
-        <p className="vc-rise text-sm text-muted-foreground" style={{ animationDelay: "0.25s" }}>
-          {fmtDT(event.date)} · {event.duration_minutes} min
-        </p>
-
-
+        {(() => {
+          const statusAccent = session?.attendance_sub_status
+            ? SUB_STATUS_META[session.attendance_sub_status].color
+            : statusMeta?.color;
+          const statusText = session?.attendance_sub_status
+            ? `${statusMeta?.label ?? ""} · ${SUB_STATUS_META[session.attendance_sub_status].label}`.trim().replace(/^·\s*/, "")
+            : (statusMeta?.label ?? "—");
+          return (
+            <div className="vc-rise" style={{ animationDelay: "0.25s" }}>
+              <InfoStatRow
+                items={[
+                  {
+                    icon: CalendarClock,
+                    value: event.date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+                    label: "Date",
+                    tint: theme.solid,
+                  },
+                  {
+                    icon: Clock,
+                    value: event.date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+                    label: "Time",
+                    tint: theme.solid,
+                  },
+                  {
+                    icon: HeadIcon,
+                    value: statusText,
+                    label: "Status",
+                    tint: statusAccent ?? theme.solid,
+                  },
+                ]}
+              />
+            </div>
+          );
+        })()}
 
         {(isClass || isSpotlight) && session && (
           <div className="vc-rise mt-4 space-y-2 text-sm" style={{ animationDelay: "0.3s" }}>
             <Row label="Teacher" value={teacherName ?? "—"} />
-            <Row
-              label="Status"
-              value={
-                session.attendance_sub_status
-                  ? `${statusMeta?.label ?? ""} · ${SUB_STATUS_META[session.attendance_sub_status].label}`.trim().replace(/^·\s*/, "")
-                  : (statusMeta?.label ?? "—")
-              }
-              accent={
-                session.attendance_sub_status
-                  ? SUB_STATUS_META[session.attendance_sub_status].color
-                  : statusMeta?.color
-              }
-            />
-            {session.teams_link && <Row label="Video Call" value="Ready" />}
           </div>
         )}
 
