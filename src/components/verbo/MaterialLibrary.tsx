@@ -23,7 +23,18 @@ import {
   Search,
   Sparkles,
   Lock,
+  Headphones,
+  SpellCheck,
+  Type,
+  Mic,
+  Crown,
+  Rocket,
+  Lightbulb,
+  Briefcase,
+  LifeBuoy,
+  Tag,
 } from "lucide-react";
+
 
 const TYPE_ICON: Record<MaterialType, typeof Book> = {
   book: Book,
@@ -42,19 +53,11 @@ const TYPE_TINT: Record<MaterialType, string> = {
 };
 
 /**
- * Cover placeholders for category cards — reuses the existing project palette
- * (PRODUCT_GRADIENTS + CATEGORY_RING_COLORS from student.courses.tsx). Purely
- * visual until real per-category cover images land.
+ * Accent colors cycled through by admin-created extra categories. The known
+ * categories define their own solid accent inline.
  */
-const CATEGORY_COVERS = [
-  "from-[#01304a] via-[#024366] to-[#0a5e88]",
-  "from-[#7c2d12] via-[#c2410c] to-[#f97316]",
-  "from-[#134e4a] via-[#0f766e] to-[#14b8a6]",
-  "from-[#4a044e] via-[#7e22ce] to-[#a855f7]",
-  "from-[#cb6ce6] via-[#a855f7] to-[#7e22ce]",
-  "from-[#69d11d] via-[#14b8a6] to-[#0f766e]",
-  "from-[#92dfd4] via-[#14b8a6] to-[#024366]",
-];
+const EXTRA_ACCENTS = ["#024366", "#c2410c", "#0f766e", "#7e22ce", "#a855f7", "#14b8a6"];
+
 
 const PREMIUM_KEY = "__premium__";
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("");
@@ -70,11 +73,15 @@ function CoverArt({ m, className = "" }: { m: StoredMaterial; className?: string
     return <img src={m.cover_image} alt={m.title} className={`h-full w-full object-cover ${className}`} />;
   }
   return (
-    <div className={`flex h-full w-full items-center justify-center ${TYPE_TINT[m.material_type]} ${className}`}>
-      <Icon className="h-10 w-10" />
+    <div className={`relative h-full w-full bg-gradient-to-br from-secondary/60 to-secondary/20 ${className}`}>
+      <Icon
+        className={`absolute bottom-3 right-3 h-16 w-16 ${TYPE_TINT[m.material_type].split(" ").find((c) => c.startsWith("text-")) ?? "text-foreground"}`}
+        style={{ opacity: 0.15 }}
+      />
     </div>
   );
 }
+
 
 function PreviewModal({ m, onClose }: { m: StoredMaterial; onClose: () => void }) {
   const isPdf = m.material_type === "pdf";
@@ -172,102 +179,46 @@ function PremiumUpsellModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-type CardButton = {
-  variant: "label" | "arrow-circle" | "arrow-pill";
-  color: string;
-  align?: "left" | "right";
-};
-
 /**
- * Category card — configurable layout per category: text block alignment,
- * optional side-by-side description, and label/arrow button variants.
- * `art` renders an optional decorative pattern behind the content.
+ * Category tile — light shell, category color lives only in accents:
+ * a 4px top accent bar, a tinted icon chip, a very subtle corner blob and a
+ * text CTA with an arrow. `art` renders an optional decorative pattern behind.
  */
 function SpotlightCategoryCard({
   name,
   subtitle,
-  bgClass,
-  textStyle,
-  neutral = false,
+  accent,
+  icon: Icon,
   compact = false,
-  align = "left",
-  descRight = false,
-  button,
+  noBlob = false,
+  badge,
   art,
   onClick,
 }: {
   name: string;
   subtitle: string;
-  bgClass: string;
-  textStyle: React.CSSProperties;
-  neutral?: boolean;
+  accent: string;
+  icon: typeof Book;
   compact?: boolean;
-  align?: "left" | "right" | "center";
-  descRight?: boolean;
-  button?: CardButton;
+  noBlob?: boolean;
+  badge?: React.ReactNode;
   art?: { src: string; className: string };
   onClick: () => void;
 }) {
-  const alignClass =
-    align === "right" ? "items-end text-right" : align === "center" ? "items-center text-center" : "items-start text-left";
-  const btn = button ?? { variant: "label" as const, color: "#01304a" };
-  const btnRowClass = btn.align === "right" ? "justify-end" : "justify-start";
-
-  const buttonEl = neutral ? (
-    <PrimaryButton className="!text-xs" onClick={onClick}>
-      Browse Material
-    </PrimaryButton>
-  ) : btn.variant === "label" ? (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-xs font-semibold transition-transform duration-200 active:scale-[0.97]"
-      style={{ color: btn.color }}
-    >
-      Browse Material
-    </button>
-  ) : btn.variant === "arrow-circle" ? (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={`Browse ${name} material`}
-      className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-white transition-transform duration-200 active:scale-[0.97]"
-    >
-      <ArrowRight className="h-5 w-5" style={{ color: btn.color }} />
-    </button>
-  ) : (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={`Browse ${name} material`}
-      className="inline-flex cursor-pointer items-center justify-center rounded-full bg-white px-6 py-2.5 transition-transform duration-200 active:scale-[0.97]"
-    >
-      <ArrowRight className="h-5 w-5" style={{ color: btn.color }} />
-    </button>
-  );
-
-  const titleEl = (
-    <h3
-      className={`text-lg font-semibold tracking-tight ${neutral ? "text-foreground" : "text-white"}`}
-      style={neutral ? undefined : textStyle}
-    >
-      {name}
-    </h3>
-  );
-
-  const descEl = (
-    <p
-      className={`text-xs leading-relaxed ${neutral ? "text-muted-foreground" : "text-white opacity-90"}`}
-      style={neutral ? undefined : textStyle}
-    >
-      {subtitle}
-    </p>
-  );
-
   return (
     <div
-      className={`${bgClass} relative flex h-full ${compact ? "min-h-[140px]" : "min-h-[260px]"} flex-col justify-between overflow-hidden rounded-3xl border border-border p-6 shadow-elevated`}
+      className={`group relative flex h-full ${compact ? "min-h-[140px]" : "min-h-[200px]"} flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-elevated`}
     >
+      <div
+        className="pointer-events-none absolute left-0 right-0 top-0 h-1 rounded-t-2xl"
+        style={{ backgroundColor: accent }}
+      />
+      {!noBlob && (
+        <div
+          className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full blur-3xl"
+          style={{ background: `radial-gradient(circle, ${accent}1A, transparent 70%)` }}
+        />
+      )}
       {art && (
         <img
           src={art.src}
@@ -276,42 +227,64 @@ function SpotlightCategoryCard({
           className={"pointer-events-none absolute z-0 select-none " + art.className}
         />
       )}
+
       <div className="relative z-10">
-        {descRight ? (
-          <div className="flex items-start justify-between gap-4">
-            {titleEl}
-            <div className="max-w-[40%] text-right">{descEl}</div>
-          </div>
-        ) : (
-          <div className={`flex flex-col ${alignClass}`}>
-            {titleEl}
-            <div className="mt-3 max-w-[85%]">{descEl}</div>
-          </div>
-        )}
+        <div
+          className="flex h-12 w-12 items-center justify-center rounded-2xl"
+          style={{ backgroundColor: `${accent}1F` }}
+        >
+          <Icon className="h-6 w-6" style={{ color: accent }} />
+        </div>
+        <div className="mt-4 flex items-center gap-2">
+          <h3 className="text-base font-semibold text-foreground">{name}</h3>
+          {badge}
+        </div>
+        <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{subtitle}</p>
       </div>
-      <div className={`relative z-10 mt-6 flex ${btnRowClass}`}>{buttonEl}</div>
+
+      <div className="relative z-10 mt-5 flex justify-start">
+        <button
+          type="button"
+          onClick={onClick}
+          className="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold"
+          style={{ color: accent }}
+        >
+          Browse Material
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        </button>
+      </div>
     </div>
   );
 }
 
+
 function MaterialCard({ m, onPreview }: { m: StoredMaterial; onPreview: (m: StoredMaterial) => void }) {
+  const TypeIcon = TYPE_ICON[m.material_type];
   return (
     <Card className="!p-0 overflow-hidden verbo-card-hover">
-      <div className="aspect-video w-full overflow-hidden border-b border-border">
-        <CoverArt m={m} />
+      <div className="relative">
+        <div className="aspect-video w-full overflow-hidden border-b border-border">
+          <CoverArt m={m} />
+        </div>
+        <div
+          className={`absolute -bottom-4 left-4 flex h-9 w-9 items-center justify-center rounded-xl bg-white/95 shadow-sm ${TYPE_TINT[m.material_type].split(" ").find((c) => c.startsWith("text-")) ?? ""}`}
+        >
+          <TypeIcon className="h-4.5 w-4.5" />
+        </div>
       </div>
-      <div className="space-y-3 p-4">
+      <div className="space-y-3 p-4 pt-6">
         <div>
           <div className="text-base font-semibold text-foreground">{m.title}</div>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             <span
-              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${TYPE_TINT[m.material_type]}`}
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ring-1 ring-inset ring-current/30 ${TYPE_TINT[m.material_type]}`}
             >
               {m.material_type}
             </span>
             {m.premium && <PremiumBadge />}
           </div>
         </div>
+
 
         {hasUploadedFile(m) ? (
           <div className="flex gap-2">
@@ -402,7 +375,6 @@ export function MaterialLibrary({
     letterRefs.current[l]?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const WHITE = "#ffffff";
   const knownNames = [
     "Grammar",
     "Vocabulary",
@@ -420,90 +392,77 @@ export function MaterialLibrary({
   const mainCards: {
     name: string;
     subtitle: string;
-    bgClass: string;
-    textStyle: React.CSSProperties;
-    align?: "left" | "right" | "center";
-    descRight?: boolean;
-    button?: CardButton;
+    accent: string;
+    icon: typeof Book;
+    badge?: React.ReactNode;
     onClick: () => void;
   }[] = [
     {
       name: "Listening",
       subtitle: "Audio practice and listening exercises to train your ear.",
-      bgClass: "bg-gradient-to-br from-[#f8ab31] via-[#ef8f14] to-[#dd7208]",
-      textStyle: { color: WHITE },
-      button: { variant: "arrow-circle", color: "#dd7208", align: "left" },
+      accent: "#ef8f14",
+      icon: Headphones,
       onClick: () => openCategory("Listening"),
     },
     {
       name: "Grammar",
       subtitle: "Structures and practice sheets to sharpen your grammar.",
-      bgClass: "bg-gradient-to-br from-[#a5d938] via-[#54b42d] to-[#157f36]",
-      textStyle: { color: WHITE },
-      button: { variant: "label", color: "#157f36", align: "left" },
+      accent: "#157f36",
+      icon: SpellCheck,
       onClick: () => openCategory("Grammar"),
     },
     {
       name: "Vocabulary",
       subtitle: "Word lists and expressions to grow your everyday vocabulary.",
-      bgClass: "bg-gradient-to-r from-[#63a4f8] to-[#2f6fe4]",
-      textStyle: { color: WHITE },
-      align: "right",
-      button: { variant: "arrow-pill", color: "#2f6fe4", align: "right" },
+      accent: "#2f6fe4",
+      icon: Type,
       onClick: () => openCategory("Vocabulary"),
     },
     {
       name: "Speaking",
       subtitle: "Prompts and exercises to build real speaking confidence.",
-      bgClass: "bg-gradient-to-br from-[#f07ad3] via-[#e256bb] to-[#d13da4]",
-      textStyle: { color: WHITE },
-      button: { variant: "arrow-circle", color: "#d13da4", align: "right" },
+      accent: "#d13da4",
+      icon: Mic,
       onClick: () => openCategory("Speaking"),
     },
     {
       name: "Premium",
       subtitle: "Deep-dive guides and exclusive practice packs for Advance tier and up.",
-      bgClass: "bg-gradient-to-br from-[#a78bfa] via-[#8b5cf6] to-[#6d28d9]",
-      textStyle: { color: WHITE },
-      align: "right",
-      button: { variant: "label", color: "#6d28d9", align: "right" },
+      accent: "#b45309",
+      icon: Crown,
+      badge: <PremiumBadge />,
       onClick: () => openCategory(PREMIUM_KEY),
     },
     {
       name: "Getting Started",
       subtitle: "Everything you need to take your first steps with confidence.",
-      bgClass: "bg-gradient-to-r from-[#ffd731] via-[#fdaa1d] to-[#f97316]",
-      textStyle: { color: WHITE },
-      descRight: true,
-      button: { variant: "arrow-pill", color: "#f97316", align: "left" },
+      accent: "#f97316",
+      icon: Rocket,
       onClick: () => openCategory("Getting Started"),
     },
     {
       name: "Study Tips",
       subtitle: "Habits, routines and techniques to study smarter every week.",
-      bgClass: "bg-gradient-to-br from-[#ef4b4b] via-[#d92c3f] to-[#a41630]",
-      textStyle: { color: WHITE },
-      descRight: true,
-      button: { variant: "label", color: "#a41630", align: "left" },
+      accent: "#a41630",
+      icon: Lightbulb,
       onClick: () => openCategory("Study Tips"),
     },
     {
       name: "Business",
       subtitle: "Templates and phrases for professional communication.",
-      bgClass: "card-gradient-navy",
-      textStyle: { color: WHITE },
-      align: "center",
-      button: { variant: "arrow-circle", color: "#01304a", align: "right" },
+      accent: "#01304a",
+      icon: Briefcase,
       onClick: () => openCategory("Business"),
     },
     ...extraCategories.map((c, i) => ({
       name: c,
       subtitle: "Complementary resources for this category.",
-      bgClass: `bg-gradient-to-br ${CATEGORY_COVERS[i % CATEGORY_COVERS.length]}`,
-      textStyle: { color: WHITE },
+      accent: EXTRA_ACCENTS[i % EXTRA_ACCENTS.length],
+      icon: Tag as typeof Book,
       onClick: () => openCategory(c),
     })),
   ];
+
 
 
   const headerLabel = isPremiumView ? "Premium" : category;
@@ -537,9 +496,9 @@ export function MaterialLibrary({
               <SpotlightCategoryCard
                 name="Troubleshooting"
                 subtitle="Quick fixes and answers for common technical issues."
-                bgClass="bg-gradient-to-br from-[#f7f7f7] to-[#d9d9d9]"
-                textStyle={{}}
-                neutral
+                accent="#64748b"
+                icon={LifeBuoy}
+                noBlob
                 compact
                 onClick={() => openCategory("Troubleshooting")}
               />
@@ -552,14 +511,13 @@ export function MaterialLibrary({
                 key={c.name}
                 name={c.name}
                 subtitle={c.subtitle}
-                bgClass={c.bgClass}
-                textStyle={c.textStyle}
-                align={c.align}
-                descRight={c.descRight}
-                button={c.button}
+                accent={c.accent}
+                icon={c.icon}
+                badge={c.badge}
                 onClick={c.onClick}
               />
             ))}
+
           </div>
         </>
 
