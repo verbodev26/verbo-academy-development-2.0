@@ -71,6 +71,8 @@ import {
   type LightningState,
   loadFlashChallenges,
   loadFlashConfig,
+  loadLightningTheme,
+  subscribeLightningTheme,
   subscribeFlashChallenges,
   subscribeFlashConfig,
   flashChallengesFor,
@@ -300,6 +302,7 @@ function Page() {
   const [lightningOpen, setLightningOpen] = useState<FlashChallenge | null>(null);
   const [nowTick, setNowTick] = useState(Date.now());
   const [seasons, setSeasons] = useState<FlashSeason[]>(loadSeasons);
+  const [lightningTheme, setLightningTheme] = useState(loadLightningTheme);
   const [seasonState, setSeasonState] = useState<
     { season: FlashSeason; opening: boolean; reveal: FlashChallenge | null; blocked: boolean } | null
   >(null);
@@ -316,8 +319,10 @@ function Page() {
     const un4 = subscribeFlashConfig(() => setFlashConfig(loadFlashConfig()));
     const un5 = subscribeLightning(() => setLightning(loadLightning()));
     const un6 = subscribeSeasons(() => setSeasons(loadSeasons()));
+    setLightningTheme(loadLightningTheme());
+    const un7 = subscribeLightningTheme(() => setLightningTheme(loadLightningTheme()));
     const timer = setInterval(() => setNowTick(Date.now()), 1000);
-    return () => { un1(); un2(); un3(); un4(); un5(); un6(); clearInterval(timer); };
+    return () => { un1(); un2(); un3(); un4(); un5(); un6(); un7(); clearInterval(timer); };
   }, []);
 
 
