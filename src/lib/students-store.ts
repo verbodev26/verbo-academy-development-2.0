@@ -5,7 +5,14 @@
 // USERS singleton. This module exposes the SAME underlying data so other
 // views (e.g. Sessions) read and write the exact same field instead of
 // duplicating it. Editing the link here reflects in Students and vice-versa.
-import { USERS, type User } from "./mock-data";
+import {
+  USERS,
+  type User,
+  type ChallengeSubmission,
+  type ChallengeSubmissionFormat,
+} from "./mock-data";
+
+export type { ChallengeSubmission, ChallengeSubmissionFormat };
 
 // NOTE: these keys must match the ones used by src/routes/admin.students.tsx
 export const PROFILE_KEY = "verbo:student-profile-overrides";
