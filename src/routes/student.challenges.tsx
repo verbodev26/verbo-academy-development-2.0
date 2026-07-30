@@ -40,7 +40,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { Card, Pill, PrimaryButton, GhostButton, SuccessButton } from "@/components/verbo/ui";
+import { Card, Pill, PrimaryButton, GhostButton, SuccessButton, AccentModalHeader } from "@/components/verbo/ui";
 import { Confetti } from "@/components/verbo/Confetti";
 import { useAuth } from "@/lib/auth";
 import {
