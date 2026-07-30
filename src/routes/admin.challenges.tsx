@@ -398,6 +398,7 @@ function ChallengeModal({
       category: category.trim(),
       title: title.trim(),
       description: description.trim(),
+      submission_instructions: submissionInstructions.trim(),
       video_url: videoUrl.trim(),
       premium,
       skill_tags: skillTags,
