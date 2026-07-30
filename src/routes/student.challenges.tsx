@@ -322,10 +322,15 @@ function ChallengeCard({
   const theme = categoryTheme(c.category);
   const CatIcon = categoryIcon(c.category);
   return (
-    <div className="group flex h-full flex-col gap-4 rounded-[2rem] border border-border bg-secondary/50 p-5 shadow-elevated transition-transform duration-300 ease-out hover:-translate-y-1.5">
+    <div className="group relative flex h-full flex-col gap-4 rounded-[2rem] border border-border bg-secondary/50 p-5 shadow-elevated transition-transform duration-300 ease-out hover:-translate-y-1.5">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -inset-2 -z-10 rounded-[2.5rem] opacity-40 blur-2xl transition-opacity duration-300 group-hover:opacity-70"
+        style={{ background: `radial-gradient(60% 60% at 50% 60%, ${theme.solid}55 0%, transparent 75%)` }}
+      />
       <button type="button" onClick={onOpen} className="flex flex-1 flex-col gap-4 text-left">
         <div className="flex items-start justify-between gap-3">
-          <h3 className="line-clamp-2 text-base font-bold leading-snug text-foreground">{c.title}</h3>
+          <h3 className="line-clamp-2 text-xl font-extrabold leading-snug text-foreground">{c.title}</h3>
           <span
             className="inline-flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors"
             style={{ borderColor: `${theme.solid}55`, color: theme.solid, backgroundColor: `${theme.solid}14` }}
@@ -333,26 +338,28 @@ function ChallengeCard({
             See details <ChevronRight className="h-3 w-3" />
           </span>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <span
-            className="flex h-7 w-7 items-center justify-center rounded-full"
-            style={{ backgroundColor: `${theme.solid}1f`, color: theme.solid }}
-          >
-            <CatIcon className="h-3.5 w-3.5" strokeWidth={2.25} />
-          </span>
-          <span className="text-xs font-medium text-muted-foreground">{c.category || "Challenge"}</span>
-          {locked && <PremiumBadge />}
-          {done ? (
-            <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" />Completed</Pill>
-          ) : chosen ? (
-            <Pill tone="muted">In progress</Pill>
-          ) : null}
-        </div>
-        {c.skill_tags && c.skill_tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {c.skill_tags.map((s) => <SkillChip key={s} label={s} />)}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className="flex h-7 w-7 items-center justify-center rounded-full"
+              style={{ backgroundColor: `${theme.solid}1f`, color: theme.solid }}
+            >
+              <CatIcon className="h-3.5 w-3.5" strokeWidth={2.25} />
+            </span>
+            <span className="text-xs font-medium text-muted-foreground">{c.category || "Challenge"}</span>
+            {locked && <PremiumBadge />}
+            {done ? (
+              <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" />Completed</Pill>
+            ) : chosen ? (
+              <Pill tone="muted">In progress</Pill>
+            ) : null}
           </div>
-        )}
+          {c.skill_tags && c.skill_tags.length > 0 && (
+            <div className="flex flex-wrap justify-end gap-1">
+              {c.skill_tags.map((s) => <SkillChip key={s} label={s} />)}
+            </div>
+          )}
+        </div>
         <div className="mt-auto rounded-2xl bg-card px-4 py-3 shadow-sm">
           <p className="line-clamp-3 text-xs leading-relaxed text-muted-foreground">
             {c.description || "Tap to see the details."}
@@ -1676,11 +1683,15 @@ function ChallengeDetail({
 /* -------------------------------------------------------------------------- */
 function ShareResultModal({
   challenge,
+  accent,
+  icon,
   initialLink,
   onClose,
   onSave,
 }: {
   challenge: Challenge;
+  accent: string;
+  icon: LucideIcon;
   initialLink: string;
   onClose: () => void;
   onSave: (link: string) => void;
@@ -1694,23 +1705,20 @@ function ShareResultModal({
         className="w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card shadow-elevated"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-border p-5">
-          <div>
-            <div className="text-xs uppercase tracking-wide text-muted-foreground">
-              Want to share your result? (optional)
-            </div>
-            <h3 className="mt-1 text-sm font-semibold text-foreground">{challenge.title}</h3>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <AccentModalHeader
+          background={accent}
+          iconTint={accent}
+          icon={icon}
+          eyebrow="Challenge completed"
+          title={challenge.title}
+          watermark={{ type: "text", value: "SHARE" }}
+          onClose={onClose}
+        />
 
         <div className="space-y-4 p-5">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            Want to share your result? (optional)
+          </p>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -1745,7 +1753,7 @@ function ShareResultModal({
 
         <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
           <GhostButton onClick={onClose}>Skip</GhostButton>
-          <PrimaryButton onClick={() => onSave(link)} disabled={source !== "url"}>
+          <PrimaryButton onClick={() => onSave(link)} disabled={source !== "url"} style={{ backgroundColor: accent, color: "#fff" }}>
             Save
           </PrimaryButton>
         </div>
