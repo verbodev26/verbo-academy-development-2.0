@@ -1932,6 +1932,7 @@ function SeasonRevealModal({
   const headerBg = season.theme_image_url
     ? `center / cover no-repeat url(${season.theme_image_url}), ${seasonGradient}`
     : seasonGradient;
+  const accent = season.accent_color || "#7e22ce";
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
