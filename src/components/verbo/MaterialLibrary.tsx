@@ -53,19 +53,11 @@ const TYPE_TINT: Record<MaterialType, string> = {
 };
 
 /**
- * Cover placeholders for category cards — reuses the existing project palette
- * (PRODUCT_GRADIENTS + CATEGORY_RING_COLORS from student.courses.tsx). Purely
- * visual until real per-category cover images land.
+ * Accent colors cycled through by admin-created extra categories. The known
+ * categories define their own solid accent inline.
  */
-const CATEGORY_COVERS = [
-  "from-[#01304a] via-[#024366] to-[#0a5e88]",
-  "from-[#7c2d12] via-[#c2410c] to-[#f97316]",
-  "from-[#134e4a] via-[#0f766e] to-[#14b8a6]",
-  "from-[#4a044e] via-[#7e22ce] to-[#a855f7]",
-  "from-[#cb6ce6] via-[#a855f7] to-[#7e22ce]",
-  "from-[#69d11d] via-[#14b8a6] to-[#0f766e]",
-  "from-[#92dfd4] via-[#14b8a6] to-[#024366]",
-];
+const EXTRA_ACCENTS = ["#024366", "#c2410c", "#0f766e", "#7e22ce", "#a855f7", "#14b8a6"];
+
 
 const PREMIUM_KEY = "__premium__";
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("");
