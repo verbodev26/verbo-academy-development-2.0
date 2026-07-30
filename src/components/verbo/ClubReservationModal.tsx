@@ -3,7 +3,7 @@
 // and both reserve + cancel actions. Same visual language as the Live
 // Sessions modals (Card / PrimaryButton / GhostButton / semantic tokens).
 import { useMemo, useState } from "react";
-import { X, AlertTriangle, CheckCircle2, Users, CalendarClock, FileText, Video } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Users, CalendarClock, Clock, FileText, Video } from "lucide-react";
 import { toast } from "sonner";
 import type { Club } from "@/lib/clubs-store";
 import { userById } from "@/lib/mock-data";
