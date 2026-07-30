@@ -75,6 +75,9 @@ export interface User {
    *  counters, keyed by season.id. Independent from Mystery Box and Lightning. */
   last_season_opened_at?: Record<string, string>;
   season_completions?: Record<string, number>;
+  /** Teacher-reviewed challenge submissions (Etapa 2). One entry per challenge
+   *  id; the student only earns completion once the teacher approves it. */
+  challenge_submissions?: ChallengeSubmission[];
   // ----- Product-type branch (Register Student flow) -----
   // "performance" is the classic Performance Sessions student. "workshops"
   // and "insights" are standalone customers who only bought that add-on and
