@@ -1466,6 +1466,8 @@ function MysteryRevealModal({
   onClose: () => void;
 }) {
   const locked = !!challenge?.premium && !hasPremiumAccess;
+  const { user } = useAuth();
+  const [issueOpen, setIssueOpen] = useState(false);
   const onCooldown = !completed && chosen && cooldownRemaining !== null;
   const accent = flashConfig.accent_color || "#7e22ce";
   const headerBg = flashConfig.theme_image_url
@@ -1509,6 +1511,17 @@ function MysteryRevealModal({
             <div className="vc-rise text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55" style={{ animationDelay: "0.1s" }}>
               Verbo Flash · Mystery Box
             </div>
+            {user && challenge && (
+              <button
+                className="verbo-report-btn verbo-report-btn-on-color"
+                onClick={() => setIssueOpen(true)}
+                aria-label="Report"
+                title="Report a technical issue"
+              >
+                <span className="sign"><ShieldAlert className="h-4 w-4" /></span>
+                <span className="text">Report</span>
+              </button>
+            )}
             <button onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20 hover:text-white" aria-label="Close">
               <X className="h-4 w-4" />
             </button>
@@ -1589,6 +1602,17 @@ function MysteryRevealModal({
           </>
         )}
       </div>
+
+      {user && challenge && (
+        <ReportContentIssueModal
+          studentId={user.id}
+          entityType="challenge"
+          entityId={challenge.id}
+          entityTitle={challenge.title}
+          open={issueOpen}
+          onClose={() => setIssueOpen(false)}
+        />
+      )}
     </div>
   );
 }
@@ -1672,7 +1696,7 @@ function ChallengeDetail({
               {challenge.premium && <PremiumBadge />}
               {user && (
                 <button
-                  className="verbo-report-btn"
+                  className="verbo-report-btn verbo-report-btn-on-color"
                   onClick={() => setIssueOpen(true)}
                   aria-label="Report"
                   title="Report a technical issue"
@@ -1940,6 +1964,8 @@ function LightningRevealModal({
   onClose: () => void;
 }) {
   const remaining = expiresAt ? +new Date(expiresAt) - nowTick : 0;
+  const { user } = useAuth();
+  const [issueOpen, setIssueOpen] = useState(false);
   const locked = !!challenge.premium && !hasPremiumAccess;
   const canComplete = isLive && remaining > 0 && !completed && !locked;
   const accent = lightningTheme.accent_color || "#0284c7";
@@ -1973,6 +1999,17 @@ function LightningRevealModal({
             <div className="vc-rise text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55" style={{ animationDelay: "0.1s" }}>
               Verbo Flash · Lightning
             </div>
+            {user && (
+              <button
+                className="verbo-report-btn verbo-report-btn-on-color"
+                onClick={() => setIssueOpen(true)}
+                aria-label="Report"
+                title="Report a technical issue"
+              >
+                <span className="sign"><ShieldAlert className="h-4 w-4" /></span>
+                <span className="text">Report</span>
+              </button>
+            )}
             <button onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20 hover:text-white" aria-label="Close">
               <X className="h-4 w-4" />
             </button>
@@ -2039,6 +2076,17 @@ function LightningRevealModal({
           ) : null}
         </ChallengeModalFooter>
       </div>
+
+      {user && challenge && (
+        <ReportContentIssueModal
+          studentId={user.id}
+          entityType="challenge"
+          entityId={challenge.id}
+          entityTitle={challenge.title}
+          open={issueOpen}
+          onClose={() => setIssueOpen(false)}
+        />
+      )}
     </div>
   );
 }
@@ -2094,6 +2142,8 @@ function SeasonRevealModal({
   onClose: () => void;
 }) {
   const locked = !!challenge?.premium && !hasPremiumAccess;
+  const { user } = useAuth();
+  const [issueOpen, setIssueOpen] = useState(false);
   const seasonGradient = seasonGradientCss(season);
   const family = fontFamilyFor(season);
   const headerBg = season.theme_image_url
@@ -2138,6 +2188,17 @@ function SeasonRevealModal({
             <div className="vc-rise text-[10px] font-semibold uppercase tracking-[0.18em] text-white/60" style={{ animationDelay: "0.1s" }}>
               Verbo Flash · {season.display_name}
             </div>
+            {user && challenge && (
+              <button
+                className="verbo-report-btn verbo-report-btn-on-color"
+                onClick={() => setIssueOpen(true)}
+                aria-label="Report"
+                title="Report a technical issue"
+              >
+                <span className="sign"><ShieldAlert className="h-4 w-4" /></span>
+                <span className="text">Report</span>
+              </button>
+            )}
             <button onClick={onClose} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20 hover:text-white" aria-label="Close">
               <X className="h-4 w-4" />
             </button>
@@ -2215,6 +2276,17 @@ function SeasonRevealModal({
           </>
         )}
       </div>
+
+      {user && challenge && (
+        <ReportContentIssueModal
+          studentId={user.id}
+          entityType="challenge"
+          entityId={challenge.id}
+          entityTitle={challenge.title}
+          open={issueOpen}
+          onClose={() => setIssueOpen(false)}
+        />
+      )}
     </div>
   );
 }

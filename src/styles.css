@@ -778,6 +778,13 @@
   white-space: nowrap;
   transition-duration: 0.3s;
 }
+.verbo-report-btn.verbo-report-btn-on-color {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+.verbo-report-btn.verbo-report-btn-on-color .sign {
+  color: #fff;
+}
 .verbo-report-btn:hover {
   width: 116px;
   border-radius: 999px;
