@@ -296,9 +296,14 @@ function StudentDashboard() {
   const contractedLevels = user.contracted_levels ?? [];
   const currentLevelIdx = currentLevelName ? contractedLevels.indexOf(currentLevelName) : -1;
   const currentLevelRingLabel =
-    currentLevelIdx >= 0 && contractedLevels.length > 0
-      ? `${currentLevelIdx + 1}/${contractedLevels.length}`
-      : "";
+    currentLevelIdx >= 0 && contractedLevels.length > 0 ? (
+      <>
+        <AnimatedNumber value={currentLevelIdx + 1} />/{contractedLevels.length}
+      </>
+    ) : (
+      ""
+    );
+
 
 
   // Overall Attendance — shared helper (studentAttendance) so Admin, Teacher
