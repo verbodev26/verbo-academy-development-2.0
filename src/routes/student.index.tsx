@@ -1319,8 +1319,7 @@ function StudentDashboard() {
                   <section className="vc-rise" style={{ animationDelay: "0.35s" }}>
 
                     <SectionHeadIcon
-                      icon={<NotebookPen className="h-4 w-4" />}
-                      circleClass="bg-[var(--orange-100)] text-[var(--orange-600)]"
+                      icon={<NotebookPen className="h-4 w-4" style={{ color: "var(--orange-600)" }} />}
                       label="Teacher's notes"
                     />
                     {s.report_comments && s.report_comments.trim().length > 0 ? (
