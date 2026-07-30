@@ -503,8 +503,8 @@ Mapa `` `${teacherId}:${studentId}` → note: string ``. ⚠️ `teacherIsTitula
 ⚠️ Los "dismissals" (cierre del banner) **no están asociados a `userId`** — array global por navegador. Contraste con `notifications-store.ts` (ver abajo), que sí scoped por usuario.
 
 ### `Notification` (`src/lib/notifications-store.ts`) — **derivado, no persistido**
-Solo se persiste el estado de lectura (`ReadMap: Record<userId, Record<notificationId, true>>`). La lista de notificaciones se recalcula on-demand a partir de Sessions, Clubs, AvailabilityChangeRequests, Strikes, KPIs, Announcements, FinancialIssues, StudentReports.
-`NotificationKind` (15 valores) — ver §12.
+Solo se persiste el estado de lectura (`ReadMap: Record<userId, Record<notificationId, true>>`). La lista de notificaciones se recalcula on-demand a partir de Sessions, Clubs, AvailabilityChangeRequests, Strikes, KPIs, Announcements, FinancialIssues, StudentReports y Badges (earned vs. seen).
+`NotificationKind` — ver §12. Incluye `badge_unlocked` (student-facing): se deriva comparando `computeAllEarnedBadges(student)` (`src/lib/badge-unlock.ts`) contra `badge-unlock-seen-store.ts`; su payload es `data.badgeStorageId` y al hacer clic abre `BadgeUnlockModal` y marca el badge como visto (evento `BADGE_UNLOCK_SEEN_EVENT`). Campo `data?: { studentId?, challengeId?, badgeStorageId? }`.
 
 ### `ActivityEntry` (`src/lib/activity-logs-store.ts`) — **derivado, no persistido**
 Log de actividad administrativa (Super Admin), recomputado on-demand. `id, kind: ActivityKind, action, detail, timestamp, actorId, actorName, actorRole, personId?`.
