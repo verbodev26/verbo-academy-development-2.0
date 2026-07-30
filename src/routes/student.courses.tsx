@@ -31,11 +31,17 @@ import {
   Medal,
   ShieldAlert,
 } from "lucide-react";
-import { Card, Pill, StatRing } from "@/components/verbo/ui";
+import { AnimatedNumber, Card, Pill, StatRing } from "@/components/verbo/ui";
 import { Confetti } from "@/components/verbo/Confetti";
 import { VerboAudioPlayer } from "@/components/verbo/VerboAudioPlayer";
 import airportSunsetAsset from "@/assets/airport-sunset.png.asset.json";
 import mountainsSunsetAsset from "@/assets/mountains-sunset.png.asset.json";
+import flamaNaranjaAsset from "@/assets/Flama_Naranja.svg.asset.json";
+import flamaAmarillaPequenaAsset from "@/assets/Flama_amarilla_pequena.svg.asset.json";
+import flamaAmarillaMedianaAsset from "@/assets/Flama_amarilla_mediana.svg.asset.json";
+import flamaRosaAsset from "@/assets/Flama_Rosa.svg.asset.json";
+import flamaNegraAsset from "@/assets/Flama_Negra.svg.asset.json";
+import smokeAsset from "@/assets/smoke.svg.asset.json";
 import { useAuth } from "@/lib/auth";
 import type { User } from "@/lib/mock-data";
 import { currentLoginStreak } from "@/lib/login-streak-store";
