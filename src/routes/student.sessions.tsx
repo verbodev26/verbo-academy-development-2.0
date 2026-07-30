@@ -543,7 +543,8 @@ function EventDetailsModal({
   };
 
   const planBlock = plan ? (
-    <section className="mt-4">
+    <section className="vc-rise mt-4" style={{ animationDelay: "0.35s" }}>
+
       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {isCompleted ? "What we covered" : "What we'll cover"}
       </h4>
