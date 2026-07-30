@@ -567,7 +567,7 @@ function LevelsView({
             <div className="relative z-10 flex items-center justify-between gap-4 text-white">
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-semibold uppercase tracking-wider text-white/75">Login streak</div>
-                  {streakDays > 0 ? (
+                {streakDays > 0 ? (
                   <>
                     <div className="mt-1 flex items-baseline gap-1">
                       <AnimatedNumber
