@@ -85,9 +85,8 @@ const CLUB_KINDS: CalendarEventKind[] = ["insight", "book_club"];
 
 
 
-function fmtDT(iso: string) {
-  return new Date(iso).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
-}
+
+
 
 function Page() {
   const { user } = useAuth();
