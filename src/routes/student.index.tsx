@@ -1333,7 +1333,7 @@ function StudentDashboard() {
                   </section>
 
                   {/* Performance breakdown */}
-                  <section>
+                  <section className="vc-rise" style={{ animationDelay: "0.45s" }}>
                     <SectionHeadIcon
                       icon={<Award className="h-4 w-4" />}
                       circleClass="bg-[var(--violet-100)] text-[var(--violet-700)]"
