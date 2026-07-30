@@ -1278,12 +1278,13 @@ function StudentDashboard() {
             return (
               <>
                 <AccentModalHeader
-                  background="#16a34a"
-                  iconTint="#16a34a"
-                  icon={CheckCircle2}
-                  eyebrow="COMPLETED SESSION"
+                  background={theme.background}
+                  iconTint={theme.solid}
+                  textTone={theme.textTone}
+                  icon={StatusIcon}
+                  eyebrow={`${(CALENDAR_STATUS_META[s.status as keyof typeof CALENDAR_STATUS_META]?.label ?? "").toUpperCase()} SESSION`.trim() || "SESSION"}
                   title="Session Details"
-                  watermark={{ type: "icon", icon: CheckCircle2 }}
+                  watermark={{ type: "icon", icon: StatusIcon }}
                   onClose={() => setClassDetail(null)}
                 />
                 <div className="space-y-4 px-6 py-5">
