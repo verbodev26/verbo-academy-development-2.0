@@ -4,6 +4,7 @@ import { RoleGuard } from "@/components/verbo/RoleGuard";
 import { TopNav, type NavEntry } from "@/components/verbo/TopNav";
 import { AnnouncementBanner } from "@/components/verbo/AnnouncementBanner";
 import { Footer } from "@/components/verbo/Footer";
+import { BadgeUnlockWatcher } from "@/components/verbo/BadgeUnlockCelebration";
 import { useAuth } from "@/lib/auth";
 import { touchLoginStreak } from "@/lib/login-streak-store";
 
