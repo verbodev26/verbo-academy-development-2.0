@@ -1738,25 +1738,30 @@ function ChallengeDetail({
           )}
         </div>
 
-        <div className="vc-rise flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4" style={{ animationDelay: "0.6s" }}>
-          <GhostButton onClick={onClose}>Close</GhostButton>
+        <ChallengeModalFooter
+          submission={submission}
+          accent={theme.solid}
+          onClose={onClose}
+          onResubmit={onResubmit}
+          delay="0.6s"
+        >
           {locked ? null : completed ? (
             <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" /> Completed</Pill>
           ) : chosen ? (
             <SuccessButton
-              onClick={onComplete}
+              onClick={onSubmit}
               disabled={onCooldown}
               title={onCooldown ? COOLDOWN_MSG : undefined}
               style={{ backgroundColor: theme.solid, color: "#fff", boxShadow: `0 8px 20px -6px ${theme.solid}` }}
             >
-              <CheckCircle2 className="h-3.5 w-3.5" /> Mark as Completed
+              <Upload className="h-3.5 w-3.5" /> Submit Challenge
             </SuccessButton>
           ) : (
             <PrimaryButton onClick={onChoose} style={{ backgroundColor: theme.solid, color: "#fff", boxShadow: `0 8px 20px -6px ${theme.solid}` }}>
               Let's do it!
             </PrimaryButton>
           )}
-        </div>
+        </ChallengeModalFooter>
       </div>
     </div>
   );
