@@ -491,9 +491,9 @@ export function MaterialLibrary({
               <SpotlightCategoryCard
                 name="Troubleshooting"
                 subtitle="Quick fixes and answers for common technical issues."
-                bgClass="bg-gradient-to-br from-[#f7f7f7] to-[#d9d9d9]"
-                textStyle={{}}
-                neutral
+                accent="#64748b"
+                icon={LifeBuoy}
+                noBlob
                 compact
                 onClick={() => openCategory("Troubleshooting")}
               />
@@ -506,14 +506,13 @@ export function MaterialLibrary({
                 key={c.name}
                 name={c.name}
                 subtitle={c.subtitle}
-                bgClass={c.bgClass}
-                textStyle={c.textStyle}
-                align={c.align}
-                descRight={c.descRight}
-                button={c.button}
+                accent={c.accent}
+                icon={c.icon}
+                badge={c.badge}
                 onClick={c.onClick}
               />
             ))}
+
           </div>
         </>
 
