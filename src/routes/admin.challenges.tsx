@@ -32,6 +32,8 @@ import {
   type Challenge,
   type ChallengeProductId,
   type DifficultyId,
+  type ChallengeSkillTag,
+
   PRODUCT_META,
   PRODUCT_ORDER,
   DIFFICULTY_META,
@@ -369,6 +371,8 @@ function ChallengeModal({
   const [videoSource, setVideoSource] = useState<"url" | "upload">("url");
   const [videoUrl, setVideoUrl] = useState(editing?.video_url ?? "");
   const [premium, setPremium] = useState<boolean>(editing?.premium ?? false);
+  const [skillTags, setSkillTags] = useState<string[]>(editing?.skill_tags ?? []);
+  const SKILL_TAG_OPTIONS: ChallengeSkillTag[] = ["Speaking", "Writing", "Reading", "Listening"];
 
   const onPickCategory = (v: string) => {
     if (v === "__new__") { setCreatingCat(true); return; }
@@ -395,7 +399,7 @@ function ChallengeModal({
       description: description.trim(),
       video_url: videoUrl.trim(),
       premium,
-      skill_tags: editing?.skill_tags ?? [],
+      skill_tags: skillTags,
       created_at: editing?.created_at ?? new Date().toISOString(),
     });
   };
@@ -445,6 +449,31 @@ function ChallengeModal({
             ))}
           </select>
         </Field>
+
+        <Field label="Skills" hint="Optional — tag which skills this challenge practices.">
+          <div className="grid grid-cols-4 gap-2">
+            {SKILL_TAG_OPTIONS.map((s) => (
+              <label
+                key={s}
+                className="flex items-center gap-2 rounded-lg border border-border bg-secondary/30 px-2.5 py-2 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={skillTags.includes(s)}
+                  onChange={(e) =>
+                    setSkillTags((prev) =>
+                      e.target.checked ? [...prev, s] : prev.filter((t) => t !== s),
+                    )
+                  }
+                  className="h-4 w-4 rounded border-border text-[#f38934] focus:ring-[#f38934]"
+                />
+                <span className="text-xs font-semibold text-foreground">{s}</span>
+              </label>
+            ))}
+          </div>
+        </Field>
+
+
 
         <label className="flex items-start gap-3 rounded-lg border border-border bg-secondary/30 px-3 py-2.5 cursor-pointer">
           <input
