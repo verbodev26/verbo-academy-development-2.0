@@ -34,6 +34,9 @@ import {
   Megaphone,
   Briefcase,
   Tag,
+  Clock,
+  Shield,
+
   type LucideIcon,
 } from "lucide-react";
 
