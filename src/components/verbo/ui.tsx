@@ -289,6 +289,24 @@ export function StatRing({
   );
 }
 
+/** Number that counts up to `value` on mount and on every change. */
+export function AnimatedNumber({
+  value,
+  suffix,
+  durationMs,
+  className = "",
+}: { value: number; suffix?: string; durationMs?: number; className?: string }) {
+  const animated = useCountUp(value, durationMs);
+  return (
+    <span className={`tabular-nums ${className}`}>
+      {animated}
+      {suffix}
+    </span>
+  );
+}
+
+
+
 export function MetricCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <Card>
