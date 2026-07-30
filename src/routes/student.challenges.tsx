@@ -921,12 +921,6 @@ function Page() {
           }}
         />
       )}
-            shareChallengeResult(student.id, shareFor.id, link);
-            setShareFor(null);
-            setShareForTheme(null);
-          }}
-        />
-      )}
     </div>
   );
 }
