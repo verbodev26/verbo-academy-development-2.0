@@ -2427,6 +2427,19 @@ function ChallengeBadgesModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true">
       <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-border bg-card p-6 shadow-elevated">
+        <style>{`
+          @keyframes verbo-badge-glow {
+            0%, 100% { box-shadow: 0 0 0px 0px rgba(245,158,11,0), 0 2px 6px rgba(0,0,0,0.15); }
+            50% { box-shadow: 0 0 14px 3px rgba(245,158,11,0.55), 0 2px 6px rgba(0,0,0,0.15); }
+          }
+          @keyframes verbo-badge-lock-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(100,116,139,0.25); }
+            50% { box-shadow: 0 0 0 6px rgba(100,116,139,0); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .verbo-badge-glow, .verbo-badge-lock-pulse { animation: none !important; }
+          }
+        `}</style>
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h3 className="text-lg font-bold tracking-tight text-foreground">Challenge badges</h3>
