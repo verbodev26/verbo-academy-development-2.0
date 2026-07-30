@@ -511,6 +511,7 @@ function LevelsView({
   // Streak + medal cards read the real Profile Badges catalog data.
   const streakDays = currentLoginStreak(studentId);
   const streakTier = STREAK_TIERS.find((t) => streakDays >= t.days) ?? null;
+  const streakTheme = streakThemeFor(streakDays);
 
   const badgeCtx = user ? buildProfileBadgeContext(user) : null;
   const missionsByLevel = badgeCtx
