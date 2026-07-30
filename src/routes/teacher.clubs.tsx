@@ -18,6 +18,11 @@ import { userById } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/teacher/clubs")({ component: Page });
 
+const CLUB_COVER_GRADIENT: Record<ClubType, string> = {
+  insight: "linear-gradient(150deg, #dea3ee 0%, #c86fe1 55%, #a34ac0 100%)",
+  book: "linear-gradient(150deg, #b2ece3 0%, #7cd7cb 55%, #3ebbad 100%)",
+};
+
 const PROPOSE_URL = "https://wa.me/522461152136?text=Hola!%20Quiero%20proponer%20una%20idea%20de%20club:%20";
 
 function fmtDate(iso: string) {
@@ -178,7 +183,7 @@ function Page() {
             >
               {t.label}
               {badgeCount > 0 && (
-                <span className="rounded-full bg-[#f38934] px-1.5 text-[10px] font-bold text-white">{badgeCount}</span>
+                <span className="rounded-full bg-accent px-1.5 text-[10px] font-bold text-white">{badgeCount}</span>
               )}
             </button>
           );
@@ -225,11 +230,11 @@ function Page() {
               const b = typeBadge(c.type);
               return (
                 <Card key={c.id} className="!p-0 overflow-hidden flex flex-col">
-                  <div className="relative aspect-video w-full bg-secondary/60">
+                  <div className="relative aspect-video w-full" style={{ backgroundImage: CLUB_COVER_GRADIENT[c.type] }}>
                     {c.cover_image ? (
-                      <div className="flex h-full items-center justify-center text-xs text-muted-foreground">{c.cover_image}</div>
+                      <div className="flex h-full items-center justify-center text-xs text-white/80">{c.cover_image}</div>
                     ) : (
-                      <div className="flex h-full items-center justify-center text-muted-foreground">
+                      <div className="flex h-full items-center justify-center text-white/80">
                         <b.Icon className="h-10 w-10" />
                       </div>
                     )}
@@ -393,7 +398,7 @@ function StudentRequestsSection({
                   {kind === "reschedule" ? "Reschedule" : "Spotlight"}
                 </span>
                 {yourStudent && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#01304a] px-2 py-0.5 text-[10px] font-bold text-white">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-white">
                     <User className="h-3 w-3" /> Your Student
                   </span>
                 )}
