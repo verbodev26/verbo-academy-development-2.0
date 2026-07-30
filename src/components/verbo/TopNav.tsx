@@ -203,6 +203,29 @@ export function TopNav({ items, variant = "light" }: { items: NavEntry[]; varian
     width: 0,
     visible: false,
   });
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showLeftFade, setShowLeftFade] = useState(false);
+  const [showRightFade, setShowRightFade] = useState(false);
+
+  const updateFades = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setShowLeftFade(scrollLeft > 2);
+    setShowRightFade(scrollLeft + clientWidth < scrollWidth - 2);
+  };
+
+  useEffect(() => {
+    updateFades();
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateFades, { passive: true });
+    window.addEventListener("resize", updateFades);
+    return () => {
+      el.removeEventListener("scroll", updateFades);
+      window.removeEventListener("resize", updateFades);
+    };
+  }, [items, pathname]);
 
   // Progressive transparency: fully opaque near the top, fully transparent
   // past FADE_END. Applied straight to the DOM node (no React state) so it
