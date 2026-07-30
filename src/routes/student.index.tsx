@@ -72,7 +72,7 @@ import { loadSeasons } from "@/lib/flash-challenges-store";
 import { loadClubs, type Club } from "@/lib/clubs-store";
 import { isBooked } from "@/lib/club-bookings-store";
 import { ClubReservationModal } from "@/components/verbo/ClubReservationModal";
-import { EVENT_KIND_META, CALENDAR_STATUS_META } from "@/lib/calendar-events";
+import { EVENT_KIND_META, CALENDAR_STATUS_META, calendarEventTheme } from "@/lib/calendar-events";
 import { RatingModal } from "@/components/verbo/RatingModal";
 import { ReportConductModal } from "@/components/verbo/ReportConductModal";
 import { CantAttendRouter, RescheduleRequestModal } from "@/components/verbo/CancelSessionFlow";
