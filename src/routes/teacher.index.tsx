@@ -879,8 +879,12 @@ function TeacherDashboard() {
               );
             })}
           </div>
-        </div>
-      </section>
+          <AccentModalFooter accent={GREEN}>
+            <GhostButton onClick={() => setOpenPanel(null)}>Close</GhostButton>
+          </AccentModalFooter>
+        </AccentModal>
+      )}
+
 
       <section>
         <SectionTitle>Quick Actions</SectionTitle>
