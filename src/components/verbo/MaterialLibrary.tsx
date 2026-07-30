@@ -172,102 +172,46 @@ function PremiumUpsellModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-type CardButton = {
-  variant: "label" | "arrow-circle" | "arrow-pill";
-  color: string;
-  align?: "left" | "right";
-};
-
 /**
- * Category card — configurable layout per category: text block alignment,
- * optional side-by-side description, and label/arrow button variants.
- * `art` renders an optional decorative pattern behind the content.
+ * Category tile — light shell, category color lives only in accents:
+ * a 4px top accent bar, a tinted icon chip, a very subtle corner blob and a
+ * text CTA with an arrow. `art` renders an optional decorative pattern behind.
  */
 function SpotlightCategoryCard({
   name,
   subtitle,
-  bgClass,
-  textStyle,
-  neutral = false,
+  accent,
+  icon: Icon,
   compact = false,
-  align = "left",
-  descRight = false,
-  button,
+  noBlob = false,
+  badge,
   art,
   onClick,
 }: {
   name: string;
   subtitle: string;
-  bgClass: string;
-  textStyle: React.CSSProperties;
-  neutral?: boolean;
+  accent: string;
+  icon: typeof Book;
   compact?: boolean;
-  align?: "left" | "right" | "center";
-  descRight?: boolean;
-  button?: CardButton;
+  noBlob?: boolean;
+  badge?: React.ReactNode;
   art?: { src: string; className: string };
   onClick: () => void;
 }) {
-  const alignClass =
-    align === "right" ? "items-end text-right" : align === "center" ? "items-center text-center" : "items-start text-left";
-  const btn = button ?? { variant: "label" as const, color: "#01304a" };
-  const btnRowClass = btn.align === "right" ? "justify-end" : "justify-start";
-
-  const buttonEl = neutral ? (
-    <PrimaryButton className="!text-xs" onClick={onClick}>
-      Browse Material
-    </PrimaryButton>
-  ) : btn.variant === "label" ? (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-xs font-semibold transition-transform duration-200 active:scale-[0.97]"
-      style={{ color: btn.color }}
-    >
-      Browse Material
-    </button>
-  ) : btn.variant === "arrow-circle" ? (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={`Browse ${name} material`}
-      className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-white transition-transform duration-200 active:scale-[0.97]"
-    >
-      <ArrowRight className="h-5 w-5" style={{ color: btn.color }} />
-    </button>
-  ) : (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={`Browse ${name} material`}
-      className="inline-flex cursor-pointer items-center justify-center rounded-full bg-white px-6 py-2.5 transition-transform duration-200 active:scale-[0.97]"
-    >
-      <ArrowRight className="h-5 w-5" style={{ color: btn.color }} />
-    </button>
-  );
-
-  const titleEl = (
-    <h3
-      className={`text-lg font-semibold tracking-tight ${neutral ? "text-foreground" : "text-white"}`}
-      style={neutral ? undefined : textStyle}
-    >
-      {name}
-    </h3>
-  );
-
-  const descEl = (
-    <p
-      className={`text-xs leading-relaxed ${neutral ? "text-muted-foreground" : "text-white opacity-90"}`}
-      style={neutral ? undefined : textStyle}
-    >
-      {subtitle}
-    </p>
-  );
-
   return (
     <div
-      className={`${bgClass} relative flex h-full ${compact ? "min-h-[140px]" : "min-h-[260px]"} flex-col justify-between overflow-hidden rounded-3xl border border-border p-6 shadow-elevated`}
+      className={`group relative flex h-full ${compact ? "min-h-[140px]" : "min-h-[200px]"} flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-elevated`}
     >
+      <div
+        className="pointer-events-none absolute left-0 right-0 top-0 h-1 rounded-t-2xl"
+        style={{ backgroundColor: accent }}
+      />
+      {!noBlob && (
+        <div
+          className="pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full blur-3xl"
+          style={{ background: `radial-gradient(circle, ${accent}1A, transparent 70%)` }}
+        />
+      )}
       {art && (
         <img
           src={art.src}
@@ -276,23 +220,36 @@ function SpotlightCategoryCard({
           className={"pointer-events-none absolute z-0 select-none " + art.className}
         />
       )}
+
       <div className="relative z-10">
-        {descRight ? (
-          <div className="flex items-start justify-between gap-4">
-            {titleEl}
-            <div className="max-w-[40%] text-right">{descEl}</div>
-          </div>
-        ) : (
-          <div className={`flex flex-col ${alignClass}`}>
-            {titleEl}
-            <div className="mt-3 max-w-[85%]">{descEl}</div>
-          </div>
-        )}
+        <div
+          className="flex h-12 w-12 items-center justify-center rounded-2xl"
+          style={{ backgroundColor: `${accent}1F` }}
+        >
+          <Icon className="h-6 w-6" style={{ color: accent }} />
+        </div>
+        <div className="mt-4 flex items-center gap-2">
+          <h3 className="text-base font-semibold text-foreground">{name}</h3>
+          {badge}
+        </div>
+        <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{subtitle}</p>
       </div>
-      <div className={`relative z-10 mt-6 flex ${btnRowClass}`}>{buttonEl}</div>
+
+      <div className="relative z-10 mt-5 flex justify-start">
+        <button
+          type="button"
+          onClick={onClick}
+          className="inline-flex cursor-pointer items-center gap-1 text-xs font-semibold"
+          style={{ color: accent }}
+        >
+          Browse Material
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+        </button>
+      </div>
     </div>
   );
 }
+
 
 function MaterialCard({ m, onPreview }: { m: StoredMaterial; onPreview: (m: StoredMaterial) => void }) {
   return (
