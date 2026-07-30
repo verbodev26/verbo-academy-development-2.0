@@ -1318,7 +1318,8 @@ function StudentDashboard() {
                   </section>
 
                   {/* Your rating */}
-                  <section>
+                  <section className="vc-rise" style={{ animationDelay: "0.4s" }}>
+
                     <SectionHeadIcon
                       icon={<Star className="h-4 w-4" />}
                       circleClass="bg-[var(--orange-100)] text-[var(--orange-600)]"
