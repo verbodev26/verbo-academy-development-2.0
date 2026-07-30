@@ -398,7 +398,7 @@ function StudentRequestsSection({
                   {kind === "reschedule" ? "Reschedule" : "Spotlight"}
                 </span>
                 {yourStudent && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#01304a] px-2 py-0.5 text-[10px] font-bold text-white">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-white">
                     <User className="h-3 w-3" /> Your Student
                   </span>
                 )}
