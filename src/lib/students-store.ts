@@ -247,6 +247,21 @@ export function openMysteryBox(studentId: string): boolean {
   return true;
 }
 
+/** The challenge already revealed by the Mystery Box and still pending
+ *  completion, if any. Lets a student reopen the box to see/complete it
+ *  without a new draw and without hitting the 24h cooldown. */
+export function activeMysteryBoxPick(studentId: string): string | null {
+  const u = USERS.find((x) => x.id === studentId);
+  const pick = u?.mystery_box_pick_id;
+  if (!pick) return null;
+  return hasCompletedChallenge(studentId, pick) ? null : pick;
+}
+
+/** Persist the challenge drawn by the Mystery Box as the active pick. */
+export function setMysteryBoxPick(studentId: string, challengeId: string): void {
+  persistStudentPatch(studentId, { mystery_box_pick_id: challengeId });
+}
+
 /* -------------------------------------------------------------------------- */
 /* Season (Verbo Flash) — per-season 24h cooldown, independent from Mystery    */
 /* Box, Lightning and other Seasons. Also tracks completion counter per        */

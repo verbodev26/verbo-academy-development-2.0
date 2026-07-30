@@ -62,6 +62,10 @@ export interface User {
   /** Timestamp of the last Mystery Box opening (Verbo Flash). Independent
    *  from the challenge-completion cooldown. */
   last_mystery_box_opened_at?: string | null;
+  /** Id of the challenge currently revealed by the Mystery Box and not yet
+   *  completed. Cleared implicitly on completion (we simply stop treating it
+   *  as "active" once the challenge is completed). */
+  mystery_box_pick_id?: string | null;
   /** Lightning-specific counters — independent from the traditional-bank
    *  24h cooldown so a student can complete both a Lightning and a normal
    *  challenge in the same day. */
