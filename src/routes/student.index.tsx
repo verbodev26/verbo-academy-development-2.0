@@ -1214,12 +1214,19 @@ function StudentDashboard() {
             if (isUpcoming) {
               return (
                 <>
-                  <DialogHeader>
-                    <DialogTitle style={{ color: "#01304a" }}>Session Details</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    {headerBlock}
-                    <section>
+                  <AccentModalHeader
+                    background="#6264A7"
+                    iconTint="#6264A7"
+                    icon={CalendarClock}
+                    eyebrow="UPCOMING SESSION"
+                    title="Session Details"
+                    watermark={{ type: "icon", icon: CalendarClock }}
+                    onClose={() => setClassDetail(null)}
+                  />
+                  <div className="space-y-4 px-6 py-5">
+                    <div className="vc-rise" style={{ animationDelay: "0.25s" }}>{headerBlock}</div>
+                    <section className="vc-rise" style={{ animationDelay: "0.3s" }}>
+
                       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         What we'll cover
                       </h4>
