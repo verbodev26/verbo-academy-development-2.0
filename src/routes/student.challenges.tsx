@@ -1890,7 +1890,9 @@ function LightningRevealModal({
   acceptedCount: number;
   hasPremiumAccess: boolean;
   completed: boolean;
-  onComplete: () => void;
+  onSubmit: () => void;
+  onResubmit: () => void;
+  submission: ChallengeSubmission | null;
   onClose: () => void;
 }) {
   const remaining = expiresAt ? +new Date(expiresAt) - nowTick : 0;
