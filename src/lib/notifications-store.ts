@@ -70,6 +70,7 @@ export type NotificationKind =
   | "student_challenge_selected"
   | "student_shared_challenge_result"
   | "spotlight_cancelled"
+  | "challenge_pending_review"
   // admin-facing
   | "needs_substitute"
   | "release_request"
@@ -78,6 +79,7 @@ export type NotificationKind =
   | "student_report_filed"
   | "conduct_report_filed"
   | "financial_issue_reported"
+  | "challenge_flagged"
   // student-facing
   | "reschedule_request_updated"
   | "personalized_content_added"
@@ -88,7 +90,10 @@ export type NotificationKind =
   | "club_opened"
   | "payment_or_sessions_ending_soon"
   | "new_challenge_available"
-  | "badge_unlocked";
+  | "badge_unlocked"
+  | "challenge_needs_resubmission"
+  | "challenge_submission_approved"
+  | "challenge_submission_rejected";
 
 
 export interface Notification {
