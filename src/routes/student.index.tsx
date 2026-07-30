@@ -1148,9 +1148,11 @@ function StudentDashboard() {
 
       {/* Class Details Modal — unified view (replaces the old standalone
           "Session Performance Breakdown" popup and the row-level icons). */}
-      <Dialog open={!!classDetail} onOpenChange={(o) => !o && setClassDetail(null)}>
-        <DialogContent className="max-w-lg">
-          {classDetail && (() => {
+      {classDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" onClick={() => setClassDetail(null)}>
+          <div onClick={(e) => e.stopPropagation()} className="max-h-[90vh] w-full max-w-lg overflow-hidden overflow-y-auto rounded-2xl bg-card shadow-floating">
+          {(() => {
+
             const s = classDetail;
             const teacher = userById(s.teacher_id);
             const plan: LessonPlan | undefined = getLessonPlan(s.id);
