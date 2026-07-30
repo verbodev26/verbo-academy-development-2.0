@@ -21,7 +21,7 @@ import { unitsForStudent } from "@/lib/vip-courses-store";
 import { tailoredUnitsForStudent } from "@/lib/tailored-content-store";
 import { subscribeVipUnits, subscribeVipUnitCompletion } from "@/lib/vip-courses-store";
 import { useComputedMacros } from "@/components/verbo/PerformanceAnalytics";
-import { GhostButton, Pill, PhotoPlaceholder, PrimaryButton, SectionTitle, StatRing, SuccessButton } from "@/components/verbo/ui";
+import { AccentModalHeader, GhostButton, Pill, PhotoPlaceholder, PrimaryButton, SectionTitle, StatRing, SuccessButton } from "@/components/verbo/ui";
 import {
   ArrowDown,
   ArrowRight,
@@ -31,6 +31,9 @@ import {
   Award,
   BookOpen,
   CalendarClock,
+  CheckCircle2,
+  Clock,
+
   Download,
   Medal,
   NotebookPen,
@@ -85,13 +88,6 @@ const MACRO_ICON_ASSETS: Record<string, string> = {
   Reading: bookIconAsset.url,
 };
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 
 
 export const Route = createFileRoute("/student/")({
@@ -1152,9 +1148,11 @@ function StudentDashboard() {
 
       {/* Class Details Modal — unified view (replaces the old standalone
           "Session Performance Breakdown" popup and the row-level icons). */}
-      <Dialog open={!!classDetail} onOpenChange={(o) => !o && setClassDetail(null)}>
-        <DialogContent className="max-w-lg">
-          {classDetail && (() => {
+      {classDetail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" onClick={() => setClassDetail(null)}>
+          <div onClick={(e) => e.stopPropagation()} className="max-h-[90vh] w-full max-w-lg overflow-hidden overflow-y-auto rounded-2xl bg-card shadow-floating">
+          {(() => {
+
             const s = classDetail;
             const teacher = userById(s.teacher_id);
             const plan: LessonPlan | undefined = getLessonPlan(s.id);
@@ -1182,31 +1180,53 @@ function StudentDashboard() {
             }
             const hasRealPdf = !!s.report_pdf_url && s.report_pdf_url !== "/mock-report.pdf";
             const isUpcoming = s.status === "scheduled" || s.status === "rescheduled" || s.status === "ready";
+            const d = new Date(s.date_time);
             const headerBlock = (
-              <div className="rounded-lg border border-border bg-secondary/40 p-3 text-xs">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <div className="text-sm font-semibold text-foreground">{fmt(s.date_time)}</div>
-                    <div className="mt-0.5 text-muted-foreground">
-                      {s.duration_minutes} min · with {teacher?.name ?? "Teacher"}
+              <div className="space-y-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <div className="rounded-lg border border-border bg-background px-3 py-2">
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      <CalendarClock className="h-3.5 w-3.5" /> Date
+                    </div>
+                    <div className="mt-0.5 text-sm font-medium text-foreground">
+                      {d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
                     </div>
                   </div>
+                  <div className="rounded-lg border border-border bg-background px-3 py-2">
+                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      <Clock className="h-3.5 w-3.5" /> Time
+                    </div>
+                    <div className="mt-0.5 text-sm font-medium text-foreground">
+                      {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · {s.duration_minutes} min
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <span className={statusBadge(s.status)}>{s.status}</span>
+                  <span>with {teacher?.name ?? "Teacher"}</span>
                 </div>
                 {isAbsent && absentMsg && (
-                  <div className="mt-2 text-muted-foreground">{absentMsg}.</div>
+                  <div className="text-xs text-muted-foreground">{absentMsg}.</div>
                 )}
               </div>
             );
+
             if (isUpcoming) {
               return (
                 <>
-                  <DialogHeader>
-                    <DialogTitle style={{ color: "#01304a" }}>Session Details</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    {headerBlock}
-                    <section>
+                  <AccentModalHeader
+                    background="#6264A7"
+                    iconTint="#6264A7"
+                    icon={CalendarClock}
+                    eyebrow="UPCOMING SESSION"
+                    title="Session Details"
+                    watermark={{ type: "icon", icon: CalendarClock }}
+                    onClose={() => setClassDetail(null)}
+                  />
+                  <div className="space-y-4 px-6 py-5">
+                    <div className="vc-rise" style={{ animationDelay: "0.25s" }}>{headerBlock}</div>
+                    <section className="vc-rise" style={{ animationDelay: "0.3s" }}>
+
                       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                         What we'll cover
                       </h4>
@@ -1227,7 +1247,7 @@ function StudentDashboard() {
                       )}
                     </section>
                   </div>
-                  <DialogFooter className="gap-2 sm:gap-2">
+                  <div className="flex flex-wrap justify-end gap-2 border-t border-border bg-secondary/30 px-6 py-4">
                     <GhostButton
                       onClick={() => { setClassDetail(null); setCantAttendFor(s); }}
                     >
@@ -1239,34 +1259,27 @@ function StudentDashboard() {
                     >
                       <Video className="h-3.5 w-3.5" /> Connect
                     </PrimaryButton>
-                  </DialogFooter>
+                  </div>
                 </>
               );
             }
             return (
               <>
-                <DialogHeader>
-                  <DialogTitle style={{ color: "#01304a" }}>Session Details</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  {/* Header block */}
-                  <div className="rounded-lg border border-[var(--navy-100)] bg-[var(--navy-50)] p-3 text-xs">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div>
-                        <div className="text-sm font-semibold text-foreground">{fmt(s.date_time)}</div>
-                        <div className="mt-0.5 text-muted-foreground">
-                          {s.duration_minutes} min · with {teacher?.name ?? "Teacher"}
-                        </div>
-                      </div>
-                      <span className={statusBadge(s.status)}>{s.status}</span>
-                    </div>
-                    {isAbsent && absentMsg && (
-                      <div className="mt-2 text-muted-foreground">{absentMsg}.</div>
-                    )}
-                  </div>
+                <AccentModalHeader
+                  background="#16a34a"
+                  iconTint="#16a34a"
+                  icon={CheckCircle2}
+                  eyebrow="COMPLETED SESSION"
+                  title="Session Details"
+                  watermark={{ type: "icon", icon: CheckCircle2 }}
+                  onClose={() => setClassDetail(null)}
+                />
+                <div className="space-y-4 px-6 py-5">
+                  <div className="vc-rise" style={{ animationDelay: "0.25s" }}>{headerBlock}</div>
 
                   {/* What we covered */}
-                  <section>
+                  <section className="vc-rise" style={{ animationDelay: "0.3s" }}>
+
                     <SectionHeadIcon
                       icon={<BookOpen className="h-4 w-4" />}
                       circleClass="bg-[var(--navy-100)] text-[#01304a]"
@@ -1290,7 +1303,8 @@ function StudentDashboard() {
                   </section>
 
                   {/* Teacher's notes */}
-                  <section>
+                  <section className="vc-rise" style={{ animationDelay: "0.35s" }}>
+
                     <SectionHeadIcon
                       icon={<NotebookPen className="h-4 w-4" />}
                       circleClass="bg-[var(--orange-100)] text-[var(--orange-600)]"
@@ -1304,7 +1318,8 @@ function StudentDashboard() {
                   </section>
 
                   {/* Your rating */}
-                  <section>
+                  <section className="vc-rise" style={{ animationDelay: "0.4s" }}>
+
                     <SectionHeadIcon
                       icon={<Star className="h-4 w-4" />}
                       circleClass="bg-[var(--orange-100)] text-[var(--orange-600)]"
@@ -1318,7 +1333,7 @@ function StudentDashboard() {
                   </section>
 
                   {/* Performance breakdown */}
-                  <section>
+                  <section className="vc-rise" style={{ animationDelay: "0.45s" }}>
                     <SectionHeadIcon
                       icon={<Award className="h-4 w-4" />}
                       circleClass="bg-[var(--violet-100)] text-[var(--violet-700)]"
@@ -1339,7 +1354,7 @@ function StudentDashboard() {
                   </section>
                 </div>
 
-                <DialogFooter className="gap-2 sm:gap-2">
+                <div className="flex flex-wrap justify-end gap-2 border-t border-border bg-secondary/30 px-6 py-4">
                   <GhostButton
                     disabled={!hasRealPdf}
                     title={!hasRealPdf ? "Coming soon" : undefined}
@@ -1347,13 +1362,21 @@ function StudentDashboard() {
                   >
                     <Download className="h-3.5 w-3.5" /> Download report
                   </GhostButton>
-                  <PrimaryButton className="verbo-btn-glow" onClick={() => setClassDetail(null)}>Close</PrimaryButton>
-                </DialogFooter>
+                  <PrimaryButton
+                    className="verbo-btn-glow"
+                    style={{ backgroundColor: "#16a34a", color: "#fff" }}
+                    onClick={() => setClassDetail(null)}
+                  >
+                    Close
+                  </PrimaryButton>
+                </div>
               </>
             );
           })()}
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      )}
+
 
     </div>
   );

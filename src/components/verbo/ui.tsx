@@ -1,5 +1,96 @@
 import type { ReactNode } from "react";
-import { UserRound } from "lucide-react";
+import { UserRound, X } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+/** Watermark variants supported by AccentModalHeader. */
+export type AccentWatermark =
+  | { type: "text"; value: string }
+  | { type: "icon"; icon: LucideIcon }
+  | { type: "image"; src: string };
+
+/**
+ * Shared compact modal header with a solid/gradient accent background,
+ * animated decorative blobs, a bleeding watermark and a white logo square.
+ * Visual language mirrors the ChallengeDetail modal header.
+ */
+export function AccentModalHeader({
+  background,
+  iconTint,
+  icon: Icon,
+  eyebrow,
+  title,
+  watermark,
+  onClose,
+}: {
+  background: string;
+  iconTint: string;
+  icon: LucideIcon;
+  eyebrow: string;
+  title: ReactNode;
+  watermark?: AccentWatermark;
+  onClose: () => void;
+}) {
+  return (
+    <div className="relative overflow-hidden px-4 py-4" style={{ background }}>
+      {/* Decorative blobs */}
+      <div
+        className="vc-blob pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full blur-2xl"
+        style={{ background: "radial-gradient(circle, rgba(255,255,255,0.45), transparent 70%)" }}
+        aria-hidden
+      />
+      <div
+        className="vc-blob pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full blur-2xl"
+        style={{ background: "radial-gradient(circle, rgba(0,0,0,0.35), transparent 70%)", animationDelay: "0.1s" }}
+        aria-hidden
+      />
+      {/* Watermark bleeding out of the top-right corner, behind everything */}
+      {watermark && (
+        <div className="pointer-events-none absolute -right-4 -top-4 select-none" aria-hidden>
+          {watermark.type === "text" && (
+            <span className="block text-[92px] font-black uppercase leading-none tracking-tighter text-white/10">
+              {watermark.value}
+            </span>
+          )}
+          {watermark.type === "icon" && (
+            <watermark.icon className="h-[92px] w-[92px] text-white/[0.14]" strokeWidth={1.5} />
+          )}
+          {watermark.type === "image" && (
+            <img src={watermark.src} alt="" className="h-[92px] w-[92px] object-contain opacity-[0.14]" />
+          )}
+        </div>
+      )}
+
+      <div className="relative z-10">
+        <div className="flex items-start justify-between gap-3">
+          <div className="vc-logo flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-sm">
+            <Icon className="h-5 w-5" style={{ color: iconTint }} />
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="rounded-full border border-white/40 p-1.5 text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div
+          className="vc-rise mt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70"
+          style={{ animationDelay: "0.15s" }}
+        >
+          {eyebrow}
+        </div>
+        <h2
+          className="vc-rise mt-1 text-lg font-semibold tracking-tight text-white"
+          style={{ animationDelay: "0.2s" }}
+        >
+          {title}
+        </h2>
+      </div>
+    </div>
+  );
+}
+
 
 // TODO: reemplazar con foto real
 export function PhotoPlaceholder({
