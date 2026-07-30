@@ -873,17 +873,21 @@ function SpotlightFormModal({ studentId, onClose }: { studentId: string; onClose
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md rounded-2xl bg-card p-6 shadow-floating">
-        <button onClick={onClose} aria-label="Close" className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"><X className="h-4 w-4" /></button>
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#ccf1eb] text-[#0d9488]">
-            <Sparkles className="h-5 w-5" />
-          </div>
-          <h3 className="text-lg font-semibold tracking-tight" style={{ color: "#01304a" }}>Request a Spotlight Session</h3>
-        </div>
-        <p className="mt-2 text-xs text-muted-foreground">
+      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-floating">
+        <AccentModalHeader
+          background="#0d9488"
+          iconTint="#0d9488"
+          icon={Sparkles}
+          eyebrow="SPOTLIGHT SESSION"
+          title="Request a Spotlight Session"
+          watermark={{ type: "icon", icon: Sparkles }}
+          onClose={onClose}
+        />
+        <div className="px-6 py-5">
+        <p className="vc-rise text-xs text-muted-foreground" style={{ animationDelay: "0.25s" }}>
           Pick one of the available start times. Spotlight sessions are always <strong>60 min</strong>, and require at least 24h notice.
         </p>
+
         <div className="mt-4 rounded-2xl border border-[var(--navy-100)] bg-[var(--navy-50)] p-4">
           <div>
             <label className="text-xs font-medium text-foreground">Date</label>
