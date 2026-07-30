@@ -598,13 +598,13 @@ function EventDetailsModal({
                 items={[
                   {
                     icon: CalendarClock,
-                    value: event.date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+                    value: new Date(event.date).toLocaleDateString([], { month: "short", day: "numeric" }),
                     label: "Date",
                     tint: theme.solid,
                   },
                   {
                     icon: Clock,
-                    value: event.date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+                    value: new Date(event.date).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
                     label: "Time",
                     tint: theme.solid,
                   },
