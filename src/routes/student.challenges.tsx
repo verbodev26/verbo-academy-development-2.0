@@ -148,6 +148,7 @@ const MYSTERY_COOLDOWN_MSG =
   "You've already opened today's Mystery Box — come back tomorrow!";
 
 import { PREMIUM_ACCESS, PremiumBadge, AccessGateNotice } from "@/components/verbo/PremiumGate";
+import { ReportContentIssueModal } from "@/components/verbo/ReportContentIssueModal";
 
 
 
@@ -1618,6 +1619,8 @@ function ChallengeDetail({
   onResubmit: () => void;
   submission: ChallengeSubmission | null;
 }) {
+  const { user } = useAuth();
+  const [issueOpen, setIssueOpen] = useState(false);
   const locked = !!challenge.premium && !hasPremiumAccess;
   const onCooldown = !completed && chosen && cooldownRemaining !== null;
   const theme = categoryTheme(challenge.category);
@@ -1666,6 +1669,17 @@ function ChallengeDetail({
             </span>
             <div className="flex items-center gap-2">
               {challenge.premium && <PremiumBadge />}
+              {user && (
+                <button
+                  className="verbo-report-btn"
+                  onClick={() => setIssueOpen(true)}
+                  aria-label="Report"
+                  title="Report a technical issue"
+                >
+                  <span className="sign"><ShieldAlert className="h-4 w-4" /></span>
+                  <span className="text">Report</span>
+                </button>
+              )}
               <button
                 onClick={onClose}
                 className="flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20 hover:text-white"
