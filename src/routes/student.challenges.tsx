@@ -63,6 +63,8 @@ import {
   subscribeStudents,
   openMysteryBox,
   mysteryBoxCooldownRemaining,
+  activeMysteryBoxPick,
+  setMysteryBoxPick,
 } from "@/lib/students-store";
 import {
   type FlashChallenge,
