@@ -34,7 +34,9 @@ export function markBadgeUnlockSeen(studentId: string, badgeStorageId: string): 
   if (seen.includes(badgeStorageId)) return false;
   try {
     localStorage.setItem(keyFor(studentId), JSON.stringify([...seen, badgeStorageId]));
+    window.dispatchEvent(new CustomEvent(BADGE_UNLOCK_SEEN_EVENT));
   } catch {
+
     /* noop */
   }
   return true;
