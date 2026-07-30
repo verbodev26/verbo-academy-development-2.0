@@ -555,6 +555,12 @@ Mapa `` `${teacherId}:${studentId}` → note: string ``. ⚠️ `teacherIsTitula
 Solo se persiste el estado de lectura (`ReadMap: Record<userId, Record<notificationId, true>>`). La lista de notificaciones se recalcula on-demand a partir de Sessions, Clubs, AvailabilityChangeRequests, Strikes, KPIs, Announcements, FinancialIssues, StudentReports y Badges (earned vs. seen).
 `NotificationKind` — ver §12. Incluye `badge_unlocked` (student-facing): se deriva comparando `computeAllEarnedBadges(student)` (`src/lib/badge-unlock.ts`) contra `badge-unlock-seen-store.ts`; su payload es `data.badgeStorageId` y al hacer clic abre `BadgeUnlockModal` y marca el badge como visto (evento `BADGE_UNLOCK_SEEN_EVENT`). Campo `data?: { studentId?, challengeId?, badgeStorageId? }`.
 
+Derivaciones de `ChallengeSubmission` (todas leen `User.challenge_submissions`, mismo mecanismo de visto/no-visto por `ReadMap`):
+- `challenge_pending_review` (profesor) — una por cada entrega en `pending_review` de su roster (`ASSIGNMENTS`); `data.studentId`/`data.challengeId`, navega a `/teacher/challenges`.
+- `challenge_needs_resubmission` / `challenge_submission_approved` / `challenge_submission_rejected` (alumno) — según el `status` de su propia entrega; incluyen `teacher_feedback` en el body cuando existe.
+- `challenge_flagged` (admin) — una por cada entrega `rejected`, con `data.studentId`/`data.challengeId` para abrir el modal de detalle desde la campana (mismo handler que `student_shared_challenge_result`).
+
+
 ### `ActivityEntry` (`src/lib/activity-logs-store.ts`) — **derivado, no persistido**
 Log de actividad administrativa (Super Admin), recomputado on-demand. `id, kind: ActivityKind, action, detail, timestamp, actorId, actorName, actorRole, personId?`.
 ⚠️ `personId` es un único campo que apunta indistintamente a `student_id` o `teacher_id` sin discriminador explícito en el objeto (solo se infiere por `kind`).
