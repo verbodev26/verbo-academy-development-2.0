@@ -463,7 +463,7 @@ function Page() {
                   key={c.id}
                   difficulty={difficulty}
                   category={c.category}
-
+                  className="group h-full transition-transform duration-300 ease-out hover:-translate-y-1.5"
                   motifClassName="h-24 w-24 opacity-60"
                   contentClassName="flex h-full flex-col gap-3 p-5 text-left"
                 >
