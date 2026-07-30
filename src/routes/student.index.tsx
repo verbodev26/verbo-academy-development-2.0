@@ -88,13 +88,6 @@ const MACRO_ICON_ASSETS: Record<string, string> = {
   Reading: bookIconAsset.url,
 };
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 
 
 export const Route = createFileRoute("/student/")({
