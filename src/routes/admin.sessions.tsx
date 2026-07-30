@@ -5,7 +5,9 @@ import {
   loadSessions,
   persistSessions,
   subscribeSessions,
+  WORKSHOP_STATUS_META,
   type ExtSession,
+
   type ExtSessionStatus,
 } from "@/lib/sessions-store";
 import {
