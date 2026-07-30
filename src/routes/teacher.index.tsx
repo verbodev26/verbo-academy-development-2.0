@@ -466,96 +466,83 @@ function TeacherDashboard() {
 
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Link to="/teacher/students" className="block cursor-pointer">
-          <HeroStatCard
-            className="card-gradient-teal"
-            decorative={
-              <div
-                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-                style={{ background: "rgba(255,255,255,0.10)", transform: "rotate(14deg)" }}
-                aria-hidden
-              />
-            }
-          >
+          <HeroStatCard className="border border-border bg-card">
+            <div
+              className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
+              style={{ color: "#1f7a70", background: "rgba(62,187,173,0.14)" }}
+            >
+              <Users className="h-5 w-5" />
+            </div>
             <div className="relative w-full">
-              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Assigned Students
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none text-white">
+              <div className="mt-2 text-5xl font-bold leading-none" style={{ color: "#1f7a70" }}>
                 <AnimatedNumber value={students.length} />
               </div>
             </div>
           </HeroStatCard>
         </Link>
         <Link to="/teacher/calendar" className="block cursor-pointer">
-          <HeroStatCard
-            className="card-gradient-orchid"
-            decorative={
-              <div
-                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-                style={{ background: "rgba(255,255,255,0.10)", transform: "rotate(14deg)" }}
-                aria-hidden
-              />
-            }
-          >
+          <HeroStatCard className="border border-border bg-card">
+            <div
+              className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
+              style={{ color: "#a34ac0", background: "rgba(163,74,192,0.12)" }}
+            >
+              <CalendarDays className="h-5 w-5" />
+            </div>
             <div className="relative w-full">
-              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Upcoming Sessions
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none text-white">
+              <div className="mt-2 text-5xl font-bold leading-none" style={{ color: "#a34ac0" }}>
                 <AnimatedNumber value={upcoming7dCount} />
               </div>
-              <div className="mt-2 text-xs font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>next 7 days</div>
+              <div className="mt-2 text-xs font-medium text-muted-foreground">next 7 days</div>
             </div>
           </HeroStatCard>
         </Link>
         <button type="button" onClick={() => setShowRatingTrend(true)} className="block cursor-pointer text-left">
-          <HeroStatCard
-            className={
-              avgRating30 == null ? "card-gradient-crimson"
-              : avgRating30 >= 4.0 ? "card-gradient-green"
-              : avgRating30 >= 3.5 ? "card-gradient-lime"
-              : avgRating30 >= 2.5 ? "card-gradient-gold"
-              : "card-gradient-crimson"
-            }
-            decorative={
-              <div
-                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-                style={{ background: "rgba(255,255,255,0.10)", transform: "rotate(14deg)" }}
-                aria-hidden
-              />
-            }
-          >
+          <HeroStatCard className="border border-border bg-card">
+            <div
+              className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
+              style={{ color: ratingBand(avgRating30).fg, background: ratingBand(avgRating30).bg }}
+            >
+              <Star className="h-5 w-5" />
+            </div>
             <div className="relative w-full">
-              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Avg Rating
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none text-white">
+              <div className="mt-2 text-5xl font-bold leading-none" style={{ color: ratingBand(avgRating30).fg }}>
                 {avgRating30 != null ? `${avgRating30.toFixed(1)}★` : "—"}
               </div>
-              <div className="mt-2 text-xs font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>last 30 days · view trend</div>
+              <div className="mt-2 text-xs font-medium text-muted-foreground">last 30 days · view trend</div>
             </div>
           </HeroStatCard>
         </button>
         <Link to="/teacher/financial" className="group block">
-          <HeroStatCard
-            className={
-              warningLevel === "none" ? "card-gradient-green"
-              : warningLevel === "yellow" ? "card-gradient-gold"
-              : "card-gradient-crimson"
-            }
-            decorative={
-              <div
-                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-                style={{ background: "rgba(255,255,255,0.10)", transform: "rotate(14deg)" }}
-                aria-hidden
-              />
-            }
-          >
+          <HeroStatCard className="border border-border bg-card">
+            <div
+              className={`absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl ${
+                warningLevel === "none" ? "bg-success/15 text-success"
+                : warningLevel === "yellow" ? "bg-warning/20 text-amber-700"
+                : "bg-destructive/15 text-destructive"
+              }`}
+            >
+              <Trophy className="h-5 w-5" />
+            </div>
             <div className="relative w-full">
-              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Performance
               </div>
-              <div className="mt-2 text-6xl font-bold leading-none text-white">
+              <div
+                className={`mt-2 text-6xl font-bold leading-none ${
+                  warningLevel === "none" ? "text-success"
+                  : warningLevel === "yellow" ? "text-amber-700"
+                  : "text-destructive"
+                }`}
+              >
                 <AnimatedNumber value={kpis?.composite ?? 0} suffix="%" />
                 {kpis?.onboarding && (
                   <span className="ml-2 rounded-full bg-white/85 px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wider text-blue-700">
@@ -563,7 +550,7 @@ function TeacherDashboard() {
                   </span>
                 )}
               </div>
-              <div className="mt-2 text-xs font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>
+              <div className="mt-2 text-xs font-medium text-muted-foreground">
                 Composite Score · view balance
               </div>
             </div>
@@ -571,6 +558,7 @@ function TeacherDashboard() {
           </HeroStatCard>
         </Link>
       </section>
+
 
       {/* Compressed action cards */}
       <section className="grid gap-4 md:grid-cols-3">
