@@ -665,9 +665,8 @@ function TeacherDashboard() {
           onClose={() => setOpenPanel(null)}
         >
           <div className="max-h-[65vh] overflow-y-auto p-4">
-
-        <SectionTitle>Needs Your Attention</SectionTitle>
         <Card className="!p-0">
+
           {attention.length === 0 ? (
             <div className="flex items-center gap-2 px-6 py-6 text-sm text-muted-foreground">
               <CheckCircle2 className="h-4 w-4 text-success" /> You're all caught up.
