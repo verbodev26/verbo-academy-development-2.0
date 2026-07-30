@@ -590,7 +590,7 @@ function StudentDashboard() {
                 <div className="mt-3 flex items-baseline gap-2">
                   <AnimatedNumber
                     value={attendancePct}
-                    className="text-6xl font-bold leading-none tracking-tight"
+                    className="text-6xl font-bold leading-none tracking-tight text-white"
                   />
                   <span className="text-2xl font-bold" style={{ color: "#ffffff" }}>%</span>
                 </div>
