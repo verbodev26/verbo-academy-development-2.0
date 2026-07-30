@@ -292,7 +292,7 @@ function StudentCard({ student: s, onOpen }: { student: User; onOpen: () => void
         {(() => {
           const gi = groupOfStudent(s.id);
           return gi ? (
-            <Tag className="bg-[#01304a] text-white">Group: {gi.group.name}</Tag>
+            <Tag className="bg-primary text-primary-foreground">Group: {gi.group.name}</Tag>
           ) : null;
         })()}
       </div>
