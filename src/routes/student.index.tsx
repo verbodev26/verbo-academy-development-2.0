@@ -31,6 +31,9 @@ import {
   Award,
   BookOpen,
   CalendarClock,
+  CheckCircle2,
+  Clock,
+
   Download,
   Medal,
   NotebookPen,
