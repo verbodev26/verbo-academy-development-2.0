@@ -115,6 +115,35 @@ export function AccentModalHeader({
   );
 }
 
+/**
+ * Stats row with icons, designed to replace plain Date/Time rectangles in modals.
+ * Icon on top, large value in the middle, small label below; vertical dividers between columns.
+ */
+export function InfoStatRow({
+  items,
+}: {
+  items: { icon: LucideIcon; value: ReactNode; label: string; tint?: string }[];
+}) {
+  return (
+    <div className="flex items-stretch divide-x divide-border rounded-xl border border-border bg-secondary/30 py-3">
+      {items.map((item, i) => {
+        const Icon = item.icon;
+        return (
+          <div key={i} className="flex flex-1 flex-col items-center justify-center px-2 text-center">
+            <Icon className="h-4 w-4" style={{ color: item.tint ?? "var(--muted-foreground)" }} />
+            <div className="mt-1 text-sm font-semibold text-foreground">{item.value}</div>
+            <div className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              {item.label}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+
+
 
 // TODO: reemplazar con foto real
 export function PhotoPlaceholder({
