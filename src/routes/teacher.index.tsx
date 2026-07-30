@@ -503,18 +503,18 @@ function TeacherDashboard() {
           </HeroStatCard>
         </Link>
         <button type="button" onClick={() => setShowRatingTrend(true)} className="block cursor-pointer text-left">
-          <HeroStatCard className="border border-border bg-card">
-            <div
-              className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
-              style={{ color: ratingBand(avgRating30).fg, background: ratingBand(avgRating30).bg }}
-            >
+          <HeroStatCard
+            className="verbo-focus-pulse !items-start border border-border bg-card"
+            style={{ ["--verbo-focus-pulse-color" as any]: ratingGlow } as React.CSSProperties}
+          >
+            <div className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
               <Star className="h-5 w-5" />
             </div>
             <div className="relative w-full">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Avg Rating
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none" style={{ color: ratingBand(avgRating30).fg }}>
+              <div className="mt-2 text-5xl font-bold leading-none text-foreground">
                 {avgRating30 != null ? `${avgRating30.toFixed(1)}★` : "—"}
               </div>
               <div className="mt-2 text-xs font-medium text-muted-foreground">last 30 days · view trend</div>
@@ -522,27 +522,18 @@ function TeacherDashboard() {
           </HeroStatCard>
         </button>
         <Link to="/teacher/financial" className="group block">
-          <HeroStatCard className="border border-border bg-card">
-            <div
-              className={`absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl ${
-                warningLevel === "none" ? "bg-success/15 text-success"
-                : warningLevel === "yellow" ? "bg-warning/20 text-amber-700"
-                : "bg-destructive/15 text-destructive"
-              }`}
-            >
+          <HeroStatCard
+            className="verbo-focus-pulse !items-start border border-border bg-card"
+            style={{ ["--verbo-focus-pulse-color" as any]: performanceGlow } as React.CSSProperties}
+          >
+            <div className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
               <Trophy className="h-5 w-5" />
             </div>
             <div className="relative w-full">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Performance
               </div>
-              <div
-                className={`mt-2 text-6xl font-bold leading-none ${
-                  warningLevel === "none" ? "text-success"
-                  : warningLevel === "yellow" ? "text-amber-700"
-                  : "text-destructive"
-                }`}
-              >
+              <div className="mt-2 text-6xl font-bold leading-none text-foreground">
                 <AnimatedNumber value={kpis?.composite ?? 0} suffix="%" />
                 {kpis?.onboarding && (
                   <span className="ml-2 rounded-full bg-white/85 px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wider text-blue-700">
@@ -557,6 +548,7 @@ function TeacherDashboard() {
 
           </HeroStatCard>
         </Link>
+
       </section>
 
 
