@@ -283,3 +283,29 @@ export function eventPillDisplay(ev: CalendarEvent): { color: string; short: str
     : "";
   return { color, short: ev.is_group ? "G" : kind.short, cellLabel };
 }
+
+/** Accent theme for MODAL HEADERS only (pills stay flat, see EVENT_KIND_META).
+ *  `background` may be a solid hex or a CSS gradient; `solid` is always a hex
+ *  usable for icon tints and text. Status overrides only apply to the kinds
+ *  that carry an ExtSessionStatus. */
+export function calendarEventTheme(ev: CalendarEvent): { background: string; solid: string } {
+  const byKind: Record<CalendarEventKind, { background: string; solid: string }> = {
+    class:     { background: "#6d28d9", solid: "#6d28d9" },
+    workshop:  { background: "#7c3aed", solid: "#7c3aed" },
+    insight:   { background: "linear-gradient(135deg, #01304a 0%, #05070a 100%)", solid: "#01304a" },
+    book_club: { background: "#c2410c", solid: "#c2410c" },
+    spotlight: { background: "#2dd4bf", solid: "#2dd4bf" },
+  };
+  const supportsStatus = ev.kind === "class" || ev.kind === "workshop" || ev.kind === "spotlight";
+  if (supportsStatus) {
+    switch (ev.status as ExtSessionStatus | undefined) {
+      case "rescheduled":
+        return { background: "linear-gradient(135deg, #fbbf24 0%, #f97316 100%)", solid: "#f97316" };
+      case "cancelled":
+        return { background: "#64748b", solid: "#64748b" };
+      case "absent":
+        return { background: "linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)", solid: "#7f1d1d" };
+    }
+  }
+  return byKind[ev.kind];
+}
