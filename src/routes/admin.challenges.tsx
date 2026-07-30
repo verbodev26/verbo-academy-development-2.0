@@ -32,6 +32,8 @@ import {
   type Challenge,
   type ChallengeProductId,
   type DifficultyId,
+  type ChallengeSkillTag,
+
   PRODUCT_META,
   PRODUCT_ORDER,
   DIFFICULTY_META,
