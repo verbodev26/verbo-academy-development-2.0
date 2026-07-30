@@ -21,6 +21,9 @@ import {
   subscribeFlashConfig,
   loadLightning,
   subscribeLightning,
+  loadLightningTheme,
+  persistLightningTheme,
+  subscribeLightningTheme,
   activateLightning,
   endLightningEarly,
   type FlashSeason,
@@ -182,6 +185,24 @@ function MysteryBoxTab() {
           </div>
         </div>
       </Card>
+
+      {/* Banner theme */}
+      <BannerThemeCard
+        key={`mystery-theme-${JSON.stringify({
+          t: config.theme_image_url,
+          w: config.watermark_image_url,
+          a: config.accent_color,
+          b: config.accent_color_to,
+          f: config.fill_mode,
+          g: config.gradient_stops,
+        })}`}
+        title="Mystery Box banner"
+        description="Controls how the Mystery Box banner looks on the student side."
+        value={config}
+        onSave={(theme) => persistFlashConfig({ ...config, ...theme })}
+      />
+
+
 
       {/* Product selector */}
       <div className="flex flex-wrap gap-2">
@@ -525,6 +546,7 @@ function LightningTab() {
   const [selectedChallengeId, setSelectedChallengeId] = useState<string>("");
   const [durationHours, setDurationHours] = useState<number>(LIGHTNING_DEFAULT_HOURS);
   const [confirmEnd, setConfirmEnd] = useState(false);
+  const [lightningTheme, setLightningTheme] = useState(loadLightningTheme);
 
   useEffect(() => {
     setList(loadFlashChallenges());
@@ -533,8 +555,10 @@ function LightningTab() {
     const un1 = subscribeFlashChallenges(() => setList(loadFlashChallenges()));
     const un2 = subscribeCategories(() => setCategories(loadCategories()));
     const un3 = subscribeLightning(() => setLightning(loadLightning()));
+    setLightningTheme(loadLightningTheme());
+    const un4 = subscribeLightningTheme(() => setLightningTheme(loadLightningTheme()));
     const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => { un1(); un2(); un3(); clearInterval(t); };
+    return () => { un1(); un2(); un3(); un4(); clearInterval(t); };
   }, []);
 
   // Auto-flip status when expires_at passes.
@@ -588,6 +612,15 @@ function LightningTab() {
 
   return (
     <div className="space-y-6">
+      <BannerThemeCard
+        key={`lightning-theme-${JSON.stringify(lightningTheme)}`}
+        title="Lightning banner"
+        description="Controls how the Lightning banner looks on the student side."
+        value={lightningTheme}
+        onSave={(theme) => persistLightningTheme(theme)}
+      />
+
+
       {isLive && activeChallenge ? (
         <Card>
           <div className="flex flex-col gap-4 rounded-2xl bg-gradient-to-br from-[#1e3a8a] via-[#0284c7] to-[#facc15] p-6 text-white">
@@ -1308,3 +1341,191 @@ function SeasonModal({
   );
 }
 
+
+/* -------------------- Shared banner theme editor -------------------- */
+
+type BannerTheme = {
+  theme_image_url?: string;
+  watermark_image_url?: string;
+  accent_color?: string;
+  accent_color_to?: string;
+  fill_mode?: SeasonFillMode;
+  gradient_stops?: GradientStop[];
+};
+
+function BannerThemeCard({
+  title,
+  description,
+  value,
+  onSave,
+}: {
+  title: string;
+  description: string;
+  value: BannerTheme;
+  onSave: (theme: BannerTheme) => void;
+}) {
+  const [themeImageUrl, setThemeImageUrl] = useState(value.theme_image_url ?? "");
+  const [watermarkImageUrl, setWatermarkImageUrl] = useState(value.watermark_image_url ?? "");
+  const [accentColor, setAccentColor] = useState(value.accent_color ?? "#7e22ce");
+  const [accentColorTo, setAccentColorTo] = useState(value.accent_color_to ?? "");
+  const [fillMode, setFillMode] = useState<SeasonFillMode>(value.fill_mode ?? "solid");
+  const [stops, setStops] = useState<GradientStop[]>(
+    value.gradient_stops && value.gradient_stops.length >= 2
+      ? value.gradient_stops
+      : [
+          { color: value.accent_color || "#7e22ce", position: 0 },
+          { color: value.accent_color_to || "#111827", position: 100 },
+        ],
+  );
+
+  const updateStop = (i: number, patch: Partial<GradientStop>) =>
+    setStops((prev) => prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+  const addStop = () => setStops((prev) => [...prev, { color: "#ffffff", position: 50 }]);
+  const removeStop = (i: number) =>
+    setStops((prev) => (prev.length <= 2 ? prev : prev.filter((_, idx) => idx !== i)));
+
+  const barGradient = seasonGradientCss(
+    {
+      accent_color: accentColor,
+      accent_color_to: accentColorTo.trim() || undefined,
+      fill_mode: fillMode,
+      gradient_stops: stops,
+    },
+    90,
+  );
+
+  const handleSave = () =>
+    onSave({
+      theme_image_url: themeImageUrl.trim() || undefined,
+      watermark_image_url: watermarkImageUrl.trim() || undefined,
+      accent_color: accentColor || undefined,
+      accent_color_to: accentColorTo.trim() || undefined,
+      fill_mode: fillMode,
+      gradient_stops: fillMode === "gradient" ? stops : value.gradient_stops,
+    });
+
+  return (
+    <Card>
+      <div className="text-sm font-semibold text-foreground">{title}</div>
+      <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+
+      <div className="mt-4 space-y-4">
+        <Field label="Theme Image / GIF URL (optional)">
+          <input
+            value={themeImageUrl}
+            onChange={(e) => setThemeImageUrl(e.target.value)}
+            className={inputCls}
+            placeholder="https://... (image or .gif)"
+          />
+        </Field>
+
+        <Field label="Watermark Image URL (optional)">
+          <input
+            value={watermarkImageUrl}
+            onChange={(e) => setWatermarkImageUrl(e.target.value)}
+            className={inputCls}
+            placeholder="https://... (imagen con fondo transparente recomendada, ej. PNG)"
+          />
+          <div className="mt-1 text-[11px] text-muted-foreground">
+            Reemplaza el watermark de texto del banner. Se muestra del lado derecho, con opacidad
+            tenue. Si se deja vacío, se sigue usando el texto de fondo por defecto.
+          </div>
+        </Field>
+
+        <Field label="Background fill">
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setFillMode("solid")}
+              className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${fillMode === "solid" ? "border-accent bg-accent/10 text-foreground" : "border-border bg-background text-muted-foreground hover:bg-secondary"}`}
+            >
+              Solid color
+            </button>
+            <button
+              type="button"
+              onClick={() => setFillMode("gradient")}
+              className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${fillMode === "gradient" ? "border-accent bg-accent/10 text-foreground" : "border-border bg-background text-muted-foreground hover:bg-secondary"}`}
+            >
+              Gradient
+            </button>
+          </div>
+        </Field>
+
+        {fillMode === "solid" ? (
+          <Field label="Accent Color">
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={accentColor}
+                onChange={(e) => setAccentColor(e.target.value)}
+                className="h-10 w-16 cursor-pointer rounded-lg border border-border bg-background"
+              />
+              <input
+                value={accentColor}
+                onChange={(e) => setAccentColor(e.target.value)}
+                className={inputCls}
+                placeholder="#7e22ce"
+              />
+            </div>
+          </Field>
+        ) : (
+          <Field label="Color stops">
+            <div className="space-y-2">
+              {stops.map((stop, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={stop.color}
+                    onChange={(e) => updateStop(i, { color: e.target.value })}
+                    className="h-10 w-14 shrink-0 cursor-pointer rounded-lg border border-border bg-background"
+                  />
+                  <input
+                    value={stop.color}
+                    onChange={(e) => updateStop(i, { color: e.target.value })}
+                    className={inputCls}
+                    placeholder="#7e22ce"
+                  />
+                  <div className="flex shrink-0 items-center gap-1">
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={stop.position}
+                      onChange={(e) => updateStop(i, { position: Math.max(0, Math.min(100, Number(e.target.value) || 0)) })}
+                      className={`${inputCls} w-20`}
+                    />
+                    <span className="text-xs text-muted-foreground">%</span>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={stops.length <= 2}
+                    onClick={() => removeStop(i)}
+                    title={stops.length <= 2 ? "At least 2 stops required" : "Remove stop"}
+                    className="shrink-0 rounded-md p-2 text-muted-foreground hover:bg-secondary hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={addStop}
+              className="mt-2 rounded-lg border border-dashed border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground"
+            >
+              + Add color stop
+            </button>
+            <div className="mt-3">
+              <div className="mb-1 text-[11px] text-muted-foreground">Preview</div>
+              <div className="h-10 w-full rounded-lg border border-border" style={{ background: barGradient }} />
+            </div>
+          </Field>
+        )}
+
+        <div className="flex justify-end">
+          <PrimaryButton onClick={handleSave}>Save</PrimaryButton>
+        </div>
+      </div>
+    </Card>
+  );
+}

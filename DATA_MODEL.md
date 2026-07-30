@@ -421,7 +421,9 @@ Ranking del leaderboard: **global** — `USERS` filtrados solo por `role === "st
 - Si no (o `fill_mode === "solid"`) → fallback de compatibilidad: `accent_color → accent_color_to` cuando el segundo color existe, si no `accent_color → #111827`.
 - **`GradientStop`**: `{ color: string; position: number /* 0-100 */ }`. Mínimo 2 paradas; el editor de Admin no permite bajar de 2.
 
-**`FlashConfig`**: `{ box_art_url?: string }`.
+**`FlashConfig`** (key `verbo:flash-config`, evento `verbo:flash-config-updated`): `{ box_art_url?: string; theme_image_url?: string; watermark_image_url?: string; accent_color?: string; accent_color_to?: string; fill_mode?: SeasonFillMode; gradient_stops?: GradientStop[] }`. Los campos de tema son el tema visual del banner compacto de Mystery Box y se pintan con la misma `seasonGradientCss()`.
+
+**`LightningTheme`** (key `verbo:flash-lightning-theme`, evento `verbo:flash-lightning-theme-updated`; `loadLightningTheme` / `persistLightningTheme` / `subscribeLightningTheme`): `{ theme_image_url?, watermark_image_url?, accent_color?, accent_color_to?, fill_mode?, gradient_stops? }`. Tema **estático** del banner de Lightning, persistido aparte de `LightningState` (estado runtime de activación) para que sobreviva a activaciones/expiraciones. Devuelve `{}` cuando no hay nada guardado.
 
 ⚠️ `FlashProductId` (`"enterprise"|"go"|"international"`, **sin `"vip"`**) es inconsistente con `ChallengeProductId` de `challenges-store.ts` (sí incluye `"vip"`).
 

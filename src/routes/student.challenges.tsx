@@ -71,6 +71,8 @@ import {
   type LightningState,
   loadFlashChallenges,
   loadFlashConfig,
+  loadLightningTheme,
+  subscribeLightningTheme,
   subscribeFlashChallenges,
   subscribeFlashConfig,
   flashChallengesFor,
@@ -300,6 +302,7 @@ function Page() {
   const [lightningOpen, setLightningOpen] = useState<FlashChallenge | null>(null);
   const [nowTick, setNowTick] = useState(Date.now());
   const [seasons, setSeasons] = useState<FlashSeason[]>(loadSeasons);
+  const [lightningTheme, setLightningTheme] = useState(loadLightningTheme);
   const [seasonState, setSeasonState] = useState<
     { season: FlashSeason; opening: boolean; reveal: FlashChallenge | null; blocked: boolean } | null
   >(null);
@@ -316,8 +319,10 @@ function Page() {
     const un4 = subscribeFlashConfig(() => setFlashConfig(loadFlashConfig()));
     const un5 = subscribeLightning(() => setLightning(loadLightning()));
     const un6 = subscribeSeasons(() => setSeasons(loadSeasons()));
+    setLightningTheme(loadLightningTheme());
+    const un7 = subscribeLightningTheme(() => setLightningTheme(loadLightningTheme()));
     const timer = setInterval(() => setNowTick(Date.now()), 1000);
-    return () => { un1(); un2(); un3(); un4(); un5(); un6(); clearInterval(timer); };
+    return () => { un1(); un2(); un3(); un4(); un5(); un6(); un7(); clearInterval(timer); };
   }, []);
 
 
@@ -631,28 +636,40 @@ function Page() {
               const urgent = isLive && remaining > 0 && remaining < 60 * 60 * 1000;
               const ch = lightningChallenge;
 
+              const lightGradient = lightningTheme.accent_color
+                ? seasonGradientCss(lightningTheme)
+                : "linear-gradient(135deg, #1e3a8a, #0284c7, #facc15)";
+
               if (!isLive) {
                 return (
-                  <VerboFlashBanner
-                    background="linear-gradient(135deg, #1e3a8a, #0284c7, #facc15)"
+                  <CompactFlashBanner
+                    gradientCss={lightGradient}
+                    themeImageUrl={lightningTheme.theme_image_url}
+                    watermarkImageUrl={lightningTheme.watermark_image_url}
                     className="opacity-70 saturate-50"
                     eyebrow={completed ? "⚡ Completed" : "⚡ Expired — you missed this one"}
                     title={ch.title || "Lightning Challenge"}
                     status={completed ? "You completed this Lightning." : "This Lightning has passed. The next one could strike anytime — stay ready."}
-                    icon={<Zap className="h-20 w-20 text-white/80 drop-shadow-lg" strokeWidth={1.4} />}
+                    icon={<Zap className="h-10 w-10 text-white/80 drop-shadow-lg sm:h-12 sm:w-12" strokeWidth={1.4} />}
+                    available={false}
+                    actionLabel="Lightning Challenge"
                   />
                 );
               }
 
               return (
-                <VerboFlashBanner
-                  background="linear-gradient(135deg, #1e3a8a, #0284c7, #facc15)"
-                  className="verbo-lightning-live"
-                  style={{ animation: urgent ? "verbo-lightning-urgent 0.9s ease-in-out infinite" : "verbo-lightning-glow 1.8s ease-in-out infinite" }}
+                <CompactFlashBanner
+                  gradientCss={lightGradient}
+                  themeImageUrl={lightningTheme.theme_image_url}
+                  watermarkImageUrl={lightningTheme.watermark_image_url}
                   eyebrow="🔥 Live now"
                   title={ch.title || "Lightning Challenge"}
                   status={`${formatHMS(remaining)} left · ⚡ ${acceptedCount} student${acceptedCount === 1 ? "" : "s"} accepted this`}
-                  icon={<Zap className="h-20 w-20 text-yellow-300 drop-shadow-lg" strokeWidth={1.4} />}
+                  icon={<Zap className="h-10 w-10 text-yellow-300 drop-shadow-lg sm:h-12 sm:w-12" strokeWidth={1.4} />}
+                  available
+                  actionLabel="Accept the Lightning Challenge"
+                  actionClassName="verbo-lightning-live"
+                  actionStyle={{ animation: urgent ? "verbo-lightning-urgent 0.9s ease-in-out infinite" : "verbo-lightning-glow 1.8s ease-in-out infinite" }}
                   cta={
                     completed ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white">
@@ -664,7 +681,7 @@ function Page() {
                       </span>
                     )
                   }
-                  onClick={() => {
+                  onAction={() => {
                     if (isLive && !accepted) acceptLightning(student.id);
                     setLightningOpen(ch);
                   }}
@@ -672,21 +689,27 @@ function Page() {
               );
             })()}
 
-            <VerboFlashBanner
-              background="linear-gradient(135deg, #4a044e 0%, #7e22ce 55%, #f59e0b 100%)"
-              eyebrow="Verbo Flash"
+            <CompactFlashBanner
+              gradientCss={
+                flashConfig.accent_color
+                  ? seasonGradientCss(flashConfig)
+                  : "linear-gradient(135deg, #4a044e 0%, #7e22ce 55%, #f59e0b 100%)"
+              }
+              themeImageUrl={flashConfig.theme_image_url}
+              watermarkImageUrl={flashConfig.watermark_image_url}
+              eyebrow="Verbo Flash · Mystery Box"
               title="Mystery Box"
               status={available ? "Tap to open" : "Coming soon"}
-              disabled={!available}
-              cta={<ChevronRight className="h-6 w-6 text-white/90" />}
+              available={available}
+              actionLabel="Open Mystery Box"
               icon={
                 flashConfig.box_art_url ? (
                   <img src={flashConfig.box_art_url} alt="Mystery Box" className="h-full w-full object-contain drop-shadow-lg" />
                 ) : (
-                  <Gift className="h-20 w-20 text-white drop-shadow-lg" strokeWidth={1.4} />
+                  <Gift className="h-10 w-10 text-white drop-shadow-lg sm:h-12 sm:w-12" strokeWidth={1.4} />
                 )
               }
-              onClick={openMystery}
+              onAction={available ? openMystery : undefined}
             />
           </div>
         );
@@ -1006,6 +1029,126 @@ function SeasonFlashBanner({
             )}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+/** Compact Verbo Flash banner — same visual language as SeasonFlashBanner
+ *  (theme image with lateral fade, watermark, editable gradient, pulse) at
+ *  half the height, with a single square action button as the only click
+ *  target. Used by Mystery Box and Lightning. */
+function CompactFlashBanner({
+  themeImageUrl,
+  watermarkImageUrl,
+  gradientCss,
+  className,
+  style,
+  eyebrow,
+  title,
+  status,
+  icon,
+  available,
+  onAction,
+  actionLabel,
+  actionClassName,
+  actionStyle,
+  cta,
+}: {
+  themeImageUrl?: string;
+  watermarkImageUrl?: string;
+  gradientCss: string;
+  className?: string;
+  style?: React.CSSProperties;
+  eyebrow: string;
+  title: string;
+  status: string;
+  icon: React.ReactNode;
+  available: boolean;
+  onAction?: () => void;
+  actionLabel: string;
+  actionClassName?: string;
+  actionStyle?: React.CSSProperties;
+  cta?: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`relative flex items-center w-full min-h-[105px] overflow-hidden rounded-3xl border border-white/15 shadow-elevated sm:min-h-[130px] ${
+        available ? "verbo-season-pulse" : "opacity-60 saturate-50"
+      } ${className ?? ""}`}
+      style={{
+        background: gradientCss,
+        ...(available ? { animation: "verbo-season-pulse 2.6s ease-in-out infinite" } : null),
+        ...style,
+      }}
+    >
+      <style>{`
+        @keyframes verbo-season-pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.25); }
+          50% { box-shadow: 0 0 0 8px rgba(255,255,255,0); }
+        }
+        @keyframes verbo-season-glow {
+          0%, 100% { box-shadow: 0 0 0px 0px rgba(255,255,255,0), 0 4px 10px rgba(0,0,0,0.25); }
+          50% { box-shadow: 0 0 16px 4px rgba(255,255,255,0.55), 0 4px 10px rgba(0,0,0,0.25); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .verbo-season-pulse, .verbo-season-glow { animation: none !important; }
+        }
+      `}</style>
+
+      {themeImageUrl && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-cover bg-left bg-no-repeat"
+          style={{
+            backgroundImage: `url(${themeImageUrl})`,
+            WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 58%)",
+            maskImage: "linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 58%)",
+          }}
+        />
+      )}
+
+      {watermarkImageUrl ? (
+        <img
+          aria-hidden
+          src={watermarkImageUrl}
+          alt=""
+          className="pointer-events-none absolute right-6 top-1/2 h-[130%] max-h-none -translate-y-1/2 select-none object-contain opacity-10"
+        />
+      ) : (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-[40%] flex select-none items-center overflow-hidden whitespace-nowrap text-[110px] font-black leading-none tracking-tight text-white/10 sm:text-[150px]"
+        >
+          {title}
+        </span>
+      )}
+
+      <div className="relative flex w-full flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:p-6">
+        <div className="min-w-0">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
+            {eyebrow}
+          </div>
+          <div className="mt-2 truncate text-5xl font-black tracking-tight text-white drop-shadow-md sm:text-7xl">
+            {title}
+          </div>
+          <div className="mt-2 text-xs text-white/85">{status}</div>
+          {cta && <div className="mt-2">{cta}</div>}
+        </div>
+
+        <div className="flex shrink-0 items-center justify-end">
+          <button
+            type="button"
+            onClick={onAction}
+            disabled={!onAction}
+            aria-label={actionLabel}
+            title={actionLabel}
+            style={{ animation: "verbo-season-glow 2.2s ease-in-out infinite", ...actionStyle }}
+            className={`verbo-season-glow flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border-2 border-white/50 bg-white/15 shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white disabled:cursor-not-allowed sm:h-20 sm:w-20 ${actionClassName ?? ""}`}
+          >
+            {icon}
+          </button>
+        </div>
       </div>
     </div>
   );

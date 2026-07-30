@@ -25,7 +25,25 @@ export interface FlashChallenge {
 
 export interface FlashConfig {
   box_art_url?: string;
+  theme_image_url?: string;
+  watermark_image_url?: string;
+  accent_color?: string;
+  accent_color_to?: string;
+  fill_mode?: SeasonFillMode;
+  gradient_stops?: GradientStop[];
 }
+
+/** Static visual theme for the Lightning banner — persists independently of
+ *  LightningState (which is the runtime activation state). */
+export interface LightningTheme {
+  theme_image_url?: string;
+  watermark_image_url?: string;
+  accent_color?: string;
+  accent_color_to?: string;
+  fill_mode?: SeasonFillMode;
+  gradient_stops?: GradientStop[];
+}
+
 
 /** Global Lightning singleton — only ONE Lightning can be live across the
  *  whole platform at a time. `product` scopes visibility on the student side. */
@@ -55,6 +73,8 @@ export const FLASH_CONFIG_KEY = "verbo:flash-config";
 export const FLASH_CONFIG_EVENT = "verbo:flash-config-updated";
 export const LIGHTNING_KEY = "verbo:flash-lightning";
 export const LIGHTNING_EVENT = "verbo:flash-lightning-updated";
+export const LIGHTNING_THEME_KEY = "verbo:flash-lightning-theme";
+export const LIGHTNING_THEME_EVENT = "verbo:flash-lightning-theme-updated";
 
 /* -------------------- Challenges -------------------- */
 
@@ -153,6 +173,38 @@ export function subscribeFlashConfig(cb: () => void): () => void {
     window.removeEventListener("storage", onStorage);
   };
 }
+
+/* -------------------- Lightning theme (static) -------------------- */
+
+export function loadLightningTheme(): LightningTheme {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(LIGHTNING_THEME_KEY);
+    if (raw) return JSON.parse(raw) as LightningTheme;
+  } catch { /* noop */ }
+  return {};
+}
+
+export function persistLightningTheme(theme: LightningTheme) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(LIGHTNING_THEME_KEY, JSON.stringify(theme));
+    window.dispatchEvent(new CustomEvent(LIGHTNING_THEME_EVENT));
+  } catch { /* noop */ }
+}
+
+export function subscribeLightningTheme(cb: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  const onStorage = (e: StorageEvent) => { if (e.key === LIGHTNING_THEME_KEY) cb(); };
+  window.addEventListener(LIGHTNING_THEME_EVENT, cb);
+  window.addEventListener("storage", onStorage);
+  return () => {
+    window.removeEventListener(LIGHTNING_THEME_EVENT, cb);
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+
 
 /* -------------------- Lightning (singleton) -------------------- */
 
