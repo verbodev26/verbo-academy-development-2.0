@@ -504,12 +504,16 @@ function StudentDashboard() {
             if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLevels(); }
           }}
         >
-          <div className="card-gradient-navy shadow-card verbo-card-hover relative flex h-full min-h-[168px] items-center overflow-hidden rounded-[2rem] px-6 py-6">
-            <div
-              className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-              style={{ background: "rgba(255,255,255,0.08)", transform: "rotate(14deg)" }}
-              aria-hidden
-            />
+          <HeroStatCard
+            className="card-gradient-navy"
+            decorative={
+              <div
+                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
+                style={{ background: "rgba(255,255,255,0.08)", transform: "rotate(14deg)" }}
+                aria-hidden
+              />
+            }
+          >
             <div className="relative flex w-full items-center justify-between gap-4">
               <div className="pr-2">
                 <div className="text-xs font-medium uppercase tracking-wider text-white/60">Current Level</div>
