@@ -25,7 +25,25 @@ export interface FlashChallenge {
 
 export interface FlashConfig {
   box_art_url?: string;
+  theme_image_url?: string;
+  watermark_image_url?: string;
+  accent_color?: string;
+  accent_color_to?: string;
+  fill_mode?: SeasonFillMode;
+  gradient_stops?: GradientStop[];
 }
+
+/** Static visual theme for the Lightning banner — persists independently of
+ *  LightningState (which is the runtime activation state). */
+export interface LightningTheme {
+  theme_image_url?: string;
+  watermark_image_url?: string;
+  accent_color?: string;
+  accent_color_to?: string;
+  fill_mode?: SeasonFillMode;
+  gradient_stops?: GradientStop[];
+}
+
 
 /** Global Lightning singleton — only ONE Lightning can be live across the
  *  whole platform at a time. `product` scopes visibility on the student side. */
