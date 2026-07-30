@@ -225,7 +225,7 @@ function StudentBuilder({ studentId, studentName, onBack }: {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setUnitModal({ mode: "edit", unit: u })}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-[#f38934]"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-accent"
                   aria-label="Edit unit"
                 >
                   <Pencil className="h-4 w-4" />
