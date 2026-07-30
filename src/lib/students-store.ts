@@ -479,24 +479,24 @@ export function approveSubmission(
     const seasonId = loadFlashChallenges().find((c) => c.id === challengeId)?.season_id;
     if (seasonId) completeSeasonChallenge(studentId, challengeId, seasonId);
   } else {
-    // "normal" / "mystery_box" — completeChallenge owns the streak + cooldown
-    // rules. The submission already advanced last_completed_at, so clear it
-    // first so the cooldown guard doesn't block the award.
+    // "normal" / "mystery_box" — submitChallenge already advanced the streak at
+    // delivery time, and that's the source of truth. We only clear
+    // last_completed_at so completeChallenge's cooldown guard doesn't block the
+    // award, then restore the pre-approval counters so the streak keeps being
+    // measured from the submission, not from the review.
     const u = USERS.find((x) => x.id === studentId);
     const savedLast = u?.last_completed_at;
     const savedStreak = u?.current_streak;
+    const savedLongest = u?.longest_streak;
+    persistStudentPatch(studentId, { last_completed_at: undefined });
+    completeChallenge(studentId, challengeId);
     persistStudentPatch(studentId, {
-      last_completed_at: undefined,
-      current_streak: sub.streak_before ?? 0,
+      last_completed_at: savedLast,
+      current_streak: savedStreak,
+      longest_streak: savedLongest,
     });
-    const ok = completeChallenge(studentId, challengeId);
-    if (!ok) {
-      persistStudentPatch(studentId, {
-        last_completed_at: savedLast,
-        current_streak: savedStreak,
-      });
-    }
   }
+
   return true;
 }
 
