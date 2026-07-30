@@ -15,7 +15,7 @@ import { subscribeCourses, computeCurrentProgress } from "@/lib/product-courses-
 import { loadLessonPlans, saveLessonPlan, subscribeLessonPlans, getLessonPlan, type LessonPlan } from "@/lib/lesson-plans-store";
 import { markVipUnitDone, clearVipUnitDoneForSession } from "@/lib/vip-courses-store";
 import { markTailoredUnitDone, clearTailoredUnitDoneForSession } from "@/lib/tailored-content-store";
-import { computeTeacherKpis, getBonusThreshold } from "@/lib/teacher-kpis";
+import { computeTeacherKpis, getBonusThreshold, ratingBand } from "@/lib/teacher-kpis";
 import { avgRating } from "@/lib/teacher-model";
 import { activeStrikeCount } from "@/lib/strikes-store";
 import { listChangeRequests, isTeacherAvailableAt, subscribeAvailability } from "@/lib/availability-store";
