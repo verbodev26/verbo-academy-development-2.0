@@ -1358,6 +1358,67 @@ function SubmissionInstructions({ text, delay }: { text?: string; delay?: string
   );
 }
 
+/** Shared footer for the 4 challenge-info modals. Renders the review state of
+ *  the student's submission (pending / sent back / rejected) and falls back to
+ *  `children` (the modal's own Let's do it! / Submit / Completed action) when
+ *  there is no submission or it was already approved. */
+function ChallengeModalFooter({
+  submission,
+  accent,
+  onClose,
+  onResubmit,
+  delay,
+  children,
+}: {
+  submission: ChallengeSubmission | null;
+  accent: string;
+  onClose: () => void;
+  onResubmit: () => void;
+  delay?: string;
+  children?: ReactNode;
+}) {
+  const status = submission?.status;
+  const feedback = submission?.teacher_feedback?.trim();
+  const showFeedback = (status === "needs_resubmission" || status === "rejected") && !!feedback;
+
+  return (
+    <div
+      className="vc-rise border-t border-border bg-secondary/30 p-4"
+      style={delay ? { animationDelay: delay } : undefined}
+    >
+      {showFeedback && (
+        <div className="mb-3 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground">
+          <div className="font-semibold">
+            {status === "needs_resubmission"
+              ? "Your teacher asked you to try again:"
+              : "Your teacher's feedback:"}
+          </div>
+          <p className="mt-1 leading-relaxed">{feedback}</p>
+        </div>
+      )}
+      <div className="flex items-center justify-end gap-3">
+        <GhostButton onClick={onClose}>Close</GhostButton>
+        {status === "pending_review" ? (
+          <Pill tone="muted">⏳ Pending review</Pill>
+        ) : status === "needs_resubmission" ? (
+          <PrimaryButton
+            onClick={onResubmit}
+            style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}
+          >
+            <Upload className="h-3.5 w-3.5" /> Resubmit
+          </PrimaryButton>
+        ) : status === "rejected" ? (
+          <Pill tone="muted">Not approved</Pill>
+        ) : (
+          children
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
 function MysteryCooldownModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
