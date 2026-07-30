@@ -260,6 +260,7 @@ function MyBalancePage() {
           sub={`${sessionsCount} session${sessionsCount === 1 ? "" : "s"}`}
           expanded={expanded.sessions}
           onClick={() => toggle("sessions")}
+          gradient="card-gradient-navy"
         />
         <SummaryCard
           label="Adjustments"
@@ -267,6 +268,7 @@ function MyBalancePage() {
           sub={`${adjustments.length} adjustment${adjustments.length === 1 ? "" : "s"}`}
           expanded={expanded.adjustments}
           onClick={() => toggle("adjustments")}
+          gradient="card-gradient-teal"
         />
         <SummaryCard
           label="Bonus"
@@ -274,6 +276,7 @@ function MyBalancePage() {
           sub={`Composite Score: ${kpis?.composite ?? 0}% · ${rating != null ? rating.toFixed(1) + "★" : "—"}`}
           expanded={expanded.bonus}
           onClick={() => toggle("bonus")}
+          gradient="card-gradient-gold"
         />
         <TotalCard label="Total Earned" value={money(totalEarned)} />
       </div>
@@ -485,30 +488,30 @@ function FinancialIssueModal({ onClose, onSubmit }: { onClose: () => void; onSub
 }
 
 function SummaryCard({
-  label, value, sub, expanded, onClick,
-}: { label: string; value: string; sub: string; expanded: boolean; onClick: () => void }) {
+  label, value, sub, expanded, onClick, gradient,
+}: { label: string; value: string; sub: string; expanded: boolean; onClick: () => void; gradient: string }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`group rounded-2xl border p-6 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-md ${expanded ? "border-accent bg-accent/5" : "border-border bg-card"}`}
+      className={`group rounded-2xl p-6 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-md text-white ${gradient} ${expanded ? "ring-2 ring-white/70 scale-[1.01]" : ""}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
-        {expanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+        <div className="text-xs font-medium uppercase tracking-wider text-white/70">{label}</div>
+        {expanded ? <ChevronUp className="h-4 w-4 text-white/80" /> : <ChevronDown className="h-4 w-4 text-white/80" />}
       </div>
-      <div className="mt-3 text-3xl font-semibold tracking-tight text-foreground">{value}</div>
-      <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+      <div className="mt-3 text-3xl font-bold tracking-tight text-white">{value}</div>
+      <div className="mt-1 text-xs text-white/70">{sub}</div>
     </button>
   );
 }
 
 function TotalCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-accent/40 bg-gradient-to-br from-accent/10 to-accent/5 p-6 shadow-soft">
-      <div className="text-xs font-semibold uppercase tracking-wider text-accent">{label}</div>
-      <div className="mt-3 text-3xl font-bold tracking-tight text-foreground">{value}</div>
-      <div className="mt-1 text-xs text-muted-foreground">This month</div>
+    <div className="card-gradient-lime rounded-2xl p-6 text-white shadow-soft">
+      <div className="text-xs font-semibold uppercase tracking-wider text-white/80">{label}</div>
+      <div className="mt-3 text-3xl font-bold tracking-tight text-white">{value}</div>
+      <div className="mt-1 text-xs text-white/70">This month</div>
     </div>
   );
 }
@@ -524,8 +527,11 @@ function KpiBar({ label, value, sub }: { label: string; value: number; sub?: str
         </span>
         <span className="font-semibold text-foreground">{value}%</span>
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-        <div className="h-full rounded-full" style={{ width: `${value}%`, backgroundColor: color }} />
+      <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${value}%`, backgroundColor: color, boxShadow: `0 0 8px ${color}66` }}
+        />
       </div>
     </div>
   );
