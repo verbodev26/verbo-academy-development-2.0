@@ -810,6 +810,7 @@ function Page() {
       {lightningOpen && (
         <LightningRevealModal
           challenge={lightningOpen}
+          lightningTheme={lightningTheme}
           expiresAt={lightning.expires_at}
           nowTick={nowTick}
           isLive={lightning.status === "live"}
@@ -836,6 +837,7 @@ function Page() {
       {(mystery.opening || mystery.reveal) && (
         <MysteryRevealModal
           opening={mystery.opening}
+          flashConfig={flashConfig}
           challenge={mystery.reveal}
           hasPremiumAccess={hasPremiumAccess}
           chosen={mystery.reveal ? hasChosenChallenge(student.id, mystery.reveal.id) : false}
@@ -1472,11 +1474,11 @@ function MysteryRevealModal({
               {locked ? null : completed ? (
                 <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" /> Completed</Pill>
               ) : chosen ? (
-                <SuccessButton onClick={onComplete} disabled={onCooldown} title={onCooldown ? COOLDOWN_MSG : undefined}>
+                <SuccessButton onClick={onComplete} disabled={onCooldown} title={onCooldown ? COOLDOWN_MSG : undefined} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>
                   <CheckCircle2 className="h-3.5 w-3.5" /> Mark as Completed
                 </SuccessButton>
               ) : (
-                <PrimaryButton onClick={onChoose}>Let's do it!</PrimaryButton>
+                <PrimaryButton onClick={onChoose} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>Let's do it!</PrimaryButton>
               )}
             </div>
           </>
@@ -1872,7 +1874,7 @@ function LightningRevealModal({
           {completed ? (
             <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" /> Completed</Pill>
           ) : canComplete ? (
-            <SuccessButton onClick={onComplete}>
+            <SuccessButton onClick={onComplete} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>
               <CheckCircle2 className="h-3.5 w-3.5" /> Mark as Completed
             </SuccessButton>
           ) : null}
@@ -2044,11 +2046,11 @@ function SeasonRevealModal({
               {locked ? null : completed ? (
                 <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" /> Completed</Pill>
               ) : chosen ? (
-                <SuccessButton onClick={onComplete}>
+                <SuccessButton onClick={onComplete} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>
                   <CheckCircle2 className="h-3.5 w-3.5" /> Mark as Completed
                 </SuccessButton>
               ) : (
-                <PrimaryButton onClick={onChoose}>Let's do it!</PrimaryButton>
+                <PrimaryButton onClick={onChoose} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>Let's do it!</PrimaryButton>
               )}
             </div>
           </>
