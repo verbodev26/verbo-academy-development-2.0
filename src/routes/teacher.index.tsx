@@ -2,7 +2,9 @@ import { createFileRoute, useSearch, useNavigate, Link } from "@tanstack/react-r
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { SESSIONS, ASSIGNMENTS, USERS, studentsOfTeacher, userById, type Session, type SessionStatus } from "@/lib/mock-data";
-import { AnimatedNumber, Card, GhostButton, HeroStatCard, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
+import { AccentModal, AccentModalFooter, AnimatedNumber, Card, GhostButton, HeroStatCard, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
+import { rankLabel } from "@/lib/staff-profile-store";
+
 import { CalendarClock, FileEdit, X, Lock, Plus, Trash2, Download, CheckCircle2, Mic, PenLine, Ear, BookOpen, ChevronRight, Video, Star, AlertTriangle, AlertCircle, Trophy, CalendarDays, Wallet, Sparkles as SparklesIcon, GraduationCap, type LucideIcon } from "lucide-react";
 import { savePerformance, type PerformanceRating } from "@/lib/performance-store";
 import { MACRO_SKILLS as SHARED_MACRO_SKILLS, skillKey as sharedSkillKey, type BaseKey as SharedBaseKey } from "@/lib/skills-taxonomy";
@@ -13,8 +15,7 @@ import { subscribeCourses, computeCurrentProgress } from "@/lib/product-courses-
 import { loadLessonPlans, saveLessonPlan, subscribeLessonPlans, getLessonPlan, type LessonPlan } from "@/lib/lesson-plans-store";
 import { markVipUnitDone, clearVipUnitDoneForSession } from "@/lib/vip-courses-store";
 import { markTailoredUnitDone, clearTailoredUnitDoneForSession } from "@/lib/tailored-content-store";
-import { computeTeacherKpis, getBonusThreshold, ratingBand } from "@/lib/teacher-kpis";
-import { BonusBadge } from "@/components/verbo/BonusBadge";
+import { computeTeacherKpis, getBonusThreshold } from "@/lib/teacher-kpis";
 import { avgRating } from "@/lib/teacher-model";
 import { activeStrikeCount } from "@/lib/strikes-store";
 import { listChangeRequests, isTeacherAvailableAt, subscribeAvailability } from "@/lib/availability-store";
@@ -43,6 +44,18 @@ function fmt(iso: string) {
 
 const REPORT_WINDOW_MS = 24 * 3_600_000;
 
+// Accent colors for the three compressed dashboard panels (mirror the
+// card-gradient-* utilities used by their cards).
+const CRIMSON = "#b52904";
+const CRIMSON_BG = "linear-gradient(150deg, #c2410c 0%, #b52904 55%, #760137 100%)";
+const VIOLET = "var(--violet-500)";
+const VIOLET_BG = "linear-gradient(150deg, var(--violet-300) 0%, var(--violet-500) 55%, var(--violet-900) 100%)";
+const GREEN = "var(--green-500)";
+const GREEN_BG = "linear-gradient(150deg, var(--green-300) 0%, var(--green-500) 55%, var(--green-700) 100%)";
+
+type DashboardPanel = "attention" | "plan" | "complete";
+
+
 type LocalSession = Session & { _noReport?: boolean };
 
 function TeacherDashboard() {
@@ -69,6 +82,8 @@ function TeacherDashboard() {
   const [clubReports, setClubReports] = useState<Record<string, ClubReport>>({});
   const [reportingClub, setReportingClub] = useState<ClubReportEventInput | null>(null);
   const [showRatingTrend, setShowRatingTrend] = useState(false);
+  const [openPanel, setOpenPanel] = useState<DashboardPanel | null>(null);
+
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000 * 30);
@@ -163,7 +178,6 @@ function TeacherDashboard() {
 
   // KPI/Performance card
   const kpis = teacherUser ? computeTeacherKpis(teacherUser, getBonusThreshold()) : null;
-  const rating30Band = ratingBand(avgRating30);
   const KPI_GOOD = 85;
   const KPI_CRITICAL = 70;
   const signals = kpis
@@ -443,7 +457,11 @@ function TeacherDashboard() {
     <div className="space-y-10">
       <header>
         <div className="text-sm text-muted-foreground">Good day,</div>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-black">{user.name}</h1>
+        <div className="mt-1 flex flex-wrap items-center gap-2">
+          <h1 className="text-3xl font-semibold tracking-tight text-black">{user.name}</h1>
+          <Pill>{rankLabel(user)}</Pill>
+        </div>
+
       </header>
 
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -534,30 +552,10 @@ function TeacherDashboard() {
             }
           >
             <div className="relative w-full">
-              <div className="flex items-start justify-between gap-2">
-                <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
-                  Performance
-                </div>
-                <div className="flex flex-wrap justify-end gap-1">
-                  {kpis && <BonusBadge status={kpis.bonusStatus} size="sm" />}
-                  {warningLevel === "yellow" && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white/85 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-                      <AlertTriangle className="h-3 w-3" /> 1 KPI Below Target
-                    </span>
-                  )}
-                  {warningLevel === "red" && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-destructive">
-                      <AlertTriangle className="h-3 w-3" /> {belowTarget} KPIs Below Target
-                    </span>
-                  )}
-                  {strikes > 0 && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-destructive">
-                      {Math.min(3, strikes)}/3 Strikes (6 months)
-                    </span>
-                  )}
-                </div>
+              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+                Performance
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none text-white">
+              <div className="mt-2 text-6xl font-bold leading-none text-white">
                 <AnimatedNumber value={kpis?.composite ?? 0} suffix="%" />
                 {kpis?.onboarding && (
                   <span className="ml-2 rounded-full bg-white/85 px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wider text-blue-700">
@@ -565,24 +563,103 @@ function TeacherDashboard() {
                   </span>
                 )}
               </div>
-              <div className="mt-2 flex items-center gap-1.5 text-xs">
-                <span
-                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold"
-                  style={{ backgroundColor: rating30Band.bg, color: rating30Band.fg }}
-                >
-                  <Star className="h-3 w-3 fill-current" /> {avgRating30 != null ? avgRating30.toFixed(1) : "—"}
-                </span>
-                <span className="font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>Composite Score · view balance</span>
+              <div className="mt-2 text-xs font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>
+                Composite Score · view balance
               </div>
             </div>
+
           </HeroStatCard>
         </Link>
       </section>
 
-      {/* Needs Your Attention */}
-      <section>
-        <SectionTitle>Needs Your Attention</SectionTitle>
+      {/* Compressed action cards */}
+      <section className="grid gap-4 md:grid-cols-3">
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => setOpenPanel("attention")}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenPanel("attention"); } }}
+          className="block cursor-pointer text-left"
+        >
+          <HeroStatCard
+            className={`card-gradient-crimson${attention.length > 0 ? " verbo-focus-pulse" : ""}`}
+            style={attention.length > 0 ? ({ ["--verbo-focus-pulse-color" as any]: CRIMSON } as React.CSSProperties) : undefined}
+          >
+            <div className="relative flex w-full items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.75)" }}>
+                  Action Required
+                </div>
+                <div className="mt-2 text-3xl font-semibold leading-tight text-white">Needs Your Attention</div>
+                <div className="mt-2 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                  {attention.length === 0 ? "You're all caught up" : `${attention.length} item${attention.length === 1 ? "" : "s"} need review`}
+                </div>
+              </div>
+              <AlertTriangle className="h-10 w-10 shrink-0 text-white/85" strokeWidth={1.5} />
+            </div>
+          </HeroStatCard>
+        </div>
+
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => setOpenPanel("plan")}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenPanel("plan"); } }}
+          className="block cursor-pointer text-left"
+        >
+          <HeroStatCard className="card-gradient-violet">
+            <div className="relative flex w-full items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.75)" }}>
+                  Lesson Planning
+                </div>
+                <div className="mt-2 text-3xl font-semibold leading-tight text-white">Plan Your Upcoming Sessions</div>
+                <div className="mt-2 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                  {toPlan.length} session{toPlan.length === 1 ? "" : "s"} to plan
+                </div>
+              </div>
+              <CalendarClock className="h-10 w-10 shrink-0 text-white/85" strokeWidth={1.5} />
+            </div>
+          </HeroStatCard>
+        </div>
+
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => setOpenPanel("complete")}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenPanel("complete"); } }}
+          className="block cursor-pointer text-left"
+        >
+          <HeroStatCard className="card-gradient-green">
+            <div className="relative flex w-full items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.75)" }}>
+                  Session Reports
+                </div>
+                <div className="mt-2 text-3xl font-semibold leading-tight text-white">Complete Your Sessions</div>
+                <div className="mt-2 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                  {upcoming.length + pendingClubEvents.length} session{upcoming.length + pendingClubEvents.length === 1 ? "" : "s"} awaiting completion
+                </div>
+              </div>
+              <CheckCircle2 className="h-10 w-10 shrink-0 text-white/85" strokeWidth={1.5} />
+            </div>
+          </HeroStatCard>
+        </div>
+      </section>
+
+      {openPanel === "attention" && (
+        <AccentModal
+          background={CRIMSON_BG}
+          iconTint={CRIMSON}
+          icon={AlertTriangle}
+          eyebrow="Needs Your Attention"
+          title="Needs Your Attention"
+          maxWidth="max-w-2xl"
+          onClose={() => setOpenPanel(null)}
+        >
+          <div className="max-h-[65vh] overflow-y-auto p-4">
         <Card className="!p-0">
+
           {attention.length === 0 ? (
             <div className="flex items-center gap-2 px-6 py-6 text-sm text-muted-foreground">
               <CheckCircle2 className="h-4 w-4 text-success" /> You're all caught up.
@@ -636,13 +713,25 @@ function TeacherDashboard() {
             </ul>
           )}
         </Card>
-      </section>
+          </div>
+          <AccentModalFooter accent={CRIMSON}>
+            <GhostButton onClick={() => setOpenPanel(null)}>Close</GhostButton>
+          </AccentModalFooter>
+        </AccentModal>
+      )}
 
-      <section className="grid gap-6 md:grid-cols-2">
-        {/* Left — Plan your upcoming Sessions */}
-        <div>
-          <SectionTitle>Plan your upcoming Sessions</SectionTitle>
-          <div className="space-y-3">
+      {openPanel === "plan" && (
+        <AccentModal
+          background={VIOLET_BG}
+          iconTint={VIOLET}
+          icon={CalendarClock}
+          eyebrow="Plan Your Upcoming Sessions"
+          title="Plan Your Upcoming Sessions"
+          maxWidth="max-w-2xl"
+          onClose={() => setOpenPanel(null)}
+        >
+          <div className="max-h-[65vh] space-y-3 overflow-y-auto p-4">
+
             {toPlan.length === 0 && (
               <Card><p className="text-sm text-muted-foreground">No sessions to plan right now.</p></Card>
             )}
@@ -671,12 +760,24 @@ function TeacherDashboard() {
               );
             })}
           </div>
-        </div>
+          <AccentModalFooter accent={VIOLET}>
+            <GhostButton onClick={() => setOpenPanel(null)}>Close</GhostButton>
+          </AccentModalFooter>
+        </AccentModal>
+      )}
 
-        {/* Right — Complete your sessions */}
-        <div>
-          <SectionTitle>Complete your sessions</SectionTitle>
-          <div className="space-y-3">
+      {openPanel === "complete" && (
+        <AccentModal
+          background={GREEN_BG}
+          iconTint={GREEN}
+          icon={CheckCircle2}
+          eyebrow="Complete Your Sessions"
+          title="Complete Your Sessions"
+          maxWidth="max-w-2xl"
+          onClose={() => setOpenPanel(null)}
+        >
+          <div className="max-h-[65vh] space-y-3 overflow-y-auto p-4">
+
             {upcoming.length === 0 && pendingClubEvents.length === 0 && (
               <Card><p className="text-sm text-muted-foreground">No sessions awaiting completion.</p></Card>
             )}
@@ -771,8 +872,12 @@ function TeacherDashboard() {
               );
             })}
           </div>
-        </div>
-      </section>
+          <AccentModalFooter accent={GREEN}>
+            <GhostButton onClick={() => setOpenPanel(null)}>Close</GhostButton>
+          </AccentModalFooter>
+        </AccentModal>
+      )}
+
 
       <section>
         <SectionTitle>Quick Actions</SectionTitle>
