@@ -870,17 +870,9 @@ function Page() {
           completed={mystery.reveal ? hasCompletedChallenge(student.id, mystery.reveal.id) : false}
           cooldownRemaining={completeCooldownRemaining(student.id)}
           onChoose={() => { if (mystery.reveal) chooseChallenge(student.id, mystery.reveal.id); }}
-          onComplete={() => {
-            if (!mystery.reveal) return;
-            const ok = completeChallenge(student.id, mystery.reveal.id);
-            if (ok) {
-              const c = mystery.reveal;
-              setMystery({ opening: false, reveal: null, blocked: false });
-              // Reuse the standard share prompt for consistency.
-              setShareForTheme({ accent: flashConfig.accent_color || "#7e22ce", icon: Gift });
-              setShareFor(c as unknown as Challenge);
-            }
-          }}
+          submission={mystery.reveal ? getSubmission(student.id, mystery.reveal.id) : null}
+          onSubmit={() => { if (mystery.reveal) openSubmit(mystery.reveal, "mystery_box", "submit", { accent: flashConfig.accent_color || "#7e22ce", icon: Gift }); }}
+          onResubmit={() => { if (mystery.reveal) openSubmit(mystery.reveal, "mystery_box", "resubmit", { accent: flashConfig.accent_color || "#7e22ce", icon: Gift }); }}
           onClose={() => setMystery({ opening: false, reveal: null, blocked: false })}
         />
       )}
