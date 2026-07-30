@@ -123,13 +123,13 @@ function Page() {
             onClick={() => setView(id)}
             className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
               active
-                ? "border-[#f38934] bg-[#f38934]/10 text-[#f38934]"
+                ? "border-accent bg-accent/10 text-accent"
                 : "border-border bg-background text-muted-foreground hover:bg-secondary"
             }`}
           >
             {label}
             {id === "reviews" && pending.length > 0 && (
-              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f38934] px-1.5 text-[10px] font-bold text-white">
+              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-bold text-white">
                 {pending.length}
               </span>
             )}
@@ -181,7 +181,7 @@ function Page() {
             onClick={() => { setProductId(pid); setDifficulty(null); setCategory("all"); }}
             className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
               active
-                ? "border-[#f38934] bg-[#f38934]/10 text-[#f38934]"
+                ? "border-accent bg-accent/10 text-accent"
                 : "border-border bg-background text-muted-foreground hover:bg-secondary"
             }`}
           >
@@ -227,7 +227,7 @@ function Page() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setCategory("all")}
-              className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${category === "all" ? "border-[#f38934] bg-[#f38934]/10 text-[#f38934]" : "border-border bg-background text-muted-foreground hover:bg-secondary"}`}
+              className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${category === "all" ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground hover:bg-secondary"}`}
             >
               All categories
             </button>
@@ -355,7 +355,7 @@ function ReviewRow({
             href={s.link}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#f38934] underline underline-offset-2 hover:opacity-80"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-accent underline underline-offset-2 hover:opacity-80"
           >
             <ExternalLink className="h-3.5 w-3.5" /> Open delivery
           </a>
@@ -397,7 +397,7 @@ function ReviewRow({
               onChange={(e) => setFeedback(e.target.value)}
               rows={3}
               autoFocus
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-[#f38934]"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-accent"
               placeholder="Write your feedback for the student…"
             />
             <div className="flex flex-wrap items-center gap-2">
@@ -405,7 +405,7 @@ function ReviewRow({
                 onClick={confirm}
                 disabled={!feedback.trim()}
                 className={`rounded-full px-3.5 py-1.5 text-xs font-semibold text-white transition-opacity ${
-                  mode === "again" ? "bg-[#f38934]" : "bg-rose-600"
+                  mode === "again" ? "bg-accent" : "bg-rose-600"
                 } ${!feedback.trim() ? "cursor-not-allowed opacity-50" : "hover:opacity-90"}`}
               >
                 {mode === "again" ? "Send back" : "Confirm not approved"}

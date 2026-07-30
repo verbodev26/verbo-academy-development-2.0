@@ -104,7 +104,7 @@ function Page() {
               onClick={() => setProductId(pid)}
               className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                 active
-                  ? "border-[#f38934] bg-[#f38934]/10 text-[#f38934]"
+                  ? "border-accent bg-accent/10 text-accent"
                   : "border-border bg-background text-muted-foreground hover:bg-secondary"
               }`}
             >
