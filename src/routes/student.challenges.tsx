@@ -1877,7 +1877,9 @@ function LightningRevealModal({
   acceptedCount,
   hasPremiumAccess,
   completed,
-  onComplete,
+  onSubmit,
+  onResubmit,
+  submission,
   onClose,
 }: {
   challenge: FlashChallenge;
