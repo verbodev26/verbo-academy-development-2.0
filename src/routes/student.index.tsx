@@ -380,23 +380,20 @@ function StudentDashboard() {
   };
 
 
-  // Status badge tone classes (polished).
-  const statusBadge = (status: string) => {
-    const base = "inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-wide capitalize";
-    switch (status) {
-      case "completed":
-        return `${base} bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200`;
-      case "absent":
-        return `${base} bg-rose-50 text-rose-700 ring-1 ring-rose-200`;
-      case "delayed":
-        return `${base} bg-amber-50 text-amber-800 ring-1 ring-amber-200`;
-      case "rescheduled":
-      case "rearranged":
-        return `${base} bg-sky-50 text-sky-700 ring-1 ring-sky-200`;
-      default:
-        return `${base} bg-slate-100 text-slate-700 ring-1 ring-slate-200`;
-    }
+  // Status badge — colors come from the shared status palette so the Dashboard
+  // pill matches the calendar, workshop badges and admin tables exactly.
+  const statusBadgeClass =
+    "inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold tracking-wide capitalize";
+  const statusBadgeStyle = (status: string): React.CSSProperties => {
+    const key = (status === "rearranged" ? "rescheduled" : status) as ExtSessionStatus;
+    const meta = CALENDAR_STATUS_META[key] ?? CALENDAR_STATUS_META.scheduled;
+    return {
+      backgroundColor: meta.color,
+      color: key === "scheduled" ? "#01304a" : "#ffffff",
+      borderColor: meta.borderColor ?? meta.color,
+    };
   };
+
 
   // Dynamic welcome line — first matching condition wins.
   const welcomeLine = (() => {
