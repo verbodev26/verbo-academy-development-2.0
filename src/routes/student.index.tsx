@@ -613,7 +613,7 @@ function StudentDashboard() {
               {attendanceTrend === "up" && <ArrowUp className="h-5 w-5 shrink-0 text-white drop-shadow" aria-label="Attendance trending up" />}
               {attendanceTrend === "down" && <ArrowDown className="h-5 w-5 shrink-0 text-white drop-shadow" aria-label="Attendance trending down" />}
             </div>
-          </div>
+          </HeroStatCard>
         </div>
 
 
