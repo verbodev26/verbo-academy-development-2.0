@@ -52,6 +52,8 @@ const VIOLET = "var(--violet-500)";
 const VIOLET_BG = "linear-gradient(150deg, var(--violet-300) 0%, var(--violet-500) 55%, var(--violet-900) 100%)";
 const GREEN = "var(--green-500)";
 const GREEN_BG = "linear-gradient(150deg, var(--green-300) 0%, var(--green-500) 55%, var(--green-700) 100%)";
+const ORANGE = "#ea580c";
+const YELLOW = "#eab308";
 
 type DashboardPanel = "attention" | "plan" | "complete";
 
