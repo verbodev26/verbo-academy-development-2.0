@@ -1247,7 +1247,7 @@ function StudentDashboard() {
                       )}
                     </section>
                   </div>
-                  <DialogFooter className="gap-2 sm:gap-2">
+                  <div className="flex flex-wrap justify-end gap-2 border-t border-border bg-secondary/30 px-6 py-4">
                     <GhostButton
                       onClick={() => { setClassDetail(null); setCantAttendFor(s); }}
                     >
@@ -1259,34 +1259,27 @@ function StudentDashboard() {
                     >
                       <Video className="h-3.5 w-3.5" /> Connect
                     </PrimaryButton>
-                  </DialogFooter>
+                  </div>
                 </>
               );
             }
             return (
               <>
-                <DialogHeader>
-                  <DialogTitle style={{ color: "#01304a" }}>Session Details</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  {/* Header block */}
-                  <div className="rounded-lg border border-[var(--navy-100)] bg-[var(--navy-50)] p-3 text-xs">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div>
-                        <div className="text-sm font-semibold text-foreground">{fmt(s.date_time)}</div>
-                        <div className="mt-0.5 text-muted-foreground">
-                          {s.duration_minutes} min · with {teacher?.name ?? "Teacher"}
-                        </div>
-                      </div>
-                      <span className={statusBadge(s.status)}>{s.status}</span>
-                    </div>
-                    {isAbsent && absentMsg && (
-                      <div className="mt-2 text-muted-foreground">{absentMsg}.</div>
-                    )}
-                  </div>
+                <AccentModalHeader
+                  background="#16a34a"
+                  iconTint="#16a34a"
+                  icon={CheckCircle2}
+                  eyebrow="COMPLETED SESSION"
+                  title="Session Details"
+                  watermark={{ type: "icon", icon: CheckCircle2 }}
+                  onClose={() => setClassDetail(null)}
+                />
+                <div className="space-y-4 px-6 py-5">
+                  <div className="vc-rise" style={{ animationDelay: "0.25s" }}>{headerBlock}</div>
 
                   {/* What we covered */}
-                  <section>
+                  <section className="vc-rise" style={{ animationDelay: "0.3s" }}>
+
                     <SectionHeadIcon
                       icon={<BookOpen className="h-4 w-4" />}
                       circleClass="bg-[var(--navy-100)] text-[#01304a]"
