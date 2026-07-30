@@ -3,6 +3,7 @@ import { Logo } from "./Logo";
 import { useAuth } from "@/lib/auth";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ProfileModal } from "./ProfileModal";
 import { StaffProfileModal } from "./StaffProfileModal";
 import { useAvatar } from "@/lib/avatar-store";
