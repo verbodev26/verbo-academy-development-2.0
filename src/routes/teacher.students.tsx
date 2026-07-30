@@ -343,7 +343,7 @@ function StudentCard({ student: s, onOpen }: { student: User; onOpen: () => void
                 title={m.key}
               >
                 <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="mt-0.5 text-[11px] font-bold tabular-nums" style={{ color: "#01304a" }}>
+                <span className="mt-0.5 text-[11px] font-bold tabular-nums text-foreground">
                   {m.overall === null ? "--" : `${m.overall}%`}
                 </span>
               </div>
