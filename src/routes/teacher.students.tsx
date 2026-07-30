@@ -22,7 +22,7 @@ import {
   PerformanceAnalyticsModal, useComputedMacros,
 } from "@/components/verbo/PerformanceAnalytics";
 import { useAvatar } from "@/lib/avatar-store";
-import { Card } from "@/components/verbo/ui";
+import { Card, Pill } from "@/components/verbo/ui";
 import {
   Search, X, Filter, Crown, Users as UsersIcon,
   GraduationCap, Layers, Lightbulb, Video, Clock, Repeat, NotebookPen,
@@ -102,11 +102,19 @@ function Page() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">My Students</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Read-only view of the {myStudents.length} students assigned to you.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <UsersIcon className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">My Students</h1>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              Read-only view of the students assigned to you.
+            </p>
+          </div>
+        </div>
+        <Pill tone="default">{myStudents.length} students</Pill>
       </div>
 
       {/* Search + group control */}
@@ -284,7 +292,7 @@ function StudentCard({ student: s, onOpen }: { student: User; onOpen: () => void
         {(() => {
           const gi = groupOfStudent(s.id);
           return gi ? (
-            <Tag className="bg-[#01304a] text-white">Group: {gi.group.name}</Tag>
+            <Tag className="bg-primary text-primary-foreground">Group: {gi.group.name}</Tag>
           ) : null;
         })()}
       </div>
@@ -295,7 +303,7 @@ function StudentCard({ student: s, onOpen }: { student: User; onOpen: () => void
           <span className="font-medium text-foreground">{remaining}/{hired}</span>
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-accent" style={{ width: `${Math.min(100, pct)}%` }} />
+          <div className={`h-full rounded-full ${pct >= 90 ? "bg-destructive" : pct >= 70 ? "bg-warning" : "bg-accent"}`} style={{ width: `${Math.min(100, pct)}%` }} />
         </div>
       </div>
 
@@ -335,7 +343,7 @@ function StudentCard({ student: s, onOpen }: { student: User; onOpen: () => void
                 title={m.key}
               >
                 <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="mt-0.5 text-[11px] font-bold tabular-nums" style={{ color: "#01304a" }}>
+                <span className="mt-0.5 text-[11px] font-bold tabular-nums text-foreground">
                   {m.overall === null ? "--" : `${m.overall}%`}
                 </span>
               </div>
@@ -499,7 +507,7 @@ function StudentDetailModal({
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   <CalendarCheck className="h-3.5 w-3.5" /> Overall Attendance
                 </div>
-                <span className="text-2xl font-bold tabular-nums" style={{ color: "#01304a" }}>{attPct}%</span>
+                <span className="text-2xl font-bold tabular-nums text-foreground">{attPct}%</span>
               </div>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <Stat label="Completed" value={String(attendance.completed)} />
@@ -535,7 +543,7 @@ function StudentDetailModal({
                         <Icon className="h-4 w-4 text-muted-foreground" />
                         <div className="min-w-0">
                           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{m.key}</div>
-                          <div className="text-sm font-bold tabular-nums" style={{ color: "#01304a" }}>
+                          <div className="text-sm font-bold tabular-nums text-foreground">
                             {m.overall === null ? "--" : `${m.overall}%`}
                           </div>
                         </div>
