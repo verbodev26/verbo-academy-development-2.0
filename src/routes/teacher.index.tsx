@@ -720,13 +720,25 @@ function TeacherDashboard() {
             </ul>
           )}
         </Card>
-      </section>
+          </div>
+          <AccentModalFooter accent={CRIMSON}>
+            <GhostButton onClick={() => setOpenPanel(null)}>Close</GhostButton>
+          </AccentModalFooter>
+        </AccentModal>
+      )}
 
-      <section className="grid gap-6 md:grid-cols-2">
-        {/* Left — Plan your upcoming Sessions */}
-        <div>
-          <SectionTitle>Plan your upcoming Sessions</SectionTitle>
-          <div className="space-y-3">
+      {openPanel === "plan" && (
+        <AccentModal
+          background={VIOLET_BG}
+          iconTint={VIOLET}
+          icon={CalendarClock}
+          eyebrow="Plan Your Upcoming Sessions"
+          title="Plan Your Upcoming Sessions"
+          maxWidth="max-w-2xl"
+          onClose={() => setOpenPanel(null)}
+        >
+          <div className="max-h-[65vh] space-y-3 overflow-y-auto p-4">
+
             {toPlan.length === 0 && (
               <Card><p className="text-sm text-muted-foreground">No sessions to plan right now.</p></Card>
             )}
