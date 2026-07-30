@@ -81,10 +81,36 @@ function NavGroupDropdown({ group, pathname, isDark, registerRef }: { group: Nav
     closeTimer.current = setTimeout(() => setOpen(false), 120);
   };
 
+  const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    let raf = 0;
+    const update = () => {
+      const r = buttonRef.current?.getBoundingClientRect();
+      if (r) setMenuPos({ top: r.bottom + 4, left: r.left });
+    };
+    update();
+    const schedule = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    window.addEventListener("resize", schedule);
+    window.addEventListener("scroll", schedule, true);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("scroll", schedule, true);
+    };
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      const inTrigger = ref.current?.contains(t);
+      const inMenu = menuRef.current?.contains(t);
+      if (!inTrigger && !inMenu) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") { setOpen(false); buttonRef.current?.focus(); }
