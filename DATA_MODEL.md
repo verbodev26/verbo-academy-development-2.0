@@ -400,9 +400,16 @@ Reglas de datos (todas en `students-store.ts`):
 - `getSubmission(studentId, challengeId)` — lectura única para la UI.
 - `submitChallenge(studentId, challengeId, format, link, note?)` — crea la entrega en `pending_review`; falla si ya existe una. Para `normal` y `mystery_box` aplica el mismo cooldown de 24h que `completeCooldownRemaining` y avanza `current_streak`/`longest_streak` con la regla de "≤14 días mantiene el streak".
 - `resubmitChallenge(studentId, challengeId, link, note?)` — solo válido si el estado es `needs_resubmission`; archiva el intento anterior en `history` y vuelve a `pending_review`.
-- `completeChallenge` / `completeLightningChallenge` / `completeSeasonChallenge` siguen existiendo pero **ya no se invocan desde el flujo del alumno**: quedan reservadas para la aprobación del profesor.
+- `completeChallenge` / `completeLightningChallenge` / `completeSeasonChallenge` siguen existiendo y **solo se invocan desde la aprobación del profesor** (nunca desde el flujo del alumno).
+- `approveSubmission(studentId, challengeId, teacherId)` — estado → `approved` + `reviewer_id`/`reviewed_at`, y delega los efectos de completado según `challenge_format`: `lightning` → `completeLightningChallenge`, `season` → `completeSeasonChallenge` (el `season_id` se resuelve desde `loadFlashChallenges()`), `normal`/`mystery_box` → `completeChallenge` (restaurando temporalmente `current_streak` a `streak_before` y limpiando `last_completed_at` para que el cooldown de 24h del envío no bloquee el premio; si falla, se revierte).
+- `requestResubmission(studentId, challengeId, teacherId, feedback)` — estado → `needs_resubmission` + `teacher_feedback`/`reviewer_id`/`reviewed_at`. No toca streak ni contadores.
+- `rejectSubmission(studentId, challengeId, teacherId, feedback)` — estado → `rejected` + `teacher_feedback`/`reviewer_id`/`reviewed_at`; para `normal`/`mystery_box` restaura `current_streak` a `streak_before`; además registra un `addStudentReport` con texto `"Challenge submission not approved — <título>: <feedback>"`.
+- `pendingSubmissionsForTeacher(teacherId)` → `PendingSubmissionRow[]` (`studentId`, `studentName`, `submission`) con las entregas en `pending_review` o `needs_resubmission` del roster del profesor; el roster se toma de `ASSIGNMENTS` (misma fuente que `teacherNotifications`).
 
 En `student.challenges.tsx` los 4 modales de reto comparten `ChallengeModalFooter`, que lee la entrega y muestra "⏳ Pending review", "Resubmit" (con el feedback del profesor) o "Not approved"; el envío se hace siempre por `SubmitChallengeModal` (link obligatorio + nota opcional).
+
+En `teacher.challenges.tsx` hay un selector de vistas "Catalog" / "Pending Reviews" (badge de conteo); la vista de revisión solo lee `pendingSubmissionsForTeacher` y dispara `approveSubmission` / `requestResubmission` / `rejectSubmission` (estas dos últimas exigen feedback no vacío).
+
 
 
 ### `BadgeDef` (`src/lib/badges-store.ts`)
