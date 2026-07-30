@@ -183,7 +183,7 @@ export function AccentModalFooter({
   return (
     <div
       className={`flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4 ${className}`}
-      style={accent ? ({ ["--accent-modal-accent" as string]: accent } as React.CSSProperties) : undefined}
+      style={accent ? { borderTopColor: accent } : undefined}
     >
       {children}
     </div>
