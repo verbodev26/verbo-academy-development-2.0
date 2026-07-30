@@ -2397,17 +2397,19 @@ function ChallengeBadgesModal({
     });
     const bolt: ChallengeBadgeTile = {
       key: "lightning",
+      badgeId: "lightning",
       name: "⚡ Lightning Bolt",
       earned: (student.lightning_completions ?? 0) >= 1,
       requirement: "Complete a Lightning challenge within its live window.",
-      equippable: false,
+      equippable: true,
     };
     const seasonTiles: ChallengeBadgeTile[] = seasons.map((s) => ({
       key: `season-${s.id}`,
+      badgeId: `season-${s.id}`,
       name: s.badge_name,
       earned: (student.season_completions?.[s.id] ?? 0) >= 1,
       requirement: `Complete a challenge during the ${s.display_name} Season.`,
-      equippable: false,
+      equippable: true,
     }));
     return [...core, bolt, ...seasonTiles];
   }, [badges, ctx, seasons, student.lightning_completions, student.season_completions]);
