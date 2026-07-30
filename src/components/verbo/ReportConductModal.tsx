@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { GhostButton, PrimaryButton, AccentModalHeader } from "@/components/verbo/ui";
 import { ShieldAlert } from "lucide-react";
+import verbotReport from "@/assets/Verbot_report.svg.asset.json";
 
 /** Same red the design system resolves for `bg-destructive`. */
 const DESTRUCTIVE = "#dc2626";
