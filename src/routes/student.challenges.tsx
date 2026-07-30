@@ -56,6 +56,8 @@ import {
   categoryColor,
 } from "@/lib/challenges-store";
 import {
+  type ChallengeSubmission,
+  type ChallengeSubmissionFormat,
   chooseChallenge,
   completeChallenge,
   completeCooldownRemaining,
@@ -63,6 +65,9 @@ import {
   hasCompletedChallenge,
   getSharedResult,
   shareChallengeResult,
+  getSubmission,
+  submitChallenge,
+  resubmitChallenge,
   subscribeStudents,
   openMysteryBox,
   mysteryBoxCooldownRemaining,
