@@ -565,40 +565,45 @@ function StudentDashboard() {
 
         {/* Overall Attendance */}
         <div className="relative">
-          <div className="card-gradient-lime shadow-card verbo-card-hover relative flex h-full min-h-[168px] items-center overflow-hidden rounded-[2rem] px-6 py-6">
-            <div
-              className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-              style={{ background: "rgba(1,48,74,0.06)", transform: "rotate(14deg)" }}
-              aria-hidden
-            />
-            <div className="relative flex w-full items-center justify-between gap-4">
+          <div
+            className="shadow-card verbo-card-hover relative flex h-full min-h-[168px] items-center overflow-hidden rounded-[2rem] px-6 py-6"
+            style={{
+              background: `linear-gradient(135deg, ${attendanceTheme.gradient[0]} 0%, ${attendanceTheme.gradient[1]} 100%)`,
+            }}
+          >
+            {/* Verbot expression for the current attendance band — zoomed and
+             *  anchored bottom-right so only the torso/head reads. */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]" aria-hidden>
+              <img
+                src={attendanceVerbot}
+                alt=""
+                aria-hidden
+                className="absolute -bottom-2 right-0 h-[150%] w-auto select-none object-contain"
+                style={{
+                  objectPosition: "top",
+                  opacity: 0.88,
+                  filter: "drop-shadow(0 10px 18px rgba(0,0,0,0.22))",
+                }}
+              />
+            </div>
+            <div className="relative flex w-full items-start justify-between gap-4">
               <div className="pr-2">
                 <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>Overall Attendance</div>
                 <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-3xl font-bold tracking-tight" style={{ color: "#ffffff" }}>{attendancePct}%</span>
+                  <AnimatedNumber
+                    value={attendancePct}
+                    className="text-6xl font-bold leading-none tracking-tight"
+                  />
+                  <span className="text-2xl font-bold" style={{ color: "#ffffff" }}>%</span>
                 </div>
-                <div className="mt-1 text-xs font-semibold" style={{ color: "rgba(1,48,74,0.8)" }}>last 90 days</div>
+                <div className="mt-1.5 text-xs font-semibold" style={{ color: "rgba(1,48,74,0.8)" }}>last 90 days</div>
               </div>
-              <div className="flex items-end gap-2">
-                <div className="flex h-14 items-end gap-1.5">
-                  {attendanceBars.map((b, i) => (
-                    <div
-                      key={i}
-                      className="w-1.5 rounded-full"
-                      style={{
-                        height: `${Math.max(8, (b / 100) * 56)}px`,
-                        backgroundColor: attendanceColorFor(b),
-                      }}
-                      aria-hidden
-                    />
-                  ))}
-                </div>
-                {attendanceTrend === "up" && <ArrowUp className="h-5 w-5" style={{ color: "var(--green-500)" }} aria-label="Attendance trending up" />}
-                {attendanceTrend === "down" && <ArrowDown className="h-5 w-5" style={{ color: "#F10202" }} aria-label="Attendance trending down" />}
-              </div>
+              {attendanceTrend === "up" && <ArrowUp className="h-5 w-5 shrink-0 text-white drop-shadow" aria-label="Attendance trending up" />}
+              {attendanceTrend === "down" && <ArrowDown className="h-5 w-5 shrink-0 text-white drop-shadow" aria-label="Attendance trending down" />}
             </div>
           </div>
         </div>
+
 
       </section>
 
