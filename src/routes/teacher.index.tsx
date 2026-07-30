@@ -579,8 +579,93 @@ function TeacherDashboard() {
         </Link>
       </section>
 
-      {/* Needs Your Attention */}
-      <section>
+      {/* Compressed action cards */}
+      <section className="grid gap-4 md:grid-cols-3">
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => setOpenPanel("attention")}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenPanel("attention"); } }}
+          className="block cursor-pointer text-left"
+        >
+          <HeroStatCard
+            className={`card-gradient-crimson${attention.length > 0 ? " verbo-focus-pulse" : ""}`}
+            style={attention.length > 0 ? ({ ["--verbo-focus-pulse-color" as any]: CRIMSON } as React.CSSProperties) : undefined}
+          >
+            <div className="relative flex w-full items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.75)" }}>
+                  Action Required
+                </div>
+                <div className="mt-2 text-3xl font-semibold leading-tight text-white">Needs Your Attention</div>
+                <div className="mt-2 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                  {attention.length === 0 ? "You're all caught up" : `${attention.length} item${attention.length === 1 ? "" : "s"} need review`}
+                </div>
+              </div>
+              <AlertTriangle className="h-10 w-10 shrink-0 text-white/85" strokeWidth={1.5} />
+            </div>
+          </HeroStatCard>
+        </div>
+
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => setOpenPanel("plan")}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenPanel("plan"); } }}
+          className="block cursor-pointer text-left"
+        >
+          <HeroStatCard className="card-gradient-violet">
+            <div className="relative flex w-full items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.75)" }}>
+                  Lesson Planning
+                </div>
+                <div className="mt-2 text-3xl font-semibold leading-tight text-white">Plan Your Upcoming Sessions</div>
+                <div className="mt-2 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                  {toPlan.length} session{toPlan.length === 1 ? "" : "s"} to plan
+                </div>
+              </div>
+              <CalendarClock className="h-10 w-10 shrink-0 text-white/85" strokeWidth={1.5} />
+            </div>
+          </HeroStatCard>
+        </div>
+
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => setOpenPanel("complete")}
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenPanel("complete"); } }}
+          className="block cursor-pointer text-left"
+        >
+          <HeroStatCard className="card-gradient-green">
+            <div className="relative flex w-full items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.75)" }}>
+                  Session Reports
+                </div>
+                <div className="mt-2 text-3xl font-semibold leading-tight text-white">Complete Your Sessions</div>
+                <div className="mt-2 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                  {upcoming.length + pendingClubEvents.length} session{upcoming.length + pendingClubEvents.length === 1 ? "" : "s"} awaiting completion
+                </div>
+              </div>
+              <CheckCircle2 className="h-10 w-10 shrink-0 text-white/85" strokeWidth={1.5} />
+            </div>
+          </HeroStatCard>
+        </div>
+      </section>
+
+      {openPanel === "attention" && (
+        <AccentModal
+          background={CRIMSON_BG}
+          iconTint={CRIMSON}
+          icon={AlertTriangle}
+          eyebrow="Needs Your Attention"
+          title="Needs Your Attention"
+          maxWidth="max-w-2xl"
+          onClose={() => setOpenPanel(null)}
+        >
+          <div className="max-h-[65vh] overflow-y-auto p-4">
+
         <SectionTitle>Needs Your Attention</SectionTitle>
         <Card className="!p-0">
           {attention.length === 0 ? (
