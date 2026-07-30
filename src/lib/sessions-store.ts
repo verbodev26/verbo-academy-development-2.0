@@ -533,12 +533,13 @@ export function statusTone(s: ExtSessionStatus): "default" | "success" | "warnin
     case "absent":
     case "no_show": return "danger";
     case "delayed":
-    case "rearranged":
     case "pending_reschedule": return "warning";
     case "ready": return "default";
-    default: return "muted"; // scheduled / rescheduled / cancelled — Gris Neutro
+    // "rearranged" is an alias of "rescheduled" — same tone, same colors.
+    default: return "muted"; // scheduled / rescheduled / rearranged / cancelled
   }
 }
+
 
 // ---------------------------------------------------------------------------
 // Attendance — single shared source of truth for the "% of sessions attended"
