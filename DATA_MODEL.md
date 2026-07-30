@@ -217,6 +217,9 @@ Proyección unificada de `Session`/`Club` para pintar el calendario. No se guard
 | status | `ExtSessionStatus \| TimeStatus` | |
 | is_group / group_id / spots_taken / spots_total / enrolled_names | — | solo aplican según el tipo de evento |
 
+**Color de eventos (derivado, `calendar-events.ts`)**: `EVENT_KIND_META[kind].color` y `CALENDAR_STATUS_META[status].color` son la fuente única para pills/leyenda/chips del calendario (`CalendarView.tsx` los lee dinámicamente). `calendarEventTheme(ev)` es una capa aparte, **solo para headers de modal**: devuelve `{ background, solid }` donde `background` puede ser un degradado CSS. Base por kind (class `#6d28d9`, workshop `#7c3aed`, insight degradado navy→negro, book_club `#c2410c`, spotlight `#2dd4bf`) con override por `status` (`rescheduled`/`cancelled`/`absent`) aplicable solo a kinds que llevan `ExtSessionStatus` (class, workshop, spotlight); insight y book_club usan `TimeStatus` y nunca reciben override.
+
+
 ### `AvailabilityChangeRequest`, `TeacherAvailability`, `TimeBlock` — ver §6.
 
 ---
