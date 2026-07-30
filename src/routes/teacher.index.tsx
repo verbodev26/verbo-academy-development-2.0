@@ -5,7 +5,7 @@ import { SESSIONS, ASSIGNMENTS, USERS, studentsOfTeacher, userById, type Session
 import { AccentModal, AccentModalFooter, AnimatedNumber, Card, GhostButton, HeroStatCard, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
 import { rankLabel } from "@/lib/staff-profile-store";
 
-import { CalendarClock, FileEdit, X, Lock, Plus, Trash2, Download, CheckCircle2, Mic, PenLine, Ear, BookOpen, ChevronRight, Video, Star, AlertTriangle, AlertCircle, Trophy, CalendarDays, Wallet, Sparkles as SparklesIcon, GraduationCap, type LucideIcon } from "lucide-react";
+import { CalendarClock, FileEdit, X, Lock, Plus, Trash2, Download, CheckCircle2, Mic, PenLine, Ear, BookOpen, ChevronRight, Video, Star, AlertTriangle, AlertCircle, Trophy, CalendarDays, Users, Wallet, Sparkles as SparklesIcon, GraduationCap, type LucideIcon } from "lucide-react";
 import { savePerformance, type PerformanceRating } from "@/lib/performance-store";
 import { MACRO_SKILLS as SHARED_MACRO_SKILLS, skillKey as sharedSkillKey, type BaseKey as SharedBaseKey } from "@/lib/skills-taxonomy";
 import { submitSessionReport, updateSession, loadSessions, subscribeSessions, SUB_STATUS_META, isJustificationWindowOpen, type ExtSession, type AttendanceSubStatus } from "@/lib/sessions-store";
@@ -15,7 +15,7 @@ import { subscribeCourses, computeCurrentProgress } from "@/lib/product-courses-
 import { loadLessonPlans, saveLessonPlan, subscribeLessonPlans, getLessonPlan, type LessonPlan } from "@/lib/lesson-plans-store";
 import { markVipUnitDone, clearVipUnitDoneForSession } from "@/lib/vip-courses-store";
 import { markTailoredUnitDone, clearTailoredUnitDoneForSession } from "@/lib/tailored-content-store";
-import { computeTeacherKpis, getBonusThreshold } from "@/lib/teacher-kpis";
+import { computeTeacherKpis, getBonusThreshold, ratingBand } from "@/lib/teacher-kpis";
 import { avgRating } from "@/lib/teacher-model";
 import { activeStrikeCount } from "@/lib/strikes-store";
 import { listChangeRequests, isTeacherAvailableAt, subscribeAvailability } from "@/lib/availability-store";
@@ -466,96 +466,83 @@ function TeacherDashboard() {
 
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Link to="/teacher/students" className="block cursor-pointer">
-          <HeroStatCard
-            className="card-gradient-teal"
-            decorative={
-              <div
-                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-                style={{ background: "rgba(255,255,255,0.10)", transform: "rotate(14deg)" }}
-                aria-hidden
-              />
-            }
-          >
+          <HeroStatCard className="border border-border bg-card">
+            <div
+              className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
+              style={{ color: "#1f7a70", background: "rgba(62,187,173,0.14)" }}
+            >
+              <Users className="h-5 w-5" />
+            </div>
             <div className="relative w-full">
-              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Assigned Students
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none text-white">
+              <div className="mt-2 text-5xl font-bold leading-none" style={{ color: "#1f7a70" }}>
                 <AnimatedNumber value={students.length} />
               </div>
             </div>
           </HeroStatCard>
         </Link>
         <Link to="/teacher/calendar" className="block cursor-pointer">
-          <HeroStatCard
-            className="card-gradient-orchid"
-            decorative={
-              <div
-                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-                style={{ background: "rgba(255,255,255,0.10)", transform: "rotate(14deg)" }}
-                aria-hidden
-              />
-            }
-          >
+          <HeroStatCard className="border border-border bg-card">
+            <div
+              className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
+              style={{ color: "#a34ac0", background: "rgba(163,74,192,0.12)" }}
+            >
+              <CalendarDays className="h-5 w-5" />
+            </div>
             <div className="relative w-full">
-              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Upcoming Sessions
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none text-white">
+              <div className="mt-2 text-5xl font-bold leading-none" style={{ color: "#a34ac0" }}>
                 <AnimatedNumber value={upcoming7dCount} />
               </div>
-              <div className="mt-2 text-xs font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>next 7 days</div>
+              <div className="mt-2 text-xs font-medium text-muted-foreground">next 7 days</div>
             </div>
           </HeroStatCard>
         </Link>
         <button type="button" onClick={() => setShowRatingTrend(true)} className="block cursor-pointer text-left">
-          <HeroStatCard
-            className={
-              avgRating30 == null ? "card-gradient-crimson"
-              : avgRating30 >= 4.0 ? "card-gradient-green"
-              : avgRating30 >= 3.5 ? "card-gradient-lime"
-              : avgRating30 >= 2.5 ? "card-gradient-gold"
-              : "card-gradient-crimson"
-            }
-            decorative={
-              <div
-                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-                style={{ background: "rgba(255,255,255,0.10)", transform: "rotate(14deg)" }}
-                aria-hidden
-              />
-            }
-          >
+          <HeroStatCard className="border border-border bg-card">
+            <div
+              className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
+              style={{ color: ratingBand(avgRating30).fg, background: ratingBand(avgRating30).bg }}
+            >
+              <Star className="h-5 w-5" />
+            </div>
             <div className="relative w-full">
-              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Avg Rating
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none text-white">
+              <div className="mt-2 text-5xl font-bold leading-none" style={{ color: ratingBand(avgRating30).fg }}>
                 {avgRating30 != null ? `${avgRating30.toFixed(1)}★` : "—"}
               </div>
-              <div className="mt-2 text-xs font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>last 30 days · view trend</div>
+              <div className="mt-2 text-xs font-medium text-muted-foreground">last 30 days · view trend</div>
             </div>
           </HeroStatCard>
         </button>
         <Link to="/teacher/financial" className="group block">
-          <HeroStatCard
-            className={
-              warningLevel === "none" ? "card-gradient-green"
-              : warningLevel === "yellow" ? "card-gradient-gold"
-              : "card-gradient-crimson"
-            }
-            decorative={
-              <div
-                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-                style={{ background: "rgba(255,255,255,0.10)", transform: "rotate(14deg)" }}
-                aria-hidden
-              />
-            }
-          >
+          <HeroStatCard className="border border-border bg-card">
+            <div
+              className={`absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl ${
+                warningLevel === "none" ? "bg-success/15 text-success"
+                : warningLevel === "yellow" ? "bg-warning/20 text-amber-700"
+                : "bg-destructive/15 text-destructive"
+              }`}
+            >
+              <Trophy className="h-5 w-5" />
+            </div>
             <div className="relative w-full">
-              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Performance
               </div>
-              <div className="mt-2 text-6xl font-bold leading-none text-white">
+              <div
+                className={`mt-2 text-6xl font-bold leading-none ${
+                  warningLevel === "none" ? "text-success"
+                  : warningLevel === "yellow" ? "text-amber-700"
+                  : "text-destructive"
+                }`}
+              >
                 <AnimatedNumber value={kpis?.composite ?? 0} suffix="%" />
                 {kpis?.onboarding && (
                   <span className="ml-2 rounded-full bg-white/85 px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wider text-blue-700">
@@ -563,7 +550,7 @@ function TeacherDashboard() {
                   </span>
                 )}
               </div>
-              <div className="mt-2 text-xs font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>
+              <div className="mt-2 text-xs font-medium text-muted-foreground">
                 Composite Score · view balance
               </div>
             </div>
@@ -571,6 +558,7 @@ function TeacherDashboard() {
           </HeroStatCard>
         </Link>
       </section>
+
 
       {/* Compressed action cards */}
       <section className="grid gap-4 md:grid-cols-3">
@@ -582,7 +570,7 @@ function TeacherDashboard() {
           className="block cursor-pointer text-left"
         >
           <HeroStatCard
-            className={`card-gradient-crimson${attention.length > 0 ? " verbo-focus-pulse" : ""}`}
+            className={`card-gradient-crimson !min-h-[92px] !py-4${attention.length > 0 ? " verbo-focus-pulse" : ""}`}
             style={attention.length > 0 ? ({ ["--verbo-focus-pulse-color" as any]: CRIMSON } as React.CSSProperties) : undefined}
           >
             <div className="relative flex w-full items-center justify-between gap-3">
@@ -590,12 +578,12 @@ function TeacherDashboard() {
                 <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.75)" }}>
                   Action Required
                 </div>
-                <div className="mt-2 text-3xl font-semibold leading-tight text-white">Needs Your Attention</div>
-                <div className="mt-2 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                <div className="mt-1 text-xl font-semibold leading-tight text-white">Needs Your Attention</div>
+                <div className="mt-1 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
                   {attention.length === 0 ? "You're all caught up" : `${attention.length} item${attention.length === 1 ? "" : "s"} need review`}
                 </div>
               </div>
-              <AlertTriangle className="h-10 w-10 shrink-0 text-white/85" strokeWidth={1.5} />
+              <AlertTriangle className="h-7 w-7 shrink-0 text-white/85" strokeWidth={1.5} />
             </div>
           </HeroStatCard>
         </div>
@@ -607,18 +595,18 @@ function TeacherDashboard() {
           onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenPanel("plan"); } }}
           className="block cursor-pointer text-left"
         >
-          <HeroStatCard className="card-gradient-violet">
+          <HeroStatCard className="card-gradient-violet !min-h-[92px] !py-4">
             <div className="relative flex w-full items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.75)" }}>
                   Lesson Planning
                 </div>
-                <div className="mt-2 text-3xl font-semibold leading-tight text-white">Plan Your Upcoming Sessions</div>
-                <div className="mt-2 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                <div className="mt-1 text-xl font-semibold leading-tight text-white">Plan Your Upcoming Sessions</div>
+                <div className="mt-1 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
                   {toPlan.length} session{toPlan.length === 1 ? "" : "s"} to plan
                 </div>
               </div>
-              <CalendarClock className="h-10 w-10 shrink-0 text-white/85" strokeWidth={1.5} />
+              <CalendarClock className="h-7 w-7 shrink-0 text-white/85" strokeWidth={1.5} />
             </div>
           </HeroStatCard>
         </div>
@@ -630,18 +618,18 @@ function TeacherDashboard() {
           onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenPanel("complete"); } }}
           className="block cursor-pointer text-left"
         >
-          <HeroStatCard className="card-gradient-green">
+          <HeroStatCard className="card-gradient-lime !min-h-[92px] !py-4">
             <div className="relative flex w-full items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.75)" }}>
                   Session Reports
                 </div>
-                <div className="mt-2 text-3xl font-semibold leading-tight text-white">Complete Your Sessions</div>
-                <div className="mt-2 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                <div className="mt-1 text-xl font-semibold leading-tight text-white">Complete Your Sessions</div>
+                <div className="mt-1 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
                   {upcoming.length + pendingClubEvents.length} session{upcoming.length + pendingClubEvents.length === 1 ? "" : "s"} awaiting completion
                 </div>
               </div>
-              <CheckCircle2 className="h-10 w-10 shrink-0 text-white/85" strokeWidth={1.5} />
+              <CheckCircle2 className="h-7 w-7 shrink-0 text-white/85" strokeWidth={1.5} />
             </div>
           </HeroStatCard>
         </div>
