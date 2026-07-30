@@ -2,7 +2,7 @@ import { createFileRoute, useSearch, useNavigate, Link } from "@tanstack/react-r
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { SESSIONS, ASSIGNMENTS, USERS, studentsOfTeacher, userById, type Session, type SessionStatus } from "@/lib/mock-data";
-import { Card, GhostButton, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
+import { AnimatedNumber, Card, GhostButton, HeroStatCard, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
 import { CalendarClock, FileEdit, X, Lock, Plus, Trash2, Download, CheckCircle2, Mic, PenLine, Ear, BookOpen, ChevronRight, Video, Star, AlertTriangle, AlertCircle, Trophy, CalendarDays, Wallet, Sparkles as SparklesIcon, GraduationCap, type LucideIcon } from "lucide-react";
 import { savePerformance, type PerformanceRating } from "@/lib/performance-store";
 import { MACRO_SKILLS as SHARED_MACRO_SKILLS, skillKey as sharedSkillKey, type BaseKey as SharedBaseKey } from "@/lib/skills-taxonomy";
@@ -447,65 +447,135 @@ function TeacherDashboard() {
       </header>
 
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Link
-          to="/teacher/students"
-          className="block cursor-pointer rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow hover:shadow-floating"
-        >
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Assigned Students</div>
-          <div className="mt-3 text-3xl font-semibold tracking-tight text-black">{students.length}</div>
-        </Link>
-        <Link
-          to="/teacher/calendar"
-          className="block cursor-pointer rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow hover:shadow-floating"
-        >
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Upcoming Sessions</div>
-          <div className="mt-3 text-3xl font-semibold tracking-tight text-black">{upcoming7dCount}</div>
-          <div className="mt-1 text-xs text-muted-foreground">next 7 days</div>
-        </Link>
-        <button
-          type="button"
-          onClick={() => setShowRatingTrend(true)}
-          className="block cursor-pointer rounded-2xl border border-border bg-card p-6 text-left shadow-soft transition-shadow hover:shadow-floating"
-        >
-          <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Avg Rating</div>
-          <div className="mt-3 text-3xl font-semibold tracking-tight text-black">{avgRating30 != null ? `${avgRating30.toFixed(1)}★` : "—"}</div>
-          <div className="mt-1 text-xs text-muted-foreground">last 30 days · view trend</div>
-        </button>
-        <Link
-          to="/teacher/financial"
-          className="group block rounded-2xl border border-border bg-card p-6 shadow-soft transition-shadow hover:shadow-floating"
-        >
-          <div className="flex items-start justify-between gap-2">
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Performance</div>
-            <div className="flex flex-wrap justify-end gap-1">
-              {kpis && <BonusBadge status={kpis.bonusStatus} size="sm" />}
-              {warningLevel === "yellow" && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-warning/20 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-                  <AlertTriangle className="h-3 w-3" /> 1 KPI Below Target
-                </span>
-              )}
-              {warningLevel === "red" && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold text-destructive">
-                  <AlertTriangle className="h-3 w-3" /> {belowTarget} KPIs Below Target
-                </span>
-              )}
-              {strikes > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold text-destructive">
-                  {Math.min(3, strikes)}/3 Strikes (6 months)
-                </span>
-              )}
+        <Link to="/teacher/students" className="block cursor-pointer">
+          <HeroStatCard
+            className="card-gradient-teal"
+            decorative={
+              <div
+                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
+                style={{ background: "rgba(255,255,255,0.10)", transform: "rotate(14deg)" }}
+                aria-hidden
+              />
+            }
+          >
+            <div className="relative w-full">
+              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+                Assigned Students
+              </div>
+              <div className="mt-2 text-5xl font-bold leading-none text-white">
+                <AnimatedNumber value={students.length} />
+              </div>
             </div>
-          </div>
-          <div className="mt-3 text-3xl font-semibold tracking-tight text-black">{kpis?.composite ?? 0}%{kpis?.onboarding && <span className="ml-2 rounded-full bg-blue-50 px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wider text-blue-700">Onboarding</span>}</div>
-          <div className="mt-1 flex items-center gap-1.5 text-xs">
-            <span
-              className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold"
-              style={{ backgroundColor: rating30Band.bg, color: rating30Band.fg }}
-            >
-              <Star className="h-3 w-3 fill-current" /> {avgRating30 != null ? avgRating30.toFixed(1) : "—"}
-            </span>
-            <span className="text-muted-foreground">Composite Score · view balance</span>
-          </div>
+          </HeroStatCard>
+        </Link>
+        <Link to="/teacher/calendar" className="block cursor-pointer">
+          <HeroStatCard
+            className="card-gradient-orchid"
+            decorative={
+              <div
+                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
+                style={{ background: "rgba(255,255,255,0.10)", transform: "rotate(14deg)" }}
+                aria-hidden
+              />
+            }
+          >
+            <div className="relative w-full">
+              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+                Upcoming Sessions
+              </div>
+              <div className="mt-2 text-5xl font-bold leading-none text-white">
+                <AnimatedNumber value={upcoming7dCount} />
+              </div>
+              <div className="mt-2 text-xs font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>next 7 days</div>
+            </div>
+          </HeroStatCard>
+        </Link>
+        <button type="button" onClick={() => setShowRatingTrend(true)} className="block cursor-pointer text-left">
+          <HeroStatCard
+            className={
+              avgRating30 == null ? "card-gradient-crimson"
+              : avgRating30 >= 4.0 ? "card-gradient-green"
+              : avgRating30 >= 3.5 ? "card-gradient-lime"
+              : avgRating30 >= 2.5 ? "card-gradient-gold"
+              : "card-gradient-crimson"
+            }
+            decorative={
+              <div
+                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
+                style={{ background: "rgba(255,255,255,0.10)", transform: "rotate(14deg)" }}
+                aria-hidden
+              />
+            }
+          >
+            <div className="relative w-full">
+              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+                Avg Rating
+              </div>
+              <div className="mt-2 text-5xl font-bold leading-none text-white">
+                {avgRating30 != null ? `${avgRating30.toFixed(1)}★` : "—"}
+              </div>
+              <div className="mt-2 text-xs font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>last 30 days · view trend</div>
+            </div>
+          </HeroStatCard>
+        </button>
+        <Link to="/teacher/financial" className="group block">
+          <HeroStatCard
+            className={
+              warningLevel === "none" ? "card-gradient-green"
+              : warningLevel === "yellow" ? "card-gradient-gold"
+              : "card-gradient-crimson"
+            }
+            decorative={
+              <div
+                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
+                style={{ background: "rgba(255,255,255,0.10)", transform: "rotate(14deg)" }}
+                aria-hidden
+              />
+            }
+          >
+            <div className="relative w-full">
+              <div className="flex items-start justify-between gap-2">
+                <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+                  Performance
+                </div>
+                <div className="flex flex-wrap justify-end gap-1">
+                  {kpis && <BonusBadge status={kpis.bonusStatus} size="sm" />}
+                  {warningLevel === "yellow" && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-white/85 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                      <AlertTriangle className="h-3 w-3" /> 1 KPI Below Target
+                    </span>
+                  )}
+                  {warningLevel === "red" && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-destructive">
+                      <AlertTriangle className="h-3 w-3" /> {belowTarget} KPIs Below Target
+                    </span>
+                  )}
+                  {strikes > 0 && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-destructive">
+                      {Math.min(3, strikes)}/3 Strikes (6 months)
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="mt-2 text-5xl font-bold leading-none text-white">
+                <AnimatedNumber value={kpis?.composite ?? 0} suffix="%" />
+                {kpis?.onboarding && (
+                  <span className="ml-2 rounded-full bg-white/85 px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wider text-blue-700">
+                    Onboarding
+                  </span>
+                )}
+              </div>
+              <div className="mt-2 flex items-center gap-1.5 text-xs">
+                <span
+                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold"
+                  style={{ backgroundColor: rating30Band.bg, color: rating30Band.fg }}
+                >
+                  <Star className="h-3 w-3 fill-current" /> {avgRating30 != null ? avgRating30.toFixed(1) : "—"}
+                </span>
+                <span className="font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>Composite Score · view balance</span>
+              </div>
+            </div>
+          </HeroStatCard>
         </Link>
       </section>
 
