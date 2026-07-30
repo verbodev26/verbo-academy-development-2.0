@@ -486,6 +486,21 @@ function Page() {
   const countByDifficulty = (d: DifficultyId) =>
     productChallenges.filter((c) => c.difficulty === d).length;
 
+  /** Opens the mandatory submission form for any challenge flavour. */
+  const openSubmit = (
+    c: { id: string; title: string; category?: string },
+    format: ChallengeSubmissionFormat,
+    mode: "submit" | "resubmit",
+    theme?: { accent: string; icon: LucideIcon },
+  ) =>
+    setSubmitFor({
+      id: c.id,
+      title: c.title,
+      format,
+      mode,
+      accent: theme?.accent ?? categoryTheme(c.category).solid,
+      icon: theme?.icon ?? categoryIcon(c.category),
+    });
 
 
 
