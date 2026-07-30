@@ -303,7 +303,7 @@ function StudentCard({ student: s, onOpen }: { student: User; onOpen: () => void
           <span className="font-medium text-foreground">{remaining}/{hired}</span>
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-accent" style={{ width: `${Math.min(100, pct)}%` }} />
+          <div className={`h-full rounded-full ${pct >= 90 ? "bg-destructive" : pct >= 70 ? "bg-warning" : "bg-accent"}`} style={{ width: `${Math.min(100, pct)}%` }} />
         </div>
       </div>
 
