@@ -1300,56 +1300,19 @@ function VerboFlashBanner({
   );
 }
 
-/* ---- Shared reveal-modal header decoration (Verbo Next inspired) ---- */
-const FLASH_HEADER_KEYFRAMES = `
-  @keyframes verbo-flash-blob {
-    from { opacity: 0; transform: scale(0.6); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  @keyframes verbo-flash-pop {
-    from { opacity: 0; transform: scale(0.7) rotate(-8deg); }
-    to { opacity: 1; transform: scale(1) rotate(0deg); }
-  }
-  @keyframes verbo-flash-rise {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+/* ---- Shared reveal-modal header keyframes (same language as ChallengeDetail) ---- */
+const VC_HEADER_KEYFRAMES = `
+  @keyframes vc-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes vc-blob { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+  @keyframes vc-logo { from { opacity: 0; transform: scale(0.7) rotate(-15deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
+  .vc-rise { opacity: 0; animation: vc-rise 0.55s cubic-bezier(0.16,1,0.3,1) forwards; }
+  .vc-blob { opacity: 0; animation: vc-blob 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+  .vc-logo { opacity: 0; animation: vc-logo 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
   @media (prefers-reduced-motion: reduce) {
-    .verbo-flash-blob, .verbo-flash-pop, .verbo-flash-rise { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .vc-rise, .vc-blob, .vc-logo { animation: none !important; opacity: 1 !important; transform: none !important; }
   }
 `;
 
-const EASE_SOFT = "cubic-bezier(0.16, 1, 0.3, 1)";
-
-function FlashHeaderDecor({ watermark }: { watermark: React.ReactNode }) {
-  return (
-    <>
-      <span
-        aria-hidden
-        className="verbo-flash-blob pointer-events-none absolute -top-24 -right-24 h-[380px] w-[380px] rounded-full"
-        style={{
-          background: "radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 65%)",
-          animation: `verbo-flash-blob 0.9s ${EASE_SOFT} both`,
-        }}
-      />
-      <span
-        aria-hidden
-        className="verbo-flash-blob pointer-events-none absolute -bottom-32 -left-16 h-[320px] w-[320px] rounded-full"
-        style={{
-          background: "radial-gradient(circle, rgba(0,0,0,0.25) 0%, transparent 60%)",
-          animation: `verbo-flash-blob 1.1s ${EASE_SOFT} 0.05s both`,
-        }}
-      />
-      <span aria-hidden className="pointer-events-none absolute -bottom-6 right-2 select-none text-white/10">
-        {watermark}
-      </span>
-    </>
-  );
-}
-
-const flashPopStyle: React.CSSProperties = { animation: `verbo-flash-pop 0.6s ${EASE_SOFT} 0.1s both` };
-const flashEyebrowStyle: React.CSSProperties = { animation: `verbo-flash-rise 0.5s ${EASE_SOFT} 0.15s both` };
-const flashTitleStyle: React.CSSProperties = { animation: `verbo-flash-rise 0.5s ${EASE_SOFT} 0.2s both` };
 
 
 function MysteryCooldownModal({ onClose }: { onClose: () => void }) {
