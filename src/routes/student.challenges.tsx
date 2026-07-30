@@ -537,62 +537,16 @@ function Page() {
               const done = hasCompletedChallenge(student.id, c.id);
               const shared = !!getSharedResult(student.id, c.id);
               return (
-                <ChallengeSurface
+                <ChallengeCard
                   key={c.id}
-                  difficulty={difficulty}
-                  category={c.category}
-                  className="group h-full transition-transform duration-300 ease-out hover:-translate-y-1.5"
-                  motifClassName="h-24 w-24 opacity-60"
-                  contentClassName="flex h-full flex-col gap-3 p-5 text-left"
-                >
-                  <button
-                    type="button"
-                    onClick={() => setOpen(c)}
-                    className="flex flex-1 flex-col gap-3 text-left"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <CategoryBadge name={c.category} />
-                        {locked && <PremiumBadge />}
-                      </div>
-                      {done ? (
-                        <span className="inline-flex items-center rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold text-white ring-1 ring-inset ring-white/30">
-                          <CheckCircle2 className="mr-1 h-3 w-3" /> Completed
-                        </span>
-                      ) : chosen ? (
-                        <span className="inline-flex items-center rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold text-white ring-1 ring-inset ring-white/30">
-                          In progress
-                        </span>
-                      ) : null}
-                    </div>
-                    <div className="w-[88%]">
-                      <div className="text-base font-semibold text-white drop-shadow-sm">{c.title}</div>
-                      <p className="mt-1 line-clamp-3 text-xs text-white/80">{c.description || "Tap to see the details."}</p>
-                    </div>
-                    {c.skill_tags && c.skill_tags.length > 0 && (
-                      <div className="mt-auto flex flex-wrap items-center gap-1 pt-1">
-                        {c.skill_tags.map((s) => (
-                          <span
-                            key={s}
-                            className="inline-flex items-center rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium text-white/90 ring-1 ring-inset ring-white/20"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </button>
-                  {done && (
-                    <button
-                      type="button"
-                      onClick={() => setShareFor(c)}
-                      className="inline-flex items-center gap-1.5 self-start text-[11px] font-semibold text-white/90 hover:underline"
-                    >
-                      <Share2 className="h-3 w-3" />
-                      {shared ? "Edit shared result" : "Share result"}
-                    </button>
-                  )}
-                </ChallengeSurface>
+                  challenge={c}
+                  locked={locked}
+                  chosen={chosen}
+                  done={done}
+                  shared={shared}
+                  onOpen={() => setOpen(c)}
+                  onShare={() => setShareFor(c)}
+                />
               );
 
             })}
