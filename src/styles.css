@@ -927,3 +927,15 @@
   .verbo-shake { animation: none; }
   .verbo-crossfade { animation: verbo-crossfade 120ms ease-out both; }
 }
+
+/* ---- Shared accent-modal entrance animations (global copy of the
+   ChallengeDetail header animations, reusable by any component). ---- */
+@keyframes vc-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes vc-blob { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+@keyframes vc-logo { from { opacity: 0; transform: scale(0.7) rotate(-15deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
+.vc-rise { opacity: 0; animation: vc-rise 0.55s cubic-bezier(0.16,1,0.3,1) forwards; }
+.vc-blob { opacity: 0; animation: vc-blob 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+.vc-logo { opacity: 0; animation: vc-logo 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .vc-rise, .vc-blob, .vc-logo { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
