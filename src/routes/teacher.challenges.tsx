@@ -25,6 +25,7 @@ import {
   challengesFor,
   categoryColor,
 } from "@/lib/challenges-store";
+import { loadFlashChallenges } from "@/lib/flash-challenges-store";
 
 export const Route = createFileRoute("/teacher/challenges")({
   head: () => ({
@@ -318,7 +319,10 @@ function ReviewRow({
   const [feedback, setFeedback] = useState("");
   const { submission: s } = row;
   const ch = challenges.find((c) => c.id === s.challenge_id);
-  const title = ch?.title ?? s.challenge_id;
+  const title =
+    ch?.title ??
+    loadFlashChallenges().find((c) => c.id === s.challenge_id)?.title ??
+    s.challenge_id;
 
   const confirm = () => {
     const text = feedback.trim();
