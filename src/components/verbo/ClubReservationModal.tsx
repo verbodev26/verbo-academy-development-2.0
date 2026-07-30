@@ -3,7 +3,7 @@
 // and both reserve + cancel actions. Same visual language as the Live
 // Sessions modals (Card / PrimaryButton / GhostButton / semantic tokens).
 import { useMemo, useState } from "react";
-import { X, AlertTriangle, CheckCircle2, Users, CalendarClock, FileText, Video } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Users, CalendarClock, Clock, FileText, Video } from "lucide-react";
 import { toast } from "sonner";
 import type { Club } from "@/lib/clubs-store";
 import { userById } from "@/lib/mock-data";
@@ -17,7 +17,7 @@ import {
   cancelSeat,
   useBookings,
 } from "@/lib/club-bookings-store";
-import { GhostButton, PrimaryButton } from "@/components/verbo/ui";
+import { AccentModalHeader, InfoStatRow, PrimaryButton } from "@/components/verbo/ui";
 
 function fmtLong(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
@@ -90,6 +90,13 @@ export function ClubReservationModal({
     toast("Reservation cancelled.");
   };
 
+  const HeaderIcon = isBook ? FileText : Users;
+  const headerBg = isBook
+    ? "linear-gradient(135deg, #c2410c 0%, #000000 100%)"
+    : "linear-gradient(135deg, #01304a 0%, #05070a 100%)";
+  const dateShort = new Date(club.date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  const timeShort = new Date(club.date).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
@@ -98,13 +105,15 @@ export function ClubReservationModal({
         onClick={(e) => e.stopPropagation()}
         className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-card shadow-floating"
       >
-        <button
-          onClick={onClose}
-          aria-label="Close"
-          className="absolute right-4 top-4 z-10 rounded-md bg-black/40 p-1 text-white hover:bg-black/60"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        <AccentModalHeader
+          background={headerBg}
+          iconTint={accent}
+          icon={HeaderIcon}
+          eyebrow={label}
+          title={club.title}
+          watermark={{ type: "icon", icon: HeaderIcon }}
+          onClose={onClose}
+        />
 
         {club.cover_image && (
           <div className="relative h-40 w-full overflow-hidden bg-secondary">
@@ -117,56 +126,51 @@ export function ClubReservationModal({
         )}
 
         <div className="p-6">
-        <div className="flex items-start gap-3">
-          <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white"
-            style={{ background: accent }}
-          >
-            {isBook ? <FileText className="h-5 w-5" /> : <Users className="h-5 w-5" />}
-          </div>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white"
-                style={{ background: accent }}
-              >
-                {label}
-              </span>
-              {booked && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
-                  <CheckCircle2 className="h-3 w-3" /> You're in
-                </span>
-              )}
-            </div>
-            <h3 className="mt-1.5 text-lg font-semibold tracking-tight" style={{ color: "#01304a" }}>
-              {club.title}
-            </h3>
-            {club.description && (
-              <p className="mt-1 text-sm text-muted-foreground">{club.description}</p>
-            )}
-          </div>
-        </div>
-
-
-        <div className="mt-4 space-y-2 text-sm">
-          <Row icon={<CalendarClock className="h-4 w-4" />} label="When" value={`${fmtLong(club.date)} · ${club.duration_minutes} min`} />
-          {teacher && <Row icon={<Video className="h-4 w-4" />} label="Host" value={teacher.name} />}
-          {club.material && (
-            <div className="flex items-center justify-between gap-3">
-              <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                <FileText className="h-4 w-4" />Material
-              </span>
-              <a
-                href={club.material}
-                target="_blank"
-                rel="noreferrer"
-                className="truncate text-right font-medium text-accent underline-offset-2 hover:underline"
-              >
-                View pre-club material
-              </a>
-            </div>
+        <div className="min-w-0">
+          {booked && (
+            <span className="mb-2 inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
+              <CheckCircle2 className="h-3 w-3" /> You're in
+            </span>
+          )}
+          <h3 className="text-lg font-semibold tracking-tight" style={{ color: "#01304a" }}>
+            {club.title}
+          </h3>
+          {club.description && (
+            <p className="mt-1 text-sm text-muted-foreground">{club.description}</p>
           )}
         </div>
+
+
+        <div className="mt-4">
+          <InfoStatRow
+            items={[
+              { icon: CalendarClock, value: dateShort, label: "Date", tint: accent },
+              { icon: Clock, value: timeShort, label: "Time", tint: accent },
+              { icon: Users, value: `${club.spots_taken ?? 0}/${club.spots_total}`, label: "Seats", tint: accent },
+            ]}
+          />
+        </div>
+
+        {(teacher || club.material) && (
+          <div className="mt-4 space-y-2 text-sm">
+            {teacher && <Row icon={<Video className="h-4 w-4" />} label="Host" value={teacher.name} />}
+            {club.material && (
+              <div className="flex items-center justify-between gap-3">
+                <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                  <FileText className="h-4 w-4" />Material
+                </span>
+                <a
+                  href={club.material}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="truncate text-right font-medium text-accent underline-offset-2 hover:underline"
+                >
+                  View pre-club material
+                </a>
+              </div>
+            )}
+          </div>
+        )}
 
 
         {/* Seat meter */}
@@ -205,22 +209,13 @@ export function ClubReservationModal({
           </div>
         )}
 
-        <div className="mt-6 flex gap-2">
+        <div className="mt-6">
           {booked ? (
             <>
-              <button
-                type="button"
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors duration-150 ease-out hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60"
-                onClick={onCancel}
-                disabled={busy || !!cancelBlocked}
-                title={cancelBlocked ?? undefined}
-              >
-                {cancelBlocked ? cancelBlocked : busy ? "Cancelling…" : "Cancel reservation"}
-              </button>
-
               {connectOpen ? (
                 <PrimaryButton
-                  className="flex-1 justify-center verbo-btn-glow"
+                  className="w-full justify-center verbo-btn-glow"
+                  style={{ backgroundColor: accent, boxShadow: `0 8px 20px -6px ${accent}` }}
                   onClick={() => club.link && window.open(club.link, "_blank")}
                 >
                   <Video className="h-4 w-4" /> Connect
@@ -230,28 +225,48 @@ export function ClubReservationModal({
                   type="button"
                   disabled
                   title="Activates 5 minutes before your session."
-                  className="flex-1 inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm font-medium text-muted-foreground"
+                  className="w-full inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm font-medium text-muted-foreground"
                 >
                   <Video className="h-4 w-4" /> Connect
                 </button>
               )}
-              <GhostButton className="flex-1 justify-center" onClick={onClose}>Close</GhostButton>
+              <div className="mt-3 text-center">
+                <button
+                  type="button"
+                  className="text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-destructive hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={onCancel}
+                  disabled={busy || !!cancelBlocked}
+                  title={cancelBlocked ?? undefined}
+                >
+                  {cancelBlocked ? cancelBlocked : busy ? "Cancelling…" : "Cancel reservation"}
+                </button>
+              </div>
             </>
           ) : (
             <>
               <PrimaryButton
-                className="flex-1 justify-center"
+                className="w-full justify-center"
+                style={{ backgroundColor: accent, boxShadow: `0 8px 20px -6px ${accent}` }}
                 onClick={onReserve}
                 disabled={busy || !!reserveBlocked}
                 title={reserveBlocked ?? undefined}
               >
                 {reserveBlocked ? reserveBlocked : busy ? "Reserving…" : "Reserve seat"}
               </PrimaryButton>
-              <GhostButton className="flex-1 justify-center" onClick={onClose}>Close</GhostButton>
+              <div className="mt-3 text-center">
+                <button
+                  type="button"
+                  className="text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-destructive hover:underline"
+                  onClick={onClose}
+                >
+                  Close
+                </button>
+              </div>
             </>
           )}
         </div>
         </div>
+
       </div>
     </div>
   );
