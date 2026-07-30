@@ -260,6 +260,7 @@ function MyBalancePage() {
           sub={`${sessionsCount} session${sessionsCount === 1 ? "" : "s"}`}
           expanded={expanded.sessions}
           onClick={() => toggle("sessions")}
+          gradient="card-gradient-navy"
         />
         <SummaryCard
           label="Adjustments"
@@ -267,6 +268,7 @@ function MyBalancePage() {
           sub={`${adjustments.length} adjustment${adjustments.length === 1 ? "" : "s"}`}
           expanded={expanded.adjustments}
           onClick={() => toggle("adjustments")}
+          gradient="card-gradient-teal"
         />
         <SummaryCard
           label="Bonus"
@@ -274,6 +276,7 @@ function MyBalancePage() {
           sub={`Composite Score: ${kpis?.composite ?? 0}% · ${rating != null ? rating.toFixed(1) + "★" : "—"}`}
           expanded={expanded.bonus}
           onClick={() => toggle("bonus")}
+          gradient="card-gradient-gold"
         />
         <TotalCard label="Total Earned" value={money(totalEarned)} />
       </div>
