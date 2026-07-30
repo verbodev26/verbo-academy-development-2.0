@@ -1775,23 +1775,28 @@ function ChallengeDetail({
 /* -------------------------------------------------------------------------- */
 /* Share Result modal — optional URL + locked "Upload File" (Coming soon).    */
 /* -------------------------------------------------------------------------- */
-function ShareResultModal({
-  challenge,
+/** Mandatory submission modal. A challenge is only ever "delivered" through
+ *  this form — the student must provide a link (uploads coming later) plus an
+ *  optional note, and the result goes to the teacher as "pending_review". */
+function SubmitChallengeModal({
+  title,
   accent,
   icon,
-  initialLink,
+  mode,
   onClose,
-  onSave,
+  onSubmit,
 }: {
-  challenge: Challenge;
+  title: string;
   accent: string;
   icon: LucideIcon;
-  initialLink: string;
+  mode: "submit" | "resubmit";
   onClose: () => void;
-  onSave: (link: string) => void;
+  onSubmit: (link: string, note: string) => void;
 }) {
   const [source, setSource] = useState<"url" | "upload">("url");
-  const [link, setLink] = useState(initialLink);
+  const [link, setLink] = useState("");
+  const [note, setNote] = useState("");
+  const valid = source === "url" && link.trim().length > 0;
 
   return (
     <div className="fixed inset-0 z-[55] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
@@ -1803,15 +1808,15 @@ function ShareResultModal({
           background={accent}
           iconTint={accent}
           icon={icon}
-          eyebrow="Challenge completed"
-          title={challenge.title}
-          watermark={{ type: "text", value: "SHARE" }}
+          eyebrow={mode === "resubmit" ? "Try again" : "Submit your work"}
+          title={title}
+          watermark={{ type: "text", value: "SUBMIT" }}
           onClose={onClose}
         />
 
         <div className="space-y-4 p-5">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            Want to share your result? (optional)
+            Your teacher will review this submission
           </p>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -1843,12 +1848,24 @@ function ShareResultModal({
               <Upload className="h-4 w-4" /> Coming soon — file uploads (pdf / video / image, max 10MB) will be available soon.
             </div>
           )}
+
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={3}
+            placeholder="Add a note for your teacher (optional)"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
+          />
         </div>
 
         <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
-          <GhostButton onClick={onClose}>Skip</GhostButton>
-          <PrimaryButton onClick={() => onSave(link)} disabled={source !== "url"} style={{ backgroundColor: accent, color: "#fff" }}>
-            Save
+          <GhostButton onClick={onClose}>Cancel</GhostButton>
+          <PrimaryButton
+            onClick={() => onSubmit(link.trim(), note.trim())}
+            disabled={!valid}
+            style={{ backgroundColor: accent, color: "#fff" }}
+          >
+            <Upload className="h-3.5 w-3.5" /> {mode === "resubmit" ? "Resubmit" : "Submit"}
           </PrimaryButton>
         </div>
       </div>
