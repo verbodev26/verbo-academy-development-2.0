@@ -168,6 +168,7 @@ Extiende `Session` (con `Omit<Session,"status">`), agregando el ciclo de vida re
 | cancellation_reason | `"illness"\|"personal"\|"major_issue"\|"other"` | opcional | |
 | cancellation_note | string | opcional | |
 | needs_substitute | boolean | opcional | |
+| covered_by_substitute | boolean | opcional | true al asignar sustituto desde `CandidatesModal`; alimenta el color "Substitution" en calendarios de staff |
 | report_comments | string | opcional | |
 | holiday_makeup | boolean | opcional | `true` solo en sesiones auto-generadas por el Bulk Scheduler de Admin > Sessions como reposición de una fecha que cayó en un `Holiday` (§10). Las fechas holiday-hit se crean con `status: "cancelled"` + `attendance_sub_status: "cancelled_holiday"`; las de reposición se crean con `status: "scheduled"` + `holiday_makeup: true`. |
 
@@ -216,8 +217,13 @@ Proyección unificada de `Session`/`Club` para pintar el calendario. No se guard
 | kind | `"class"\|"workshop"\|"insight"\|"book_club"\|"spotlight"` | |
 | status | `ExtSessionStatus \| TimeStatus` | |
 | is_group / group_id / spots_taken / spots_total / enrolled_names | — | solo aplican según el tipo de evento |
+| covered_by_substitute | boolean | proyectado desde `ExtSession`; solo se pinta si `substitutionAware` |
 
-**Color de eventos (derivado, `calendar-events.ts`)**: `EVENT_KIND_META[kind].color` y `CALENDAR_STATUS_META[status].color` son la fuente única para pills/leyenda/chips del calendario (`CalendarView.tsx` los lee dinámicamente). `calendarEventTheme(ev)` es una capa aparte, **solo para headers de modal**: devuelve `{ background, solid }` donde `background` puede ser un degradado CSS. Base por kind (class `#6d28d9`, workshop `#7c3aed`, insight degradado navy→negro, book_club `#c2410c`, spotlight `#2dd4bf`) con override por `status` (`rescheduled`/`cancelled`/`absent`) aplicable solo a kinds que llevan `ExtSessionStatus` (class, workshop, spotlight); insight y book_club usan `TimeStatus` y nunca reciben override.
+**Color de estados/eventos — fuente única (`src/lib/status-palette.ts`)**: `STATUS_PALETTE` define label + color (+ `borderColor` solo para `scheduled`, que es blanco `#ffffff` con borde `#cbd5e1`) de los 11 `ExtSessionStatus`. De ahí derivan `CALENDAR_STATUS_META` (`calendar-events.ts`), `WORKSHOP_STATUS_META` (`sessions-store.ts`), el `STATUS_META` de `admin.sessions.tsx` y el pill de estado del Dashboard (`student.index.tsx`). Colores: scheduled `#ffffff`, ready `#8b5cf6`, completed `#3cce10`, absent `#dc0000`, cancelled `#94a3b8`, pending_reschedule `#b45309`, no_show `#1d1d1d`, rescheduled/rearranged `#f97316`, delayed `#ffa800`, converted_to_spotlight `#2dd4bf`. `rearranged` sigue existiendo en el tipo por compatibilidad de datos, pero **nunca** se ve distinto de `rescheduled` (mismo color, mismo label, mismo tone); la reprogramación en `admin.sessions.tsx` siempre resuelve a `rescheduled`.
+
+`EVENT_KIND_META`: `class` no tiene color propio (usa el status; el valor guardado es solo fallback neutro), workshop `#3300ff`, insight `#01304a`, book_club `#c2410c`, spotlight `#2dd4bf`.
+
+`eventPillDisplay(ev, { substitutionAware })` y `calendarEventTheme(ev, { substitutionAware })` comparten la misma prioridad: (1) Substitution — `covered_by_substitute` + `isPendingStatus(status)` → `#b5ff56` / "SUB"; (2) `sub_status` (`SUB_STATUS_META`), donde `absent_work|absent_illness|absent_vacation` devuelven el degradado `linear-gradient(135deg, #dc0000 0%, #313131 100%)`; (3) `kind === "class"` con status → color de `CALENDAR_STATUS_META`; (4) color fijo del kind. `calendarEventTheme` además devuelve `textTone` (`"dark"` solo cuando el fondo resuelto es el blanco de `scheduled`) y usa degradados en headers de modal: insight navy→negro, book_club `#c2410c`→negro, rescheduled naranja→ámbar, absent rojo→gris. El flag `substitutionAware` solo se activa en calendarios de staff (`teacher.calendar.tsx`, `admin.calendar.tsx`); el alumno nunca ve el color ni el label de Substitution.
 
 
 ### `AvailabilityChangeRequest`, `TeacherAvailability`, `TimeBlock` — ver §6.

@@ -71,7 +71,7 @@ function Page() {
       </Card>
 
       {hasFilter ? (
-        <CalendarView events={events} onEventClick={(ev) => setOpenEvent(ev)} />
+        <CalendarView events={events} onEventClick={(ev) => setOpenEvent(ev)} substitutionAware />
       ) : (
         <Card className="!p-12">
           <div className="flex flex-col items-center justify-center gap-3 text-center">

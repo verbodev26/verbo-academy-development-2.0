@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useAuth } from "@/lib/auth";
 import { userById } from "@/lib/mock-data";
 import { effectiveSessionCounts, groupOfStudent } from "@/lib/groups-store";
-import { subscribeSessions, getSessionsSnapshot, getServerSessionsSnapshot, submitStudentRating, studentAttendance, type ExtSession } from "@/lib/sessions-store";
+import { subscribeSessions, getSessionsSnapshot, getServerSessionsSnapshot, submitStudentRating, studentAttendance, type ExtSession, type ExtSessionStatus } from "@/lib/sessions-store";
 import {
   getPerformanceSnapshot,
   getServerPerformanceSnapshot,
@@ -71,7 +71,7 @@ import { loadSeasons } from "@/lib/flash-challenges-store";
 import { loadClubs, type Club } from "@/lib/clubs-store";
 import { isBooked } from "@/lib/club-bookings-store";
 import { ClubReservationModal } from "@/components/verbo/ClubReservationModal";
-import { EVENT_KIND_META } from "@/lib/calendar-events";
+import { EVENT_KIND_META, CALENDAR_STATUS_META } from "@/lib/calendar-events";
 import { RatingModal } from "@/components/verbo/RatingModal";
 import { ReportConductModal } from "@/components/verbo/ReportConductModal";
 import { CantAttendRouter, RescheduleRequestModal } from "@/components/verbo/CancelSessionFlow";
@@ -380,23 +380,20 @@ function StudentDashboard() {
   };
 
 
-  // Status badge tone classes (polished).
-  const statusBadge = (status: string) => {
-    const base = "inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-wide capitalize";
-    switch (status) {
-      case "completed":
-        return `${base} bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200`;
-      case "absent":
-        return `${base} bg-rose-50 text-rose-700 ring-1 ring-rose-200`;
-      case "delayed":
-        return `${base} bg-amber-50 text-amber-800 ring-1 ring-amber-200`;
-      case "rescheduled":
-      case "rearranged":
-        return `${base} bg-sky-50 text-sky-700 ring-1 ring-sky-200`;
-      default:
-        return `${base} bg-slate-100 text-slate-700 ring-1 ring-slate-200`;
-    }
+  // Status badge — colors come from the shared status palette so the Dashboard
+  // pill matches the calendar, workshop badges and admin tables exactly.
+  const statusBadgeClass =
+    "inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold tracking-wide capitalize";
+  const statusBadgeStyle = (status: string): React.CSSProperties => {
+    const key = (status === "rearranged" ? "rescheduled" : status) as ExtSessionStatus;
+    const meta = CALENDAR_STATUS_META[key] ?? CALENDAR_STATUS_META.scheduled;
+    return {
+      backgroundColor: meta.color,
+      color: key === "scheduled" ? "#01304a" : "#ffffff",
+      borderColor: meta.borderColor ?? meta.color,
+    };
   };
+
 
   // Dynamic welcome line — first matching condition wins.
   const welcomeLine = (() => {
@@ -1087,7 +1084,7 @@ function StudentDashboard() {
                     <div className="truncate text-sm font-semibold" style={{ color: "#01304a" }}>{teacherName}</div>
                   </div>
                   <div className="md:justify-self-start">
-                    <span className={statusBadge(s.status)}>{s.status}</span>
+                    <span className={statusBadgeClass} style={statusBadgeStyle(s.status)}>{s.status}</span>
                   </div>
                   <div className="md:justify-self-start">
                     {s.student_rating ? <RatingStarsCompact value={s.student_rating} /> : <span className="text-xs text-muted-foreground">—</span>}
@@ -1202,7 +1199,7 @@ function StudentDashboard() {
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <span className={statusBadge(s.status)}>{s.status}</span>
+                  <span className={statusBadgeClass} style={statusBadgeStyle(s.status)}>{s.status}</span>
                   <span>with {teacher?.name ?? "Teacher"}</span>
                 </div>
                 {isAbsent && absentMsg && (

@@ -14,7 +14,7 @@ export function CandidatesModal({
 }) {
   const candidates = findCandidates(sessionId);
   const assign = (teacherId: string) => {
-    updateSession(sessionId, { teacher_id: teacherId, needs_substitute: false });
+    updateSession(sessionId, { teacher_id: teacherId, needs_substitute: false, covered_by_substitute: true });
     onAssigned?.();
     onClose();
   };

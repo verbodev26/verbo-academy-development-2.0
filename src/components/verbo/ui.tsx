@@ -21,6 +21,7 @@ export function AccentModalHeader({
   title,
   watermark,
   onClose,
+  textTone = "light",
 }: {
   background: string;
   iconTint: string;
@@ -29,30 +30,42 @@ export function AccentModalHeader({
   title: ReactNode;
   watermark?: AccentWatermark;
   onClose: () => void;
+  /** "dark" for light/white header backgrounds. */
+  textTone?: "light" | "dark";
 }) {
+  const dark = textTone === "dark";
+  const blobA = dark
+    ? "radial-gradient(circle, rgba(1,48,74,0.10), transparent 70%)"
+    : "radial-gradient(circle, rgba(255,255,255,0.45), transparent 70%)";
+  const blobB = dark
+    ? "radial-gradient(circle, rgba(1,48,74,0.07), transparent 70%)"
+    : "radial-gradient(circle, rgba(0,0,0,0.35), transparent 70%)";
   return (
-    <div className="relative overflow-hidden px-4 py-4" style={{ background }}>
+    <div
+      className={`relative overflow-hidden px-4 py-4 ${dark ? "border-b border-border" : ""}`}
+      style={{ background }}
+    >
       {/* Decorative blobs */}
       <div
         className="vc-blob pointer-events-none absolute -right-10 -top-14 h-40 w-40 rounded-full blur-2xl"
-        style={{ background: "radial-gradient(circle, rgba(255,255,255,0.45), transparent 70%)" }}
+        style={{ background: blobA }}
         aria-hidden
       />
       <div
         className="vc-blob pointer-events-none absolute -bottom-16 -left-10 h-40 w-40 rounded-full blur-2xl"
-        style={{ background: "radial-gradient(circle, rgba(0,0,0,0.35), transparent 70%)", animationDelay: "0.1s" }}
+        style={{ background: blobB, animationDelay: "0.1s" }}
         aria-hidden
       />
       {/* Watermark bleeding out of the top-right corner, behind everything */}
       {watermark && watermark.type !== "image" && (
         <div className="pointer-events-none absolute -right-4 -top-4 select-none" aria-hidden>
           {watermark.type === "text" && (
-            <span className="block text-[92px] font-black uppercase leading-none tracking-tighter text-white/10">
+            <span className={`block text-[92px] font-black uppercase leading-none tracking-tighter ${dark ? "text-[#01304a]/10" : "text-white/10"}`}>
               {watermark.value}
             </span>
           )}
           {watermark.type === "icon" && (
-            <watermark.icon className="h-[92px] w-[92px] text-white/[0.14]" strokeWidth={1.5} />
+            <watermark.icon className={`h-[92px] w-[92px] ${dark ? "text-[#01304a]/[0.12]" : "text-white/[0.14]"}`} strokeWidth={1.5} />
           )}
         </div>
       )}
@@ -69,26 +82,30 @@ export function AccentModalHeader({
 
       <div className="relative z-10">
         <div className="flex items-start justify-between gap-3">
-          <div className="vc-logo flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-sm">
+          <div className={`vc-logo flex h-10 w-10 items-center justify-center rounded-2xl shadow-sm ${dark ? "bg-[var(--navy-50,#f1f5f9)] border border-border" : "bg-white"}`}>
             <Icon className="h-5 w-5" style={{ color: iconTint }} />
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-full border border-white/40 p-1.5 text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+            className={`rounded-full border p-1.5 transition-colors ${
+              dark
+                ? "border-[#01304a]/25 text-[#01304a]/70 hover:bg-[#01304a]/10 hover:text-[#01304a]"
+                : "border-white/40 text-white/80 hover:bg-white/15 hover:text-white"
+            }`}
           >
             <X className="h-4 w-4" />
           </button>
         </div>
         <div
-          className="vc-rise mt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70"
+          className={`vc-rise mt-3 text-[10px] font-semibold uppercase tracking-[0.18em] ${dark ? "text-[#01304a]/70" : "text-white/70"}`}
           style={{ animationDelay: "0.15s" }}
         >
           {eyebrow}
         </div>
         <h2
-          className="vc-rise mt-1 text-lg font-semibold tracking-tight text-white"
+          className={`vc-rise mt-1 text-lg font-semibold tracking-tight ${dark ? "text-[#01304a]" : "text-white"}`}
           style={{ animationDelay: "0.2s" }}
         >
           {title}

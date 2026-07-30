@@ -581,6 +581,7 @@ function EventDetailsModal({
           eyebrow={kindMeta.label}
           title={isSpotlight && teacherName ? `Spotlight with ${teacherName}` : isClass && teacherName ? `Session with ${teacherName}` : event.title}
           watermark={{ type: "icon", icon: HeadIcon }}
+          textTone={theme.textTone}
           onClose={onClose}
         />
         <div className="px-6 py-5">
