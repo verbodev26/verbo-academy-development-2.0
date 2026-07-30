@@ -1602,7 +1602,9 @@ function ChallengeDetail({
   completed,
   cooldownRemaining,
   onChoose,
-  onComplete,
+  onSubmit,
+  onResubmit,
+  submission,
 }: {
   challenge: Challenge;
   onClose: () => void;
@@ -1611,7 +1613,9 @@ function ChallengeDetail({
   completed: boolean;
   cooldownRemaining: number | null;
   onChoose: () => void;
-  onComplete: () => void;
+  onSubmit: () => void;
+  onResubmit: () => void;
+  submission: ChallengeSubmission | null;
 }) {
   const locked = !!challenge.premium && !hasPremiumAccess;
   const onCooldown = !completed && chosen && cooldownRemaining !== null;
