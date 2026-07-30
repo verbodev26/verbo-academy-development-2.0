@@ -40,7 +40,7 @@ import {
   studentCalendarEvents, CALENDAR_STATUS_META, EVENT_KIND_META, calendarEventTheme,
   type CalendarEvent, type CalendarEventKind,
 } from "@/lib/calendar-events";
-import { Card, PrimaryButton, GhostButton, AccentModalHeader } from "@/components/verbo/ui";
+import { Card, PrimaryButton, GhostButton, AccentModalHeader, InfoStatRow } from "@/components/verbo/ui";
 
 import { X, Video, AlertTriangle, Sparkles, CalendarClock, RefreshCcw, ArrowLeft, ChevronRight, Users as UsersIcon, BookOpen, Star } from "lucide-react";
 import spotlightArt from "@/assets/spotlight1.png.asset.json";
