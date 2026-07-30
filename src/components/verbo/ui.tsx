@@ -118,6 +118,79 @@ export function AccentModalHeader({
 }
 
 /**
+ * Reusable modal wrapper: fixed backdrop + card + AccentModalHeader already mounted.
+ * Same visual language the Student Panel modals use today.
+ */
+export function AccentModal({
+  background,
+  iconTint,
+  icon,
+  eyebrow,
+  title,
+  watermark,
+  onClose,
+  textTone = "light",
+  maxWidth = "max-w-md",
+  children,
+}: {
+  background: string;
+  iconTint: string;
+  icon: LucideIcon;
+  eyebrow: string;
+  title: ReactNode;
+  watermark?: AccentWatermark;
+  onClose: () => void;
+  textTone?: "light" | "dark";
+  /** Tailwind max-width class for the card. */
+  maxWidth?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className={`relative w-full ${maxWidth} overflow-hidden rounded-2xl bg-card shadow-floating`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <AccentModalHeader
+          background={background}
+          iconTint={iconTint}
+          icon={icon}
+          eyebrow={eyebrow}
+          title={title}
+          watermark={watermark}
+          onClose={onClose}
+          textTone={textTone}
+        />
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/** Bottom action bar for AccentModal bodies. `accent` is the header color, for accented buttons. */
+export function AccentModalFooter({
+  accent,
+  children,
+  className = "",
+}: {
+  accent?: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4 ${className}`}
+      style={accent ? ({ ["--accent-modal-accent" as string]: accent } as React.CSSProperties) : undefined}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
  * Stats row with icons, designed to replace plain Date/Time rectangles in modals.
  * Icon on top, large value in the middle, small label below; vertical dividers between columns.
  */
@@ -203,11 +276,18 @@ export function Pill({ children, tone = "default" }: { children: ReactNode; tone
   );
 }
 
-export function PrimaryButton({ children, className = "", ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement> & { children: ReactNode }) {
+export function PrimaryButton({
+  children,
+  className = "",
+  accentColor,
+  style,
+  ...rest
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { children: ReactNode; accentColor?: string }) {
   return (
     <button
       {...rest}
-      className={`inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-foreground shadow-soft transition-opacity hover:opacity-90 disabled:opacity-40 shadow-sm transition-transform duration-150 ease-out active:scale-[0.97] ${className}`}
+      style={accentColor ? { background: accentColor, ...style } : style}
+      className={`inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full ${accentColor ? "text-white" : "bg-accent text-accent-foreground"} px-4 py-2 text-sm font-medium shadow-soft transition-opacity hover:opacity-90 disabled:opacity-40 shadow-sm transition-transform duration-150 ease-out active:scale-[0.97] ${className}`}
     >
       {children}
     </button>
