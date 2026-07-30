@@ -924,9 +924,11 @@ function SpotlightFormModal({ studentId, onClose }: { studentId: string; onClose
         )}
         <div className="mt-5 flex justify-end gap-2">
           <GhostButton onClick={onClose}><ArrowLeft className="h-3.5 w-3.5" /> Return</GhostButton>
-          <PrimaryButton onClick={submit}>Publish Request</PrimaryButton>
+          <PrimaryButton onClick={submit} style={{ backgroundColor: "#0d9488", color: "#fff" }}>Publish Request</PrimaryButton>
+        </div>
         </div>
       </div>
+
     </div>
   );
 }
