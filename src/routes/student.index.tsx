@@ -1374,7 +1374,7 @@ function StudentDashboard() {
                   </GhostButton>
                   <PrimaryButton
                     className="verbo-btn-glow"
-                    style={{ backgroundColor: "#16a34a", color: "#fff" }}
+                    style={{ backgroundColor: theme.solid, color: "#fff", boxShadow: `0 8px 20px -6px ${theme.solid}` }}
                     onClick={() => setClassDetail(null)}
                   >
                     Close
