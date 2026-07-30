@@ -109,6 +109,7 @@ export function NotificationsBell({ variant = "light" }: { variant?: "light" | "
   const { notifications, unreadCount } = useNotifications(user ?? null);
   const [open, setOpen] = useState(false);
   const [sharedModal, setSharedModal] = useState<{ studentId: string; challengeId: string } | null>(null);
+  const [badgeModal, setBadgeModal] = useState<UnlockBadge | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
