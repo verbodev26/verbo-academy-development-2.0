@@ -38,6 +38,17 @@ import { reportsForStudent, subscribeStudentReports } from "@/lib/student-report
 import {
   isMilestoneUnit, getUnitAccessOverride, setUnitAccess,
 } from "@/lib/activities-store";
+import {
+  loadBadges as loadProfileBadgeCatalog,
+  type BadgeDef as ProfileBadgeDef,
+} from "@/lib/profile-badges-store";
+import {
+  loadBadges as loadChallengeBadgeCatalog,
+  type BadgeDef as ChallengeBadgeDef,
+} from "@/lib/badges-store";
+import {
+  getBadgeOverride, setBadgeOverride, type BadgeSystem,
+} from "@/lib/badge-override-store";
 
 export const Route = createFileRoute("/admin/students")({
   component: Page,
@@ -1079,7 +1090,7 @@ function StudentFormModal({
 // ===========================================================================
 // DETAIL MODAL (tabs + actions)
 // ===========================================================================
-type Tab = "overview" | "performance" | "progress" | "reports" | "notes";
+type Tab = "overview" | "performance" | "progress" | "badges" | "reports" | "notes";
 
 function StudentDetailModal({
   student, teachers, onClose, onUpdate, onEdit,
@@ -1180,7 +1191,7 @@ function StudentDetailModal({
 
         {/* Tabs */}
         <div className="flex gap-1 border-b border-border px-6 pt-3">
-          {([["overview", "Overview"], ["performance", "Performance & Attendance"], ["progress", "Course Progress"], ["reports", "Reports"], ["notes", "Admin Notes"]] as [Tab, string][]).map(([id, label]) => (
+          {([["overview", "Overview"], ["performance", "Performance & Attendance"], ["progress", "Course Progress"], ["badges", "Badges"], ["reports", "Reports"], ["notes", "Admin Notes"]] as [Tab, string][]).map(([id, label]) => (
             <button
               key={id}
               onClick={() => setTab(id)}
@@ -1314,6 +1325,8 @@ function StudentDetailModal({
           {tab === "performance" && <PerformanceTab student={student} />}
 
           {tab === "progress" && <CourseProgressTab student={student} />}
+
+          {tab === "badges" && <BadgesOverridePanel student={student} />}
 
           {tab === "reports" && <ReportsTab student={student} />}
 
@@ -1521,6 +1534,91 @@ function UnitAccessPanel({ student, actorRole }: { student: User; actorRole: "ad
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+// ---- Badges tab: manually grant any badge, or return it to automatic rules ----
+function BadgesOverridePanel({ student }: { student: User }) {
+  const { user: actor } = useAuth();
+  const [rev, setRev] = useState(0);
+  const profileBadges = useMemo(() => loadProfileBadgeCatalog(), []);
+  const challengeBadges = useMemo(() => loadChallengeBadgeCatalog(), []);
+
+  const toggle = (badgeId: string, system: BadgeSystem, action: "granted" | "revoked") => {
+    if (!actor) return;
+    setBadgeOverride(student.id, badgeId, system, action, actor.id);
+    setRev((r) => r + 1);
+  };
+
+  const renderRow = (b: ProfileBadgeDef | ChallengeBadgeDef, system: BadgeSystem) => {
+    const ov = getBadgeOverride(student.id, b.id, system);
+    const granted = ov === "granted";
+    const stateLabel = ov === "granted" ? "Granted" : ov === "revoked" ? "Auto (revoked)" : "Auto (default)";
+    const badgeCls = granted ? "bg-success/10 text-success" : "bg-secondary text-muted-foreground";
+    const _ = rev; void _;
+    return (
+      <div key={`${system}-${b.id}`} className="flex items-center justify-between gap-3 px-4 py-2.5">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono text-muted-foreground">{b.id}</span>
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${badgeCls}`}>{stateLabel}</span>
+          </div>
+          <div className="mt-0.5 truncate text-sm text-foreground">{b.name}</div>
+        </div>
+        <div className="inline-flex shrink-0 overflow-hidden rounded-lg border border-border bg-card">
+          <button
+            type="button"
+            onClick={() => toggle(b.id, system, "granted")}
+            aria-pressed={granted}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${granted ? "bg-success/15 text-success" : "text-muted-foreground hover:bg-secondary"}`}
+          >
+            <UnlockIcon className="h-3.5 w-3.5" /> Grant
+          </button>
+          <button
+            type="button"
+            onClick={() => toggle(b.id, system, "revoked")}
+            aria-pressed={!granted}
+            className={`inline-flex items-center gap-1.5 border-l border-border px-3 py-1.5 text-xs font-medium transition-colors ${!granted ? "bg-destructive/15 text-destructive" : "text-muted-foreground hover:bg-secondary"}`}
+          >
+            <LockIcon className="h-3.5 w-3.5" /> Auto
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      <p className="text-xs text-muted-foreground">
+        Grant a badge manually when the student earned it outside the platform. "Auto" returns the badge to its normal rule-based evaluation.
+      </p>
+
+      <div>
+        <p className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <Sparkles className="h-3.5 w-3.5" /> Profile Badges
+        </p>
+        {profileBadges.length === 0 ? (
+          <div className="rounded-lg bg-muted px-3 py-6 text-center text-xs text-muted-foreground">No profile badges configured yet.</div>
+        ) : (
+          <div className="divide-y divide-border rounded-xl border border-border bg-background">
+            {profileBadges.map((b) => renderRow(b, "profile"))}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <p className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <Trophy className="h-3.5 w-3.5" /> Challenge Badges
+        </p>
+        {challengeBadges.length === 0 ? (
+          <div className="rounded-lg bg-muted px-3 py-6 text-center text-xs text-muted-foreground">No challenge badges configured yet.</div>
+        ) : (
+          <div className="divide-y divide-border rounded-xl border border-border bg-background">
+            {challengeBadges.map((b) => renderRow(b, "challenge"))}
+          </div>
+        )}
       </div>
     </div>
   );
