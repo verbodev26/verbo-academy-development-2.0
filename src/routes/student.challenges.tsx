@@ -849,16 +849,9 @@ function Page() {
           acceptedCount={lightning.accepted_student_ids.length}
           hasPremiumAccess={hasPremiumAccess}
           completed={hasCompletedChallenge(student.id, lightningOpen.id)}
-          onComplete={() => {
-            const target = lightningOpen;
-            if (!target) return;
-            const ok = completeLightningChallenge(student.id, target.id);
-            if (ok) {
-              setLightningOpen(null);
-              setShareForTheme({ accent: lightningTheme.accent_color || "#0284c7", icon: Zap });
-              setShareFor(target as unknown as Challenge);
-            }
-          }}
+          submission={getSubmission(student.id, lightningOpen.id)}
+          onSubmit={() => openSubmit(lightningOpen, "lightning", "submit", { accent: lightningTheme.accent_color || "#0284c7", icon: Zap })}
+          onResubmit={() => openSubmit(lightningOpen, "lightning", "resubmit", { accent: lightningTheme.accent_color || "#0284c7", icon: Zap })}
           onClose={() => setLightningOpen(null)}
         />
       )}
