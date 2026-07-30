@@ -37,10 +37,11 @@ import {
 } from "@/lib/sessions-store";
 import { CalendarView } from "@/components/verbo/CalendarView";
 import {
-  studentCalendarEvents, CALENDAR_STATUS_META, EVENT_KIND_META,
+  studentCalendarEvents, CALENDAR_STATUS_META, EVENT_KIND_META, calendarEventTheme,
   type CalendarEvent, type CalendarEventKind,
 } from "@/lib/calendar-events";
-import { Card, PrimaryButton, GhostButton } from "@/components/verbo/ui";
+import { Card, PrimaryButton, GhostButton, AccentModalHeader } from "@/components/verbo/ui";
+
 import { X, Video, AlertTriangle, Sparkles, CalendarClock, RefreshCcw, ArrowLeft, ChevronRight, Users as UsersIcon, BookOpen, Star } from "lucide-react";
 import spotlightArt from "@/assets/spotlight1.png.asset.json";
 import nextUpArt from "@/assets/Verbot_up_next.svg.asset.json";
