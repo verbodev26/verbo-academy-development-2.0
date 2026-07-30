@@ -22,7 +22,7 @@ import {
   PerformanceAnalyticsModal, useComputedMacros,
 } from "@/components/verbo/PerformanceAnalytics";
 import { useAvatar } from "@/lib/avatar-store";
-import { Card } from "@/components/verbo/ui";
+import { Card, Pill } from "@/components/verbo/ui";
 import {
   Search, X, Filter, Crown, Users as UsersIcon,
   GraduationCap, Layers, Lightbulb, Video, Clock, Repeat, NotebookPen,
