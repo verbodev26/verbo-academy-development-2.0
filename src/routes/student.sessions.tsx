@@ -40,7 +40,7 @@ import {
   studentCalendarEvents, CALENDAR_STATUS_META, EVENT_KIND_META, calendarEventTheme,
   type CalendarEvent, type CalendarEventKind,
 } from "@/lib/calendar-events";
-import { Card, PrimaryButton, GhostButton, AccentModalHeader, InfoStatRow } from "@/components/verbo/ui";
+import { Card, PrimaryButton, GhostButton, AccentModalHeader, InfoStatRow, AnimatedNumber } from "@/components/verbo/ui";
 
 import { X, Video, AlertTriangle, Sparkles, CalendarClock, Clock, RefreshCcw, ArrowLeft, ChevronRight, Users as UsersIcon, BookOpen, Star } from "lucide-react";
 import spotlightArt from "@/assets/spotlight1.png.asset.json";
@@ -195,7 +195,7 @@ function Page() {
         <SessionsRemainingCard studentId={user.id} />
         <NextEventCard events={events} onEventClick={handleEventClick} />
         {hasSpot && (
-          <div className="card-gradient-teal relative h-full min-h-[200px] overflow-hidden rounded-3xl border border-border p-6 shadow-elevated">
+          <div className="card-gradient-teal relative h-full min-h-[200px] overflow-hidden rounded-3xl border border-border p-6 shadow-elevated transition-transform duration-200 hover:scale-[1.01]">
             <img
               src={spotlightArt.url}
               alt=""
@@ -352,7 +352,7 @@ function NextEventCard({ events, onEventClick }: { events: CalendarEvent[]; onEv
     <button
       type="button"
       onClick={() => onEventClick(next)}
-      className="group relative flex h-full min-h-[200px] w-full cursor-pointer flex-col justify-between overflow-hidden rounded-3xl p-6 text-left transition-transform duration-200 active:scale-[0.99]"
+      className="group relative flex h-full min-h-[200px] w-full cursor-pointer flex-col justify-between overflow-hidden rounded-3xl p-6 text-left transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99]"
     >
       <div className="card-gradient-lime pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-3xl border border-border shadow-elevated" />
       <img
@@ -1005,7 +1005,7 @@ function SessionsRemainingCard({ studentId }: { studentId: string }) {
       </div>
       <div className="mt-3 flex items-end justify-between gap-4">
         <div className="min-w-0">
-          <div className="font-display text-7xl font-extrabold leading-none tracking-tight" style={{ color: "#01304a" }}>{remaining}</div>
+          <div className="font-display text-7xl font-extrabold leading-none tracking-tight" style={{ color: "#01304a" }}><AnimatedNumber value={remaining} /></div>
           <div className="mt-2 text-xs" style={{ color: dim }}>of {hired} sessions</div>
           {g && (
             <div className="mt-1 text-[11px]" style={{ color: dim }}>Shared with your group</div>
