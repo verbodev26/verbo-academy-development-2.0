@@ -42,7 +42,7 @@ import {
 } from "@/lib/calendar-events";
 import { Card, PrimaryButton, GhostButton, AccentModalHeader, InfoStatRow } from "@/components/verbo/ui";
 
-import { X, Video, AlertTriangle, Sparkles, CalendarClock, RefreshCcw, ArrowLeft, ChevronRight, Users as UsersIcon, BookOpen, Star } from "lucide-react";
+import { X, Video, AlertTriangle, Sparkles, CalendarClock, Clock, RefreshCcw, ArrowLeft, ChevronRight, Users as UsersIcon, BookOpen, Star } from "lucide-react";
 import spotlightArt from "@/assets/spotlight1.png.asset.json";
 import nextUpArt from "@/assets/Verbot_up_next.svg.asset.json";
 import { getLessonPlan } from "@/lib/lesson-plans-store";
