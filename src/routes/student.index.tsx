@@ -577,26 +577,27 @@ function StudentDashboard() {
 
         {/* Overall Attendance */}
         <div className="relative">
-          <div
-            className="shadow-card verbo-card-hover relative flex h-full min-h-[168px] items-center overflow-hidden rounded-[2rem] px-6 py-6"
+          <HeroStatCard
             style={{
               background: `linear-gradient(135deg, ${attendanceTheme.gradient[0]} 0%, ${attendanceTheme.gradient[1]} 100%)`,
             }}
+            decorative={
+              /* Verbot expression for the current attendance band — zoomed and
+               *  anchored top-right so the head/shoulders expression reads. */
+              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]" aria-hidden>
+                <img
+                  src={attendanceVerbot}
+                  alt=""
+                  aria-hidden
+                  className="absolute -top-4 right-0 h-[150%] w-auto select-none object-contain"
+                  style={{
+                    opacity: 0.88,
+                    filter: "drop-shadow(0 10px 18px rgba(0,0,0,0.22))",
+                  }}
+                />
+              </div>
+            }
           >
-            {/* Verbot expression for the current attendance band — zoomed and
-             *  anchored top-right so the head/shoulders expression reads. */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]" aria-hidden>
-              <img
-                src={attendanceVerbot}
-                alt=""
-                aria-hidden
-                className="absolute -top-4 right-0 h-[150%] w-auto select-none object-contain"
-                style={{
-                  opacity: 0.88,
-                  filter: "drop-shadow(0 10px 18px rgba(0,0,0,0.22))",
-                }}
-              />
-            </div>
             <div className="relative flex w-full items-start justify-between gap-4">
               <div className="pr-2">
                 <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>Overall Attendance</div>
