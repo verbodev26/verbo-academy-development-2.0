@@ -334,6 +334,7 @@ function FlashModal({
   const [newCat, setNewCat] = useState("");
   const [title, setTitle] = useState(editing?.title ?? "");
   const [description, setDescription] = useState(editing?.description ?? "");
+  const [submissionInstructions, setSubmissionInstructions] = useState(editing?.submission_instructions ?? "");
   const [videoUrl, setVideoUrl] = useState(editing?.video_url ?? "");
   const [premium, setPremium] = useState<boolean>(editing?.premium ?? false);
   const [videoSource, setVideoSource] = useState<"url" | "upload">("url");
