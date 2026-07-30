@@ -572,7 +572,7 @@ function StudentDashboard() {
                 textColor="#01304a"
               />
             </div>
-          </div>
+          </HeroStatCard>
         </div>
 
         {/* Overall Attendance */}
