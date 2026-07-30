@@ -21,6 +21,8 @@ export interface Challenge {
   description: string;
   video_url: string; // optional; empty = no attachment shown to students
   premium?: boolean; // exclusive for Advance/Elite plans
+  /** Free text where the admin explains the expected delivery format. */
+  submission_instructions?: string;
   skill_tags?: string[]; // informative tags: Speaking / Writing / Reading / Listening
   /** ISO timestamp of admin authorship. Optional because seed challenges
    *  predate this field — student-facing "New Challenge available"
