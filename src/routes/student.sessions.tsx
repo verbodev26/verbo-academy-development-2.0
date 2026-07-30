@@ -195,7 +195,7 @@ function Page() {
         <SessionsRemainingCard studentId={user.id} />
         <NextEventCard events={events} onEventClick={handleEventClick} />
         {hasSpot && (
-          <div className="card-gradient-teal relative h-full min-h-[200px] overflow-hidden rounded-3xl border border-border p-6 shadow-elevated transition-transform duration-200 hover:scale-[1.01]">
+          <div className="card-gradient-teal relative h-full min-h-[200px] overflow-hidden rounded-3xl border border-border p-6 shadow-elevated verbo-card-hover">
             <img
               src={spotlightArt.url}
               alt=""
