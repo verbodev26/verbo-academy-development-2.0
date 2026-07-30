@@ -124,12 +124,7 @@ export function ReportConductModal({ studentId, open, onClose, watermarkImageUrl
               icon={ShieldAlert}
               eyebrow="MISCONDUCT REPORT"
               title="Report misconduct"
-              // TODO: reemplazar por la imagen de Jaret cuando la mande
-              watermark={
-                watermarkImageUrl
-                  ? { type: "image", src: watermarkImageUrl }
-                  : { type: "icon", icon: ShieldAlert }
-              }
+              watermark={{ type: "image", src: watermarkImageUrl ?? verbotReport.url }}
               onClose={handleClose}
             />
 
