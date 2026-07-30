@@ -591,7 +591,7 @@ function EventDetailsModal({
 
 
         {(isClass || isSpotlight) && session && (
-          <div className="mt-4 space-y-2 text-sm">
+          <div className="vc-rise mt-4 space-y-2 text-sm" style={{ animationDelay: "0.3s" }}>
             <Row label="Teacher" value={teacherName ?? "—"} />
             <Row
               label="Status"
