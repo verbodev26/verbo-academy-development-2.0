@@ -178,15 +178,38 @@ const SKILL_COLORS: Record<string, string> = {
   Reading: "oklch(0.6 0.104 185)",
 };
 
-// Attendance color scale (shared by the % value and the mini bar chart).
-function attendanceColorFor(pct: number): string {
-  if (pct >= 90) return "var(--green-500)";
-  if (pct >= 80) return "#ABFF32";
-  if (pct >= 70) return "#FEED0C";
-  if (pct >= 65) return "#FFC515";
-  if (pct >= 60) return "#FF9100";
-  return "#F10202";
+// Attendance theme scale — color, background gradient and Verbot expression
+// for each band. First band whose `min` is <= pct wins.
+const ATTENDANCE_THEME = [
+  { min: 95, gradient: ["#16a34a", "#15803d"], verbot: "emocionado" },
+  { min: 85, gradient: ["#7ee02d", "#3ea008"], verbot: "motivado" },
+  { min: 75, gradient: ["#c9e02d", "#9dbb0a"], verbot: "guau" },
+  { min: 65, gradient: ["#fde047", "#eab308"], verbot: "emoji" },
+  { min: 55, gradient: ["#fbbf24", "#d97706"], verbot: "molesto" },
+  { min: 45, gradient: ["#fb923c", "#c2410c"], verbot: "enojado" },
+  { min: 30, gradient: ["#f87171", "#b91c1c"], verbot: "furioso" },
+  { min: 0, gradient: ["#c2410c", "#760137"], verbot: "triste" },
+] as const;
+
+type AttendanceTheme = (typeof ATTENDANCE_THEME)[number];
+
+function attendanceThemeFor(pct: number): AttendanceTheme {
+  return ATTENDANCE_THEME.find((t) => pct >= t.min) ?? ATTENDANCE_THEME[ATTENDANCE_THEME.length - 1];
 }
+
+/** Verbot expression artwork by band name. */
+const VERBOT_EXPRESSIONS: Record<string, string> = {
+  emocionado: verbotEmocionado.url,
+  motivado: verbotMotivado.url,
+  guau: verbotGuau.url,
+  emoji: verbotEmoji.url,
+  molesto: verbotMolesto.url,
+  enojado: verbotEnojado.url,
+  furioso: verbotFurioso.url,
+  // No "triste" artwork uploaded yet — reuse the closest expression.
+  triste: verbotFurioso.url,
+};
+
 
 const ATTENDANCE_SCORES: Record<string, number> = {
   completed: 100,
