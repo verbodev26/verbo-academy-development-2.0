@@ -559,7 +559,8 @@ function EventDetailsModal({
   ) : null;
 
   const notesBlock = (
-    <section className="mt-4">
+    <section className="vc-rise mt-4" style={{ animationDelay: "0.4s" }}>
+
       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Teacher's notes</h4>
       <p className="mt-2 text-sm text-muted-foreground">
         {session?.report_comments || "No notes were left for this session."}
