@@ -235,11 +235,12 @@ export function isClubFull(ev: CalendarEvent): boolean {
 
 /** Meta a chip/legend can render for each supported event kind. */
 export const EVENT_KIND_META: Record<CalendarEventKind, { label: string; color: string; short: string }> = {
-  class:      { label: "Performance Session", color: "#01304a", short: "1:1" },
+  class:      { label: "Performance Session", color: "#6d28d9", short: "1:1" },
   workshop:   { label: "Workshop",       color: "#7c3aed", short: "WS" },
-  insight:    { label: "Insight",        color: "#0ea5e9", short: "IN" },
-  book_club:  { label: "Book Club",      color: "#d97706", short: "BC" },
-  spotlight:  { label: "Spotlight",      color: "#0f766e", short: "SP" },
+  insight:    { label: "Insight",        color: "#01304a", short: "IN" },
+  book_club:  { label: "Book Club",      color: "#c2410c", short: "BC" },
+  spotlight:  { label: "Spotlight",      color: "#2dd4bf", short: "SP" },
+
 };
 
 /** The 7 canonical statuses in the order they appear in the legend. */
