@@ -15,7 +15,7 @@ import { subscribeCourses, computeCurrentProgress } from "@/lib/product-courses-
 import { loadLessonPlans, saveLessonPlan, subscribeLessonPlans, getLessonPlan, type LessonPlan } from "@/lib/lesson-plans-store";
 import { markVipUnitDone, clearVipUnitDoneForSession } from "@/lib/vip-courses-store";
 import { markTailoredUnitDone, clearTailoredUnitDoneForSession } from "@/lib/tailored-content-store";
-import { computeTeacherKpis, getBonusThreshold, ratingBand } from "@/lib/teacher-kpis";
+import { computeTeacherKpis, getBonusThreshold } from "@/lib/teacher-kpis";
 import { avgRating } from "@/lib/teacher-model";
 import { activeStrikeCount } from "@/lib/strikes-store";
 import { listChangeRequests, isTeacherAvailableAt, subscribeAvailability } from "@/lib/availability-store";
@@ -52,6 +52,8 @@ const VIOLET = "var(--violet-500)";
 const VIOLET_BG = "linear-gradient(150deg, var(--violet-300) 0%, var(--violet-500) 55%, var(--violet-900) 100%)";
 const GREEN = "var(--green-500)";
 const GREEN_BG = "linear-gradient(150deg, var(--green-300) 0%, var(--green-500) 55%, var(--green-700) 100%)";
+const ORANGE = "#ea580c";
+const YELLOW = "#eab308";
 
 type DashboardPanel = "attention" | "plan" | "complete";
 
@@ -192,6 +194,20 @@ function TeacherDashboard() {
   const warningLevel: "none" | "yellow" | "red" =
     belowTarget === 0 ? "none" : belowTarget >= 2 || anyCritical ? "red" : "yellow";
   const strikes = teacherUser ? activeStrikeCount(teacherUser.id) : 0;
+  const sessionsTaught = mySessions.filter((s) => s.status === "completed").length;
+  const ratingGlow =
+    avgRating30 == null ? CRIMSON
+    : avgRating30 >= 4.0 ? GREEN
+    : avgRating30 >= 3.5 ? YELLOW
+    : avgRating30 >= 2.5 ? ORANGE
+    : CRIMSON;
+  const compositeScore = kpis?.composite ?? 0;
+  const performanceGlow =
+    compositeScore >= 90 ? GREEN
+    : compositeScore >= 75 ? YELLOW
+    : compositeScore >= 60 ? ORANGE
+    : CRIMSON;
+
 
   // ---- Club events (Book Clubs / Insights / Spotlight) closure state ----
   // Reuse the shared calendar adapter so the enrolled-student roster is
@@ -457,16 +473,18 @@ function TeacherDashboard() {
     <div className="space-y-10">
       <header>
         <div className="text-sm text-muted-foreground">Good day,</div>
-        <div className="mt-1 flex flex-wrap items-center gap-2">
+        <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-3xl font-semibold tracking-tight text-black">{user.name}</h1>
           <Pill>{rankLabel(user)}</Pill>
+          <span className="ml-auto"><Pill>{sessionsTaught} sessions taught</Pill></span>
         </div>
+
 
       </header>
 
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Link to="/teacher/students" className="block cursor-pointer">
-          <HeroStatCard className="border border-border bg-card">
+          <HeroStatCard className="!items-start border border-border bg-card">
             <div
               className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
               style={{ color: "#1f7a70", background: "rgba(62,187,173,0.14)" }}
@@ -477,14 +495,15 @@ function TeacherDashboard() {
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Assigned Students
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none" style={{ color: "#1f7a70" }}>
+              <div className="mt-2 text-5xl font-bold leading-none text-foreground">
                 <AnimatedNumber value={students.length} />
               </div>
+
             </div>
           </HeroStatCard>
         </Link>
         <Link to="/teacher/calendar" className="block cursor-pointer">
-          <HeroStatCard className="border border-border bg-card">
+          <HeroStatCard className="!items-start border border-border bg-card">
             <div
               className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
               style={{ color: "#a34ac0", background: "rgba(163,74,192,0.12)" }}
@@ -495,7 +514,8 @@ function TeacherDashboard() {
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Upcoming Sessions
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none" style={{ color: "#a34ac0" }}>
+              <div className="mt-2 text-5xl font-bold leading-none text-foreground">
+
                 <AnimatedNumber value={upcoming7dCount} />
               </div>
               <div className="mt-2 text-xs font-medium text-muted-foreground">next 7 days</div>
@@ -503,18 +523,18 @@ function TeacherDashboard() {
           </HeroStatCard>
         </Link>
         <button type="button" onClick={() => setShowRatingTrend(true)} className="block cursor-pointer text-left">
-          <HeroStatCard className="border border-border bg-card">
-            <div
-              className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
-              style={{ color: ratingBand(avgRating30).fg, background: ratingBand(avgRating30).bg }}
-            >
+          <HeroStatCard
+            className="verbo-focus-pulse !items-start border border-border bg-card"
+            style={{ ["--verbo-focus-pulse-color" as any]: ratingGlow } as React.CSSProperties}
+          >
+            <div className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
               <Star className="h-5 w-5" />
             </div>
             <div className="relative w-full">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Avg Rating
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none" style={{ color: ratingBand(avgRating30).fg }}>
+              <div className="mt-2 text-5xl font-bold leading-none text-foreground">
                 {avgRating30 != null ? `${avgRating30.toFixed(1)}★` : "—"}
               </div>
               <div className="mt-2 text-xs font-medium text-muted-foreground">last 30 days · view trend</div>
@@ -522,27 +542,18 @@ function TeacherDashboard() {
           </HeroStatCard>
         </button>
         <Link to="/teacher/financial" className="group block">
-          <HeroStatCard className="border border-border bg-card">
-            <div
-              className={`absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl ${
-                warningLevel === "none" ? "bg-success/15 text-success"
-                : warningLevel === "yellow" ? "bg-warning/20 text-amber-700"
-                : "bg-destructive/15 text-destructive"
-              }`}
-            >
+          <HeroStatCard
+            className="verbo-focus-pulse !items-start border border-border bg-card"
+            style={{ ["--verbo-focus-pulse-color" as any]: performanceGlow } as React.CSSProperties}
+          >
+            <div className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
               <Trophy className="h-5 w-5" />
             </div>
             <div className="relative w-full">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Performance
               </div>
-              <div
-                className={`mt-2 text-6xl font-bold leading-none ${
-                  warningLevel === "none" ? "text-success"
-                  : warningLevel === "yellow" ? "text-amber-700"
-                  : "text-destructive"
-                }`}
-              >
+              <div className="mt-2 text-6xl font-bold leading-none text-foreground">
                 <AnimatedNumber value={kpis?.composite ?? 0} suffix="%" />
                 {kpis?.onboarding && (
                   <span className="ml-2 rounded-full bg-white/85 px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wider text-blue-700">
@@ -557,6 +568,7 @@ function TeacherDashboard() {
 
           </HeroStatCard>
         </Link>
+
       </section>
 
 
