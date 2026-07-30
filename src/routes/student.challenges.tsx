@@ -2032,7 +2032,9 @@ function SeasonRevealModal({
   chosen,
   completed,
   onChoose,
-  onComplete,
+  onSubmit,
+  onResubmit,
+  submission,
   onClose,
 }: {
   season: FlashSeason;
@@ -2042,7 +2044,9 @@ function SeasonRevealModal({
   chosen: boolean;
   completed: boolean;
   onChoose: () => void;
-  onComplete: () => void;
+  onSubmit: () => void;
+  onResubmit: () => void;
+  submission: ChallengeSubmission | null;
   onClose: () => void;
 }) {
   const locked = !!challenge?.premium && !hasPremiumAccess;
