@@ -636,28 +636,40 @@ function Page() {
               const urgent = isLive && remaining > 0 && remaining < 60 * 60 * 1000;
               const ch = lightningChallenge;
 
+              const lightGradient = lightningTheme.accent_color
+                ? seasonGradientCss(lightningTheme)
+                : "linear-gradient(135deg, #1e3a8a, #0284c7, #facc15)";
+
               if (!isLive) {
                 return (
-                  <VerboFlashBanner
-                    background="linear-gradient(135deg, #1e3a8a, #0284c7, #facc15)"
+                  <CompactFlashBanner
+                    gradientCss={lightGradient}
+                    themeImageUrl={lightningTheme.theme_image_url}
+                    watermarkImageUrl={lightningTheme.watermark_image_url}
                     className="opacity-70 saturate-50"
                     eyebrow={completed ? "⚡ Completed" : "⚡ Expired — you missed this one"}
                     title={ch.title || "Lightning Challenge"}
                     status={completed ? "You completed this Lightning." : "This Lightning has passed. The next one could strike anytime — stay ready."}
-                    icon={<Zap className="h-20 w-20 text-white/80 drop-shadow-lg" strokeWidth={1.4} />}
+                    icon={<Zap className="h-10 w-10 text-white/80 drop-shadow-lg sm:h-12 sm:w-12" strokeWidth={1.4} />}
+                    available={false}
+                    actionLabel="Lightning Challenge"
                   />
                 );
               }
 
               return (
-                <VerboFlashBanner
-                  background="linear-gradient(135deg, #1e3a8a, #0284c7, #facc15)"
-                  className="verbo-lightning-live"
-                  style={{ animation: urgent ? "verbo-lightning-urgent 0.9s ease-in-out infinite" : "verbo-lightning-glow 1.8s ease-in-out infinite" }}
+                <CompactFlashBanner
+                  gradientCss={lightGradient}
+                  themeImageUrl={lightningTheme.theme_image_url}
+                  watermarkImageUrl={lightningTheme.watermark_image_url}
                   eyebrow="🔥 Live now"
                   title={ch.title || "Lightning Challenge"}
                   status={`${formatHMS(remaining)} left · ⚡ ${acceptedCount} student${acceptedCount === 1 ? "" : "s"} accepted this`}
-                  icon={<Zap className="h-20 w-20 text-yellow-300 drop-shadow-lg" strokeWidth={1.4} />}
+                  icon={<Zap className="h-10 w-10 text-yellow-300 drop-shadow-lg sm:h-12 sm:w-12" strokeWidth={1.4} />}
+                  available
+                  actionLabel="Accept the Lightning Challenge"
+                  actionClassName="verbo-lightning-live"
+                  actionStyle={{ animation: urgent ? "verbo-lightning-urgent 0.9s ease-in-out infinite" : "verbo-lightning-glow 1.8s ease-in-out infinite" }}
                   cta={
                     completed ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white">
@@ -669,7 +681,7 @@ function Page() {
                       </span>
                     )
                   }
-                  onClick={() => {
+                  onAction={() => {
                     if (isLive && !accepted) acceptLightning(student.id);
                     setLightningOpen(ch);
                   }}
@@ -677,21 +689,27 @@ function Page() {
               );
             })()}
 
-            <VerboFlashBanner
-              background="linear-gradient(135deg, #4a044e 0%, #7e22ce 55%, #f59e0b 100%)"
-              eyebrow="Verbo Flash"
+            <CompactFlashBanner
+              gradientCss={
+                flashConfig.accent_color
+                  ? seasonGradientCss(flashConfig)
+                  : "linear-gradient(135deg, #4a044e 0%, #7e22ce 55%, #f59e0b 100%)"
+              }
+              themeImageUrl={flashConfig.theme_image_url}
+              watermarkImageUrl={flashConfig.watermark_image_url}
+              eyebrow="Verbo Flash · Mystery Box"
               title="Mystery Box"
               status={available ? "Tap to open" : "Coming soon"}
-              disabled={!available}
-              cta={<ChevronRight className="h-6 w-6 text-white/90" />}
+              available={available}
+              actionLabel="Open Mystery Box"
               icon={
                 flashConfig.box_art_url ? (
                   <img src={flashConfig.box_art_url} alt="Mystery Box" className="h-full w-full object-contain drop-shadow-lg" />
                 ) : (
-                  <Gift className="h-20 w-20 text-white drop-shadow-lg" strokeWidth={1.4} />
+                  <Gift className="h-10 w-10 text-white drop-shadow-lg sm:h-12 sm:w-12" strokeWidth={1.4} />
                 )
               }
-              onClick={openMystery}
+              onAction={available ? openMystery : undefined}
             />
           </div>
         );
