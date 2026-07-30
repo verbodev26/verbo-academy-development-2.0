@@ -85,6 +85,8 @@ function sessionEvent(s: ExtSession, title: string, subStatus?: AttendanceSubSta
     group_id: s.group_id,
     sub_status: subStatus ?? s.attendance_sub_status,
     holiday_makeup: s.holiday_makeup,
+    covered_by_substitute: s.covered_by_substitute,
+
     session: s,
   };
 }
