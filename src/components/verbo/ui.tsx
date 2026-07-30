@@ -44,7 +44,7 @@ export function AccentModalHeader({
         aria-hidden
       />
       {/* Watermark bleeding out of the top-right corner, behind everything */}
-      {watermark && (
+      {watermark && watermark.type !== "image" && (
         <div className="pointer-events-none absolute -right-4 -top-4 select-none" aria-hidden>
           {watermark.type === "text" && (
             <span className="block text-[92px] font-black uppercase leading-none tracking-tighter text-white/10">
@@ -54,10 +54,17 @@ export function AccentModalHeader({
           {watermark.type === "icon" && (
             <watermark.icon className="h-[92px] w-[92px] text-white/[0.14]" strokeWidth={1.5} />
           )}
-          {watermark.type === "image" && (
-            <img src={watermark.src} alt="" className="h-[92px] w-[92px] object-contain opacity-[0.14]" />
-          )}
         </div>
+      )}
+      {/* Image watermark: anchored to the right, flush with the header bottom.
+       *  It is taller than the header so the lower half gets clipped away. */}
+      {watermark && watermark.type === "image" && (
+        <img
+          src={watermark.src}
+          alt=""
+          aria-hidden
+          className="pointer-events-none absolute right-1 top-1 h-[230%] w-auto select-none object-contain object-top opacity-[0.28]"
+        />
       )}
 
       <div className="relative z-10">
