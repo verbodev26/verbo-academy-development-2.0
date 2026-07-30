@@ -7,10 +7,14 @@
 // duplicating it. Editing the link here reflects in Students and vice-versa.
 import {
   USERS,
+  ASSIGNMENTS,
   type User,
   type ChallengeSubmission,
   type ChallengeSubmissionFormat,
 } from "./mock-data";
+import { loadChallenges } from "./challenges-store";
+import { loadFlashChallenges } from "./flash-challenges-store";
+import { addStudentReport } from "./student-reports-store";
 
 export type { ChallengeSubmission, ChallengeSubmissionFormat };
 
