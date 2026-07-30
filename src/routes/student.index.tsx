@@ -543,7 +543,7 @@ function StudentDashboard() {
               <div className="pr-2">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "rgba(1,48,74,0.8)" }}>Level Progress</div>
                 <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-6xl font-bold leading-none tracking-tight" style={{ color: "#ffffff" }}>{levelProgress}</span>
+                  <AnimatedNumber value={levelProgress} className="text-6xl font-bold leading-none tracking-tight text-white" />
                   <span className="text-2xl font-bold" style={{ color: "#ffffff" }}>%</span>
 
                 </div>
