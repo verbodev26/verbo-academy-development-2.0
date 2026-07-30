@@ -157,7 +157,7 @@ function Page() {
               onClick={() => { setProductId(pid); setLevelId(null); setUnitId(null); }}
               className="group flex flex-col items-start gap-4 rounded-2xl border border-border bg-card p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-elevated"
             >
-              <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-[#01304a] to-[#024366] text-white">
+              <span className="flex h-14 w-14 items-center justify-center rounded-xl text-white" style={{ backgroundImage: PRODUCT_ICON_GRADIENT[pid] }}>
                 <Icon className="h-7 w-7" />
               </span>
               <div>
