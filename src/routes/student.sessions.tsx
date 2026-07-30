@@ -731,27 +731,33 @@ function SpotlightRequestFlow({ studentId, onClose }: { studentId: string; onClo
   if (step === "explain") {
     return (
       <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-        <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md rounded-2xl bg-card p-6 shadow-floating">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#ccf1eb] text-[#0d9488]">
-              <Sparkles className="h-5 w-5" />
+        <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-floating">
+          <AccentModalHeader
+            background="#0d9488"
+            iconTint="#0d9488"
+            icon={Sparkles}
+            eyebrow="SPOTLIGHT SESSION"
+            title="What is a Spotlight Session?"
+            watermark={{ type: "icon", icon: Sparkles }}
+            onClose={onClose}
+          />
+          <div className="px-6 py-5">
+            <p className="vc-rise text-sm font-medium text-foreground" style={{ animationDelay: "0.25s" }}>Stuck on something specific?</p>
+            <p className="vc-rise mt-2 text-sm leading-relaxed text-muted-foreground" style={{ animationDelay: "0.3s" }}>
+              A Spotlight Session is a focused 60-minute 1:1 with an Elite Instructor — built around exactly what you need: a presentation, an interview, a tricky email, anything on your plate. Tell us what it is, and they'll show up ready for it.
+            </p>
+            <div className="mt-6 flex justify-end">
+              <button
+                disabled={secondsLeft > 0}
+                onClick={() => setStep("form")}
+                className="cursor-pointer rounded-lg bg-[#0d9488] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {secondsLeft > 0 ? `Understood (${secondsLeft})` : "Understood"}
+              </button>
             </div>
-            <h3 className="text-lg font-semibold tracking-tight" style={{ color: "#01304a" }}>What is a Spotlight Session?</h3>
-          </div>
-          <p className="mt-3 text-sm font-medium text-foreground">Stuck on something specific?</p>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            A Spotlight Session is a focused 60-minute 1:1 with an Elite Instructor — built around exactly what you need: a presentation, an interview, a tricky email, anything on your plate. Tell us what it is, and they'll show up ready for it.
-          </p>
-          <div className="mt-6 flex justify-end">
-            <button
-              disabled={secondsLeft > 0}
-              onClick={() => setStep("form")}
-              className="cursor-pointer rounded-lg bg-[#0d9488] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {secondsLeft > 0 ? `Understood (${secondsLeft})` : "Understood"}
-            </button>
           </div>
         </div>
+
       </div>
     );
   }
