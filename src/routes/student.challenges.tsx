@@ -36,6 +36,7 @@ import {
   Tag,
   Clock,
   Shield,
+  ShieldAlert,
 
   type LucideIcon,
 } from "lucide-react";
@@ -1782,6 +1783,17 @@ function ChallengeDetail({
           )}
         </ChallengeModalFooter>
       </div>
+
+      {user && (
+        <ReportContentIssueModal
+          studentId={user.id}
+          entityType="challenge"
+          entityId={challenge.id}
+          entityTitle={challenge.title}
+          open={issueOpen}
+          onClose={() => setIssueOpen(false)}
+        />
+      )}
     </div>
   );
 }
