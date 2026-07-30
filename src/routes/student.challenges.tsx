@@ -908,21 +908,6 @@ function SeasonFlashBanner({
 
       <div className="relative flex w-full flex-col gap-6 p-7 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:p-10 sm:pl-[18%]">
         <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
-          <div className="min-w-0">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
-              Verbo Flash · Season
-            </div>
-            <div
-              className="mt-2 truncate text-5xl font-black tracking-tight text-white drop-shadow-md sm:text-7xl"
-              style={{ fontFamily: font }}
-            >
-              {season.display_name}
-            </div>
-            <div className="mt-2 text-xs text-white/85">
-              {available ? "Complete the challenges to unlock an exclusive badge" : "Coming soon"}
-            </div>
-          </div>
-
           {available && (
             <div className="flex shrink-0 flex-col items-center gap-1.5 text-center">
               <div
@@ -948,6 +933,21 @@ function SeasonFlashBanner({
               </div>
             </div>
           )}
+
+          <div className="min-w-0">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
+              Verbo Flash · Season
+            </div>
+            <div
+              className="mt-2 truncate text-5xl font-black tracking-tight text-white drop-shadow-md sm:text-7xl"
+              style={{ fontFamily: font }}
+            >
+              {season.display_name}
+            </div>
+            <div className="mt-2 text-xs text-white/85">
+              {available ? "Complete the challenges to unlock an exclusive badge" : "Coming soon"}
+            </div>
+          </div>
         </div>
 
         {available && (
