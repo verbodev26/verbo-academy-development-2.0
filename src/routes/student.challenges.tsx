@@ -1444,7 +1444,9 @@ function MysteryRevealModal({
   completed,
   cooldownRemaining,
   onChoose,
-  onComplete,
+  onSubmit,
+  onResubmit,
+  submission,
   onClose,
 }: {
   opening: boolean;
@@ -1455,7 +1457,9 @@ function MysteryRevealModal({
   completed: boolean;
   cooldownRemaining: number | null;
   onChoose: () => void;
-  onComplete: () => void;
+  onSubmit: () => void;
+  onResubmit: () => void;
+  submission: ChallengeSubmission | null;
   onClose: () => void;
 }) {
   const locked = !!challenge?.premium && !hasPremiumAccess;
