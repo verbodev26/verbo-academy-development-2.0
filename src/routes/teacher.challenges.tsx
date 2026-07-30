@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, X, Play } from "lucide-react";
+import { ArrowLeft, X, Play, Upload } from "lucide-react";
 import { Card, Pill, GhostButton } from "@/components/verbo/ui";
 import {
   type Challenge,
