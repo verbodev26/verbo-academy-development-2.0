@@ -442,6 +442,10 @@ function ChallengeModal({
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} className={textareaCls} placeholder="Brief description of the challenge…" />
         </Field>
 
+        <Field label="Submission instructions">
+          <textarea value={submissionInstructions} onChange={(e) => setSubmissionInstructions(e.target.value)} className={textareaCls} placeholder="Explain the expected delivery format — video, audio, written text, a link, etc." />
+        </Field>
+
         <Field label="Difficulty" hint="Preselected from the screen you're in — change it to move this challenge to another difficulty.">
           <select value={diff} onChange={(e) => setDiff(e.target.value as DifficultyId)} className={inputCls}>
             {DIFFICULTY_ORDER.map((d) => (
