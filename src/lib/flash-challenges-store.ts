@@ -172,6 +172,38 @@ export function subscribeFlashConfig(cb: () => void): () => void {
   };
 }
 
+/* -------------------- Lightning theme (static) -------------------- */
+
+export function loadLightningTheme(): LightningTheme {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(LIGHTNING_THEME_KEY);
+    if (raw) return JSON.parse(raw) as LightningTheme;
+  } catch { /* noop */ }
+  return {};
+}
+
+export function persistLightningTheme(theme: LightningTheme) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(LIGHTNING_THEME_KEY, JSON.stringify(theme));
+    window.dispatchEvent(new CustomEvent(LIGHTNING_THEME_EVENT));
+  } catch { /* noop */ }
+}
+
+export function subscribeLightningTheme(cb: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  const onStorage = (e: StorageEvent) => { if (e.key === LIGHTNING_THEME_KEY) cb(); };
+  window.addEventListener(LIGHTNING_THEME_EVENT, cb);
+  window.addEventListener("storage", onStorage);
+  return () => {
+    window.removeEventListener(LIGHTNING_THEME_EVENT, cb);
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+
+
 /* -------------------- Lightning (singleton) -------------------- */
 
 const LIGHTNING_INACTIVE: LightningState = {
