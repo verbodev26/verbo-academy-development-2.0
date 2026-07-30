@@ -4,6 +4,7 @@ import { RoleGuard } from "@/components/verbo/RoleGuard";
 import { TopNav, type NavEntry } from "@/components/verbo/TopNav";
 import { AnnouncementBanner } from "@/components/verbo/AnnouncementBanner";
 import { Footer } from "@/components/verbo/Footer";
+import { BadgeUnlockWatcher } from "@/components/verbo/BadgeUnlockCelebration";
 import { useAuth } from "@/lib/auth";
 import { touchLoginStreak } from "@/lib/login-streak-store";
 
@@ -48,6 +49,7 @@ function StudentLayout() {
 
   return (
     <RoleGuard allow="student">
+      <BadgeUnlockWatcher />
       <TopNav variant="dark" items={items} />
       <div className="flex min-h-screen flex-col" style={{ backgroundColor: "#f4f6f8" }}>
         <main className="mx-auto w-full max-w-7xl flex-1 pt-24 pb-10">
