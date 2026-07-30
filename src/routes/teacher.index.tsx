@@ -570,7 +570,7 @@ function TeacherDashboard() {
           className="block cursor-pointer text-left"
         >
           <HeroStatCard
-            className={`card-gradient-crimson${attention.length > 0 ? " verbo-focus-pulse" : ""}`}
+            className={`card-gradient-crimson !min-h-[92px] !py-4${attention.length > 0 ? " verbo-focus-pulse" : ""}`}
             style={attention.length > 0 ? ({ ["--verbo-focus-pulse-color" as any]: CRIMSON } as React.CSSProperties) : undefined}
           >
             <div className="relative flex w-full items-center justify-between gap-3">
@@ -578,12 +578,12 @@ function TeacherDashboard() {
                 <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.75)" }}>
                   Action Required
                 </div>
-                <div className="mt-2 text-3xl font-semibold leading-tight text-white">Needs Your Attention</div>
-                <div className="mt-2 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                <div className="mt-1 text-xl font-semibold leading-tight text-white">Needs Your Attention</div>
+                <div className="mt-1 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
                   {attention.length === 0 ? "You're all caught up" : `${attention.length} item${attention.length === 1 ? "" : "s"} need review`}
                 </div>
               </div>
-              <AlertTriangle className="h-10 w-10 shrink-0 text-white/85" strokeWidth={1.5} />
+              <AlertTriangle className="h-7 w-7 shrink-0 text-white/85" strokeWidth={1.5} />
             </div>
           </HeroStatCard>
         </div>
@@ -595,18 +595,18 @@ function TeacherDashboard() {
           onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenPanel("plan"); } }}
           className="block cursor-pointer text-left"
         >
-          <HeroStatCard className="card-gradient-violet">
+          <HeroStatCard className="card-gradient-violet !min-h-[92px] !py-4">
             <div className="relative flex w-full items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.75)" }}>
                   Lesson Planning
                 </div>
-                <div className="mt-2 text-3xl font-semibold leading-tight text-white">Plan Your Upcoming Sessions</div>
-                <div className="mt-2 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                <div className="mt-1 text-xl font-semibold leading-tight text-white">Plan Your Upcoming Sessions</div>
+                <div className="mt-1 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
                   {toPlan.length} session{toPlan.length === 1 ? "" : "s"} to plan
                 </div>
               </div>
-              <CalendarClock className="h-10 w-10 shrink-0 text-white/85" strokeWidth={1.5} />
+              <CalendarClock className="h-7 w-7 shrink-0 text-white/85" strokeWidth={1.5} />
             </div>
           </HeroStatCard>
         </div>
@@ -618,18 +618,18 @@ function TeacherDashboard() {
           onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenPanel("complete"); } }}
           className="block cursor-pointer text-left"
         >
-          <HeroStatCard className="card-gradient-green">
+          <HeroStatCard className="card-gradient-lime !min-h-[92px] !py-4">
             <div className="relative flex w-full items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.75)" }}>
                   Session Reports
                 </div>
-                <div className="mt-2 text-3xl font-semibold leading-tight text-white">Complete Your Sessions</div>
-                <div className="mt-2 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
+                <div className="mt-1 text-xl font-semibold leading-tight text-white">Complete Your Sessions</div>
+                <div className="mt-1 text-xs font-medium" style={{ color: "rgba(255,255,255,0.8)" }}>
                   {upcoming.length + pendingClubEvents.length} session{upcoming.length + pendingClubEvents.length === 1 ? "" : "s"} awaiting completion
                 </div>
               </div>
-              <CheckCircle2 className="h-10 w-10 shrink-0 text-white/85" strokeWidth={1.5} />
+              <CheckCircle2 className="h-7 w-7 shrink-0 text-white/85" strokeWidth={1.5} />
             </div>
           </HeroStatCard>
         </div>
