@@ -25,6 +25,7 @@ import {
   type CalendarEventKind,
 } from "@/lib/calendar-events";
 import { SUB_STATUS_META, type ExtSessionStatus } from "@/lib/sessions-store";
+import { SUBSTITUTION_COLOR } from "@/lib/status-palette";
 
 export type CalendarViewMode = "month" | "day";
 
@@ -40,6 +41,8 @@ export interface CalendarViewProps {
   pulseKinds?: CalendarEventKind[];
   /** Month/day the calendar opens on. Defaults to today. */
   initialDate?: Date;
+  /** Staff-only: paint covered pending sessions with the Substitution color. */
+  substitutionAware?: boolean;
 }
 
 
@@ -57,10 +60,6 @@ function fmtTime(iso: string) {
   return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-function colorForEvent(ev: CalendarEvent): string {
-  return eventPillDisplay(ev).color;
-}
-
 export function CalendarView({
   events,
   onEventClick,
@@ -69,6 +68,7 @@ export function CalendarView({
   initialEnabledKinds,
   pulseKinds,
   initialDate,
+  substitutionAware = false,
 }: CalendarViewProps) {
   const [mode, setMode] = useState<CalendarViewMode>(initialMode);
   const [cursor, setCursor] = useState(() => { const d = initialDate ? new Date(initialDate) : new Date(); d.setDate(1); return d; });
@@ -163,9 +163,9 @@ export function CalendarView({
                   className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-all ${
                     on ? "border-transparent text-white" : "border-border bg-card text-muted-foreground hover:text-foreground"
                   }`}
-                  style={on ? { background: meta.color } : undefined}
+                  style={on ? { background: meta.color, color: meta.borderColor ? "#01304a" : "#ffffff", borderColor: meta.borderColor ?? "transparent" } : undefined}
                 >
-                  <span className={`h-1.5 w-1.5 rounded-full ${on ? "bg-white" : ""}`} style={on ? undefined : { background: meta.color }} />
+                  <span className={`h-1.5 w-1.5 rounded-full ${on && !meta.borderColor ? "bg-white" : ""}`} style={on && !meta.borderColor ? undefined : { background: meta.color, border: meta.borderColor ? `1px solid ${meta.borderColor}` : undefined }} />
                   {meta.label}
                 </button>
               );
@@ -176,9 +176,9 @@ export function CalendarView({
 
       {/* Grid */}
       {mode === "month" ? (
-        <MonthGrid cursor={cursor} eventsByDay={eventsByDay} onEventClick={onEventClick} pulseKinds={pulseKinds} />
+        <MonthGrid cursor={cursor} eventsByDay={eventsByDay} onEventClick={onEventClick} pulseKinds={pulseKinds} substitutionAware={substitutionAware} />
       ) : (
-        <DayList day={dayCursor} events={eventsByDay.get(dayKey(dayCursor)) ?? []} onEventClick={onEventClick} pulseKinds={pulseKinds} />
+        <DayList day={dayCursor} events={eventsByDay.get(dayKey(dayCursor)) ?? []} onEventClick={onEventClick} pulseKinds={pulseKinds} substitutionAware={substitutionAware} />
 
       )}
 
@@ -190,7 +190,13 @@ export function CalendarView({
         <div className="flex flex-wrap gap-x-5 gap-y-2 text-[11px] text-muted-foreground">
           {CANONICAL_STATUS_ORDER.map((s) => (
             <div key={s} className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CALENDAR_STATUS_META[s].color }} />
+              <span
+                className="h-2.5 w-2.5 rounded-full"
+                style={{
+                  backgroundColor: CALENDAR_STATUS_META[s].color,
+                  border: CALENDAR_STATUS_META[s].borderColor ? `1px solid ${CALENDAR_STATUS_META[s].borderColor}` : undefined,
+                }}
+              />
               <span>{CALENDAR_STATUS_META[s].label}</span>
             </div>
           ))}
@@ -198,6 +204,12 @@ export function CalendarView({
             <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: SUB_STATUS_META.cancelled_holiday.color }} />
             <span>{SUB_STATUS_META.cancelled_holiday.label}</span>
           </div>
+          {substitutionAware && (
+            <div className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: SUBSTITUTION_COLOR }} />
+              <span>Substitution</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -206,12 +218,13 @@ export function CalendarView({
 }
 
 function MonthGrid({
-  cursor, eventsByDay, onEventClick, pulseKinds,
+  cursor, eventsByDay, onEventClick, pulseKinds, substitutionAware,
 }: {
   cursor: Date;
   eventsByDay: Map<string, CalendarEvent[]>;
   onEventClick?: (ev: CalendarEvent) => void;
   pulseKinds?: CalendarEventKind[];
+  substitutionAware?: boolean;
 }) {
 
   const grid = buildMonthGrid(cursor);
@@ -244,7 +257,7 @@ function MonthGrid({
             </div>
             <div className="space-y-1">
               {dayEvents.slice(0, 3).map((e) => (
-                <EventPill key={e.id} ev={e} onClick={() => onEventClick?.(e)} pulse={!!pulseKinds?.includes(e.kind) && !isClubFull(e)} />
+                <EventPill key={e.id} ev={e} onClick={() => onEventClick?.(e)} pulse={!!pulseKinds?.includes(e.kind) && !isClubFull(e)} substitutionAware={substitutionAware} />
               ))}
               {dayEvents.length > 3 && (
                 <div className="px-1.5 text-[10px] text-muted-foreground">+{dayEvents.length - 3} more</div>
@@ -259,12 +272,13 @@ function MonthGrid({
 }
 
 function DayList({
-  day, events, onEventClick, pulseKinds,
+  day, events, onEventClick, pulseKinds, substitutionAware,
 }: {
   day: Date;
   events: CalendarEvent[];
   onEventClick?: (ev: CalendarEvent) => void;
   pulseKinds?: CalendarEventKind[];
+  substitutionAware?: boolean;
 }) {
   if (events.length === 0) {
     return (
@@ -277,11 +291,12 @@ function DayList({
     <div className="overflow-hidden rounded-xl border border-border bg-card">
       {events.map((e) => {
         const pulse = !!pulseKinds?.includes(e.kind) && !isClubFull(e);
+        const display = eventPillDisplay(e, { substitutionAware });
         return (
         <button
           key={e.id}
           onClick={() => onEventClick?.(e)}
-          style={pulse ? { ["--verbo-focus-pulse-color" as string]: EVENT_KIND_META[e.kind].color } : undefined}
+          style={pulse ? { ["--verbo-focus-pulse-color" as string]: display.color } : undefined}
           className={`flex w-full items-center gap-4 border-b border-border p-3 text-left transition-colors last:border-0 hover:bg-secondary/60 ${
             pulse ? "verbo-focus-pulse" : ""
           }`}
@@ -292,8 +307,12 @@ function DayList({
             {fmtTime(e.date)}
           </div>
           <span
-            className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold text-white"
-            style={{ background: EVENT_KIND_META[e.kind].color }}
+            className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+            style={{
+              background: display.color,
+              color: display.borderColor ? "#01304a" : "#ffffff",
+              borderColor: display.borderColor ?? "transparent",
+            }}
           >
             {EVENT_KIND_META[e.kind].label}
           </span>
@@ -319,22 +338,20 @@ function DayList({
             {e.subtitle && <div className="truncate text-xs text-muted-foreground">{e.subtitle}</div>}
           </div>
           {e.status && (e.kind === "class" || e.kind === "workshop") && (
-            e.sub_status ? (
-              <span
-                className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold text-white"
-                style={{ background: SUB_STATUS_META[e.sub_status].color }}
-                title={SUB_STATUS_META[e.sub_status].label}
-              >
-                {SUB_STATUS_META[e.sub_status].initials}
-              </span>
-            ) : (
-              <span
-                className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold text-white"
-                style={{ background: CALENDAR_STATUS_META[e.status as ExtSessionStatus]?.color ?? "#94a3b8" }}
-              >
-                {CALENDAR_STATUS_META[e.status as ExtSessionStatus]?.label ?? e.status}
-              </span>
-            )
+            <span
+              className="inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+              style={{
+                background: display.color,
+                color: display.borderColor ? "#01304a" : "#ffffff",
+                borderColor: display.borderColor ?? "transparent",
+              }}
+              title={e.sub_status ? SUB_STATUS_META[e.sub_status].label : undefined}
+            >
+              {e.sub_status
+                ? SUB_STATUS_META[e.sub_status].initials
+                : display.cellLabel ||
+                  (CALENDAR_STATUS_META[e.status as ExtSessionStatus]?.label ?? e.status)}
+            </span>
           )}
           {e.origin === "workshop" && (
             <span className="rounded-md border border-border px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">WS</span>
@@ -347,8 +364,8 @@ function DayList({
   );
 }
 
-function EventPill({ ev, onClick, pulse = false }: { ev: CalendarEvent; onClick: () => void; pulse?: boolean }) {
-  const display = eventPillDisplay(ev);
+function EventPill({ ev, onClick, pulse = false, substitutionAware = false }: { ev: CalendarEvent; onClick: () => void; pulse?: boolean; substitutionAware?: boolean }) {
+  const display = eventPillDisplay(ev, { substitutionAware });
   const kindMeta = EVENT_KIND_META[ev.kind];
   const isClub = ev.kind === "insight" || ev.kind === "book_club";
   const seats = isClub && ev.spots_total != null
@@ -362,11 +379,13 @@ function EventPill({ ev, onClick, pulse = false }: { ev: CalendarEvent; onClick:
     <div className="group relative">
       <button
         onClick={onClick}
-        className={`flex w-full items-center gap-1 truncate rounded-lg px-1.5 py-1 text-left text-[10.5px] font-medium text-white shadow-sm transition-opacity hover:opacity-90 cursor-pointer ${
+        className={`flex w-full items-center gap-1 truncate rounded-lg border px-1.5 py-1 text-left text-[10.5px] font-medium shadow-sm transition-opacity hover:opacity-90 cursor-pointer ${
           ev.booked ? "ring-2 ring-[#f38934] ring-offset-1 ring-offset-card" : ""
         } ${pulse ? "verbo-focus-pulse" : ""} ${full ? "opacity-55 grayscale-[0.4]" : ""}`}
         style={{
-          backgroundColor: display.color,
+          background: display.color,
+          color: display.borderColor ? "#01304a" : "#ffffff",
+          borderColor: display.borderColor ?? "transparent",
           ...(pulse ? { ["--verbo-focus-pulse-color" as string]: display.color } : {}),
         }}
 
@@ -383,7 +402,7 @@ function EventPill({ ev, onClick, pulse = false }: { ev: CalendarEvent; onClick:
             <Check className="h-2.5 w-2.5" strokeWidth={3} />
           </span>
         ) : (
-          <span className="rounded bg-white/20 px-1 text-[9px] font-bold leading-none">
+          <span className={`rounded px-1 text-[9px] font-bold leading-none ${display.borderColor ? "bg-[#01304a]/10" : "bg-white/20"}`}>
             {display.short}
           </span>
         )}
