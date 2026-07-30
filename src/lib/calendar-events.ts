@@ -233,79 +233,106 @@ export function isClubFull(ev: CalendarEvent): boolean {
 }
 
 
-/** Meta a chip/legend can render for each supported event kind. */
-export const EVENT_KIND_META: Record<CalendarEventKind, { label: string; color: string; short: string }> = {
-  class:      { label: "Performance Session", color: "#6d28d9", short: "1:1" },
-  workshop:   { label: "Workshop",       color: "#7c3aed", short: "WS" },
+/** Meta a chip/legend can render for each supported event kind.
+ *  `class` has no identity color of its own — its pill color always comes from
+ *  the session status; the value here is only a neutral fallback for events
+ *  that arrive without a status. */
+export const EVENT_KIND_META: Record<CalendarEventKind, { label: string; color: string; borderColor?: string; short: string }> = {
+  class:      { label: "Performance Session", color: STATUS_PALETTE.scheduled.color, borderColor: STATUS_PALETTE.scheduled.borderColor, short: "1:1" },
+  workshop:   { label: "Workshop",       color: "#3300ff", short: "WS" },
   insight:    { label: "Insight",        color: "#01304a", short: "IN" },
   book_club:  { label: "Book Club",      color: "#c2410c", short: "BC" },
   spotlight:  { label: "Spotlight",      color: "#2dd4bf", short: "SP" },
-
 };
 
-/** The 7 canonical statuses in the order they appear in the legend. */
-export const CALENDAR_STATUS_META: Record<ExtSessionStatus, { label: string; color: string }> = {
-  scheduled:          { label: "Scheduled",          color: "#94a3b8" },
-  ready:              { label: "Ready",              color: "#8b5cf6" },
-  completed:          { label: "Completed",          color: "#16a34a" },
-  absent:             { label: "Absent",             color: "#7f1d1d" },
-  // Cancelled reassigned to a slate blue-gray, distinct from Scheduled's
-  // #94a3b8. The lighter tint used for justified-cancelled variants lives in
-  // SUB_STATUS_META (#cbd5e1).
-  cancelled:          { label: "Cancelled",          color: "#64748b" },
-  pending_reschedule: { label: "Pending Reschedule", color: "#b45309" },
-  no_show:            { label: "No Show",            color: "#334155" },
-  rescheduled:        { label: "Rescheduled",        color: "#f97316" },
-
-  rearranged:         { label: "Rearranged",         color: "#eab308" },
-  delayed:            { label: "Delayed",            color: "#db2777" },
-  converted_to_spotlight: { label: "Converted to Spotlight", color: "#4f46e5" },
-};
+/** The canonical statuses, in the order they appear in the legend. */
+export const CALENDAR_STATUS_META: Record<ExtSessionStatus, { label: string; color: string; borderColor?: string }> = STATUS_PALETTE;
 
 export const CANONICAL_STATUS_ORDER: ExtSessionStatus[] = [
   "scheduled", "ready", "completed", "absent", "cancelled", "pending_reschedule", "no_show", "delayed",
 ];
 
-/** Renderer helper: given an event, return the pill color + short label to
- *  display in the calendar cell. Sub-status wins over base status when set. */
-export function eventPillDisplay(ev: CalendarEvent): { color: string; short: string; cellLabel: string } {
+/** True for statuses where the session still hasn't happened. "rearranged" is
+ *  treated exactly like "rescheduled". */
+export function isPendingStatus(status?: ExtSessionStatus): boolean {
+  return isPendingStatusKey(status);
+}
+
+function substitutionApplies(ev: CalendarEvent, substitutionAware?: boolean): boolean {
+  return !!substitutionAware && !!ev.covered_by_substitute && isPendingStatus(ev.status as ExtSessionStatus | undefined);
+}
+
+/** Renderer helper: given an event, return the pill background + short label to
+ *  display in the calendar cell. Priority: substitution → sub-status →
+ *  class status → kind. `color` may be a CSS background (gradient) string. */
+export function eventPillDisplay(
+  ev: CalendarEvent,
+  opts?: { substitutionAware?: boolean },
+): { color: string; borderColor?: string; short: string; cellLabel: string } {
+  if (substitutionApplies(ev, opts?.substitutionAware)) {
+    return { color: SUBSTITUTION_COLOR, short: "SUB", cellLabel: "Substitution" };
+  }
   if (ev.sub_status) {
     const meta = SUB_STATUS_META[ev.sub_status];
-    return { color: meta.color, short: meta.initials, cellLabel: meta.initials };
+    const isJustifiedAbsence =
+      ev.sub_status === "absent_work" || ev.sub_status === "absent_illness" || ev.sub_status === "absent_vacation";
+    return {
+      color: isJustifiedAbsence ? ABSENT_SUB_GRADIENT : meta.color,
+      short: meta.initials,
+      cellLabel: meta.initials,
+    };
   }
   const kind = EVENT_KIND_META[ev.kind];
   const status = ev.status as ExtSessionStatus | undefined;
-  const color = (ev.kind === "class" || ev.kind === "workshop") && status
-    ? (CALENDAR_STATUS_META[status]?.color ?? kind.color)
-    : kind.color;
+  const statusMeta = ev.kind === "class" && status ? CALENDAR_STATUS_META[status] : undefined;
+  const color = statusMeta?.color ?? kind.color;
+  const borderColor = statusMeta ? statusMeta.borderColor : kind.borderColor;
   const cellLabel = status && (status === "absent" || status === "cancelled")
     ? CALENDAR_STATUS_META[status].label
     : "";
-  return { color, short: ev.is_group ? "G" : kind.short, cellLabel };
+  return { color, borderColor, short: ev.is_group ? "G" : kind.short, cellLabel };
 }
 
-/** Accent theme for MODAL HEADERS only (pills stay flat, see EVENT_KIND_META).
- *  `background` may be a solid hex or a CSS gradient; `solid` is always a hex
- *  usable for icon tints and text. Status overrides only apply to the kinds
- *  that carry an ExtSessionStatus. */
-export function calendarEventTheme(ev: CalendarEvent): { background: string; solid: string } {
-  const byKind: Record<CalendarEventKind, { background: string; solid: string }> = {
-    class:     { background: "#6d28d9", solid: "#6d28d9" },
-    workshop:  { background: "#7c3aed", solid: "#7c3aed" },
-    insight:   { background: "linear-gradient(135deg, #01304a 0%, #05070a 100%)", solid: "#01304a" },
-    book_club: { background: "#c2410c", solid: "#c2410c" },
-    spotlight: { background: "#2dd4bf", solid: "#2dd4bf" },
-  };
-  const supportsStatus = ev.kind === "class" || ev.kind === "workshop" || ev.kind === "spotlight";
-  if (supportsStatus) {
-    switch (ev.status as ExtSessionStatus | undefined) {
-      case "rescheduled":
-        return { background: "linear-gradient(135deg, #fbbf24 0%, #f97316 100%)", solid: "#f97316" };
-      case "cancelled":
-        return { background: "#64748b", solid: "#64748b" };
-      case "absent":
-        return { background: "linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)", solid: "#7f1d1d" };
-    }
+/** Accent theme for MODAL HEADERS. Same priority chain as eventPillDisplay,
+ *  but clubs and a few statuses get a gradient background. */
+export function calendarEventTheme(
+  ev: CalendarEvent,
+  opts?: { substitutionAware?: boolean },
+): { background: string; solid: string; textTone: "light" | "dark" } {
+  if (substitutionApplies(ev, opts?.substitutionAware)) {
+    return { background: SUBSTITUTION_COLOR, solid: SUBSTITUTION_COLOR, textTone: "light" };
   }
-  return byKind[ev.kind];
+  if (ev.sub_status) {
+    const meta = SUB_STATUS_META[ev.sub_status];
+    const isJustifiedAbsence =
+      ev.sub_status === "absent_work" || ev.sub_status === "absent_illness" || ev.sub_status === "absent_vacation";
+    return {
+      background: isJustifiedAbsence ? ABSENT_SUB_GRADIENT : meta.color,
+      solid: isJustifiedAbsence ? "#dc0000" : meta.color,
+      textTone: "light",
+    };
+  }
+
+  const status = ev.status as ExtSessionStatus | undefined;
+  if (ev.kind === "class" && status) {
+    if (status === "rescheduled" || status === "rearranged") {
+      return { background: "linear-gradient(135deg, #f97316 0%, #fbbf24 100%)", solid: "#f97316", textTone: "light" };
+    }
+    if (status === "absent") {
+      return { background: ABSENT_SUB_GRADIENT, solid: "#dc0000", textTone: "light" };
+    }
+    const meta = CALENDAR_STATUS_META[status];
+    return { background: meta.color, solid: meta.color, textTone: status === "scheduled" ? "dark" : "light" };
+  }
+
+  const byKind: Record<CalendarEventKind, { background: string; solid: string }> = {
+    class:     { background: STATUS_PALETTE.scheduled.color, solid: STATUS_PALETTE.scheduled.color },
+    workshop:  { background: EVENT_KIND_META.workshop.color, solid: EVENT_KIND_META.workshop.color },
+    insight:   { background: "linear-gradient(135deg, #01304a 0%, #05070a 100%)", solid: "#01304a" },
+    book_club: { background: "linear-gradient(135deg, #c2410c 0%, #000000 100%)", solid: "#c2410c" },
+    spotlight: { background: EVENT_KIND_META.spotlight.color, solid: EVENT_KIND_META.spotlight.color },
+  };
+  const theme = byKind[ev.kind];
+  return { ...theme, textTone: ev.kind === "class" ? "dark" : "light" };
 }
+
