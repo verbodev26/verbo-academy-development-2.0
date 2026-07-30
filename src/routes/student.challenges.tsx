@@ -71,6 +71,8 @@ import {
 } from "@/lib/students-store";
 import {
   type FlashChallenge,
+  type FlashConfig,
+  type LightningTheme,
   type FlashProductId,
   type FlashSeason,
   type LightningState,
