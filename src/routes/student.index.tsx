@@ -28,7 +28,7 @@ import { unitsForStudent } from "@/lib/vip-courses-store";
 import { tailoredUnitsForStudent } from "@/lib/tailored-content-store";
 import { subscribeVipUnits, subscribeVipUnitCompletion } from "@/lib/vip-courses-store";
 import { useComputedMacros } from "@/components/verbo/PerformanceAnalytics";
-import { AccentModalHeader, AnimatedNumber, GhostButton, InfoStatRow, Pill, PhotoPlaceholder, PrimaryButton, SectionTitle, StatRing, SuccessButton } from "@/components/verbo/ui";
+import { AccentModalHeader, AnimatedNumber, GhostButton, HeroStatCard, InfoStatRow, Pill, PhotoPlaceholder, PrimaryButton, SectionTitle, StatRing, SuccessButton } from "@/components/verbo/ui";
 import {
   ArrowDown,
   ArrowRight,
@@ -504,12 +504,16 @@ function StudentDashboard() {
             if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLevels(); }
           }}
         >
-          <div className="card-gradient-navy shadow-card verbo-card-hover relative flex h-full min-h-[168px] items-center overflow-hidden rounded-[2rem] px-6 py-6">
-            <div
-              className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-              style={{ background: "rgba(255,255,255,0.08)", transform: "rotate(14deg)" }}
-              aria-hidden
-            />
+          <HeroStatCard
+            className="card-gradient-navy"
+            decorative={
+              <div
+                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
+                style={{ background: "rgba(255,255,255,0.08)", transform: "rotate(14deg)" }}
+                aria-hidden
+              />
+            }
+          >
             <div className="relative flex w-full items-center justify-between gap-4">
               <div className="pr-2">
                 <div className="text-xs font-medium uppercase tracking-wider text-white/60">Current Level</div>
@@ -526,7 +530,7 @@ function StudentDashboard() {
                 textColor="#ffffff"
               />
             </div>
-          </div>
+          </HeroStatCard>
         </div>
 
         {/* Level Progress — hero */}
@@ -539,12 +543,16 @@ function StudentDashboard() {
             if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCurrentLevel(); }
           }}
         >
-          <div className="card-gradient-orange shadow-card verbo-card-hover relative flex h-full min-h-[168px] items-center overflow-hidden rounded-[2rem] px-6 py-6">
-            <div
-              className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-              style={{ background: "rgba(1,48,74,0.06)", transform: "rotate(14deg)" }}
-              aria-hidden
-            />
+          <HeroStatCard
+            className="card-gradient-orange"
+            decorative={
+              <div
+                className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
+                style={{ background: "rgba(1,48,74,0.06)", transform: "rotate(14deg)" }}
+                aria-hidden
+              />
+            }
+          >
             <div className="relative flex w-full items-center justify-between gap-5">
               <div className="pr-2">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "rgba(1,48,74,0.8)" }}>Level Progress</div>
@@ -564,31 +572,32 @@ function StudentDashboard() {
                 textColor="#01304a"
               />
             </div>
-          </div>
+          </HeroStatCard>
         </div>
 
         {/* Overall Attendance */}
         <div className="relative">
-          <div
-            className="shadow-card verbo-card-hover relative flex h-full min-h-[168px] items-center overflow-hidden rounded-[2rem] px-6 py-6"
+          <HeroStatCard
             style={{
               background: `linear-gradient(135deg, ${attendanceTheme.gradient[0]} 0%, ${attendanceTheme.gradient[1]} 100%)`,
             }}
+            decorative={
+              /* Verbot expression for the current attendance band — zoomed and
+               *  anchored top-right so the head/shoulders expression reads. */
+              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]" aria-hidden>
+                <img
+                  src={attendanceVerbot}
+                  alt=""
+                  aria-hidden
+                  className="absolute -top-4 right-0 h-[150%] w-auto select-none object-contain"
+                  style={{
+                    opacity: 0.88,
+                    filter: "drop-shadow(0 10px 18px rgba(0,0,0,0.22))",
+                  }}
+                />
+              </div>
+            }
           >
-            {/* Verbot expression for the current attendance band — zoomed and
-             *  anchored top-right so the head/shoulders expression reads. */}
-            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]" aria-hidden>
-              <img
-                src={attendanceVerbot}
-                alt=""
-                aria-hidden
-                className="absolute -top-4 right-0 h-[150%] w-auto select-none object-contain"
-                style={{
-                  opacity: 0.88,
-                  filter: "drop-shadow(0 10px 18px rgba(0,0,0,0.22))",
-                }}
-              />
-            </div>
             <div className="relative flex w-full items-start justify-between gap-4">
               <div className="pr-2">
                 <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>Overall Attendance</div>
@@ -604,7 +613,7 @@ function StudentDashboard() {
               {attendanceTrend === "up" && <ArrowUp className="h-5 w-5 shrink-0 text-white drop-shadow" aria-label="Attendance trending up" />}
               {attendanceTrend === "down" && <ArrowDown className="h-5 w-5 shrink-0 text-white drop-shadow" aria-label="Attendance trending down" />}
             </div>
-          </div>
+          </HeroStatCard>
         </div>
 
 

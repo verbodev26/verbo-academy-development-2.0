@@ -217,6 +217,35 @@ export function InfoStatRow({
   );
 }
 
+/**
+ * Shared hero KPI card shell (Current Level / Level Progress / Overall
+ * Attendance on the student dashboard). Renders only the styled inner card —
+ * the clickable wrapper (Link or role="button") stays with the caller.
+ */
+export function HeroStatCard({
+  className = "",
+  style,
+  decorative,
+  children,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+  decorative?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={`shadow-card verbo-card-hover relative flex h-full min-h-[168px] items-center overflow-hidden rounded-[2rem] px-6 py-6 ${className}`}
+      style={style}
+    >
+      {decorative}
+      {children}
+    </div>
+  );
+}
+
+
+
 
 
 
