@@ -367,6 +367,7 @@ function ChallengeModal({
   const [newCat, setNewCat] = useState("");
   const [title, setTitle] = useState(editing?.title ?? "");
   const [description, setDescription] = useState(editing?.description ?? "");
+  const [submissionInstructions, setSubmissionInstructions] = useState(editing?.submission_instructions ?? "");
   const [diff, setDiff] = useState<DifficultyId>(editing?.difficulty ?? difficulty);
   const [videoSource, setVideoSource] = useState<"url" | "upload">("url");
   const [videoUrl, setVideoUrl] = useState(editing?.video_url ?? "");
@@ -397,6 +398,7 @@ function ChallengeModal({
       category: category.trim(),
       title: title.trim(),
       description: description.trim(),
+      submission_instructions: submissionInstructions.trim(),
       video_url: videoUrl.trim(),
       premium,
       skill_tags: skillTags,
@@ -440,6 +442,10 @@ function ChallengeModal({
 
         <Field label="Description">
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} className={textareaCls} placeholder="Brief description of the challenge…" />
+        </Field>
+
+        <Field label="Submission instructions">
+          <textarea value={submissionInstructions} onChange={(e) => setSubmissionInstructions(e.target.value)} className={textareaCls} placeholder="Explain the expected delivery format — video, audio, written text, a link, etc." />
         </Field>
 
         <Field label="Difficulty" hint="Preselected from the screen you're in — change it to move this challenge to another difficulty.">

@@ -334,6 +334,7 @@ function FlashModal({
   const [newCat, setNewCat] = useState("");
   const [title, setTitle] = useState(editing?.title ?? "");
   const [description, setDescription] = useState(editing?.description ?? "");
+  const [submissionInstructions, setSubmissionInstructions] = useState(editing?.submission_instructions ?? "");
   const [videoUrl, setVideoUrl] = useState(editing?.video_url ?? "");
   const [premium, setPremium] = useState<boolean>(editing?.premium ?? false);
   const [videoSource, setVideoSource] = useState<"url" | "upload">("url");
@@ -368,6 +369,7 @@ function FlashModal({
       category: category.trim(),
       title: title.trim(),
       description: description.trim(),
+      submission_instructions: submissionInstructions.trim(),
       video_url: videoUrl.trim() || undefined,
       premium,
       skill_tags: editing?.skill_tags ?? [],
@@ -437,6 +439,10 @@ function FlashModal({
 
           <Field label="Description">
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} className={textareaCls} placeholder="Describe the challenge…" />
+          </Field>
+
+          <Field label="Submission instructions">
+            <textarea value={submissionInstructions} onChange={(e) => setSubmissionInstructions(e.target.value)} className={textareaCls} placeholder="Explain the expected delivery format — video, audio, written text, a link, etc." />
           </Field>
 
           <label className="flex items-start gap-3 rounded-lg border border-border bg-secondary/30 px-3 py-2.5 cursor-pointer">

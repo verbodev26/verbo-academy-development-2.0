@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, X, Play } from "lucide-react";
+import { ArrowLeft, X, Play, Upload } from "lucide-react";
 import { Card, Pill, GhostButton } from "@/components/verbo/ui";
 import {
   type Challenge,
@@ -258,6 +258,14 @@ function PreviewModal({ challenge, onClose }: { challenge: Challenge; onClose: (
           <p className="text-sm leading-relaxed text-foreground">
             {challenge.description || "No description available."}
           </p>
+          {challenge.submission_instructions?.trim() && (
+            <div className="rounded-lg border border-border bg-secondary/40 px-3 py-2.5">
+              <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                <Upload className="h-3 w-3" /> How to submit
+              </div>
+              <p className="mt-1 text-sm leading-relaxed text-foreground">{challenge.submission_instructions}</p>
+            </div>
+          )}
           {challenge.video_url && (
             <a
               href={challenge.video_url}

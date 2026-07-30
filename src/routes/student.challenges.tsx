@@ -1337,6 +1337,22 @@ const VC_HEADER_KEYFRAMES = `
 
 
 
+/** "How to submit" block — only rendered when the admin filled in instructions. */
+function SubmissionInstructions({ text, delay }: { text?: string; delay?: string }) {
+  if (!text || !text.trim()) return null;
+  return (
+    <div
+      className="vc-rise mt-4 rounded-lg border border-border bg-secondary/40 px-3 py-2.5"
+      style={delay ? { animationDelay: delay } : undefined}
+    >
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <Upload className="h-3 w-3" /> How to submit
+      </div>
+      <p className="mt-1 text-sm leading-relaxed text-foreground">{text}</p>
+    </div>
+  );
+}
+
 function MysteryCooldownModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
@@ -1458,6 +1474,7 @@ function MysteryRevealModal({
                 <p className="text-sm leading-relaxed text-foreground">
                   {challenge.description || "No description available."}
                 </p>
+                <SubmissionInstructions text={challenge.submission_instructions} delay="0.4s" />
                 {challenge.video_url && (
                   <a
                     href={challenge.video_url}
@@ -1622,6 +1639,7 @@ function ChallengeDetail({
             <p className="vc-rise text-sm leading-relaxed text-foreground" style={{ animationDelay: "0.35s" }}>
               {challenge.description || "No description available."}
             </p>
+            <SubmissionInstructions text={challenge.submission_instructions} delay="0.38s" />
             {challenge.video_url && (
               <a
                 href={challenge.video_url}
@@ -1857,6 +1875,7 @@ function LightningRevealModal({
             <p className="text-sm leading-relaxed text-foreground">
               {challenge.description || "No description available."}
             </p>
+            <SubmissionInstructions text={challenge.submission_instructions} delay="0.4s" />
             {challenge.video_url && (
               <a
                 href={challenge.video_url}
@@ -2031,6 +2050,7 @@ function SeasonRevealModal({
                 <p className="text-sm leading-relaxed text-foreground">
                   {challenge.description || "No description available."}
                 </p>
+                <SubmissionInstructions text={challenge.submission_instructions} delay="0.4s" />
                 {challenge.video_url && (
                   <a
                     href={challenge.video_url}

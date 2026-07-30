@@ -375,6 +375,7 @@ Persistencia: `Record<studentId, LearningPathEvent[]>`, dedupe 60s, máx. 100 ev
 | category | string | requerido | libre |
 | title / description | string | requerido | |
 | video_url | string | requerido | vacío = sin adjunto |
+| submission_instructions | string | opcional | texto libre del admin con el formato de entrega esperado; vacío = no se muestra nada al alumno |
 
 ✅ Verificado 2026-07-11 contra el código real: `DifficultyId` sí incluye `'experto'` y `Challenge` sí declara `premium`/`skill_tags`. No había ninguna inconsistencia real.
 
@@ -407,7 +408,7 @@ Ranking del leaderboard: **global** — `USERS` filtrados solo por `role === "st
 
 ### `FlashChallenge`, `LightningState`, `FlashSeason`, `FlashConfig` (`src/lib/flash-challenges-store.ts`)
 
-**`FlashChallenge`**: `id, format: FlashFormat, product: FlashProductId, category, title, description, video_url?, premium?, skill_tags?, season_id?, icon_image_url?`.
+**`FlashChallenge`**: `id, format: FlashFormat, product: FlashProductId, category, title, description, video_url?, premium?, submission_instructions?, skill_tags?, season_id?, icon_image_url?`. `submission_instructions` es texto libre opcional (formato de entrega esperado); si está vacío no se renderiza en los modales del alumno.
 
 - `icon_image_url?`: imagen circular opcional del reto (data URL subida desde Admin > Flash, o URL remota). Se muestra como preview circular en el formulario.
 
