@@ -476,7 +476,7 @@ function TeacherDashboard() {
         <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
           <h1 className="text-3xl font-semibold tracking-tight text-black">{user.name}</h1>
           <Pill>{rankLabel(user)}</Pill>
-          <Pill className="ml-auto">{sessionsTaught} sessions taught</Pill>
+          <span className="ml-auto"><Pill>{sessionsTaught} sessions taught</Pill></span>
         </div>
 
 
