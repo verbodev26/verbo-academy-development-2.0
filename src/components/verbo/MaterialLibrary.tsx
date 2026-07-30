@@ -359,7 +359,6 @@ export function MaterialLibrary({
     letterRefs.current[l]?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const WHITE = "#ffffff";
   const knownNames = [
     "Grammar",
     "Vocabulary",
@@ -377,90 +376,77 @@ export function MaterialLibrary({
   const mainCards: {
     name: string;
     subtitle: string;
-    bgClass: string;
-    textStyle: React.CSSProperties;
-    align?: "left" | "right" | "center";
-    descRight?: boolean;
-    button?: CardButton;
+    accent: string;
+    icon: typeof Book;
+    badge?: React.ReactNode;
     onClick: () => void;
   }[] = [
     {
       name: "Listening",
       subtitle: "Audio practice and listening exercises to train your ear.",
-      bgClass: "bg-gradient-to-br from-[#f8ab31] via-[#ef8f14] to-[#dd7208]",
-      textStyle: { color: WHITE },
-      button: { variant: "arrow-circle", color: "#dd7208", align: "left" },
+      accent: "#ef8f14",
+      icon: Headphones,
       onClick: () => openCategory("Listening"),
     },
     {
       name: "Grammar",
       subtitle: "Structures and practice sheets to sharpen your grammar.",
-      bgClass: "bg-gradient-to-br from-[#a5d938] via-[#54b42d] to-[#157f36]",
-      textStyle: { color: WHITE },
-      button: { variant: "label", color: "#157f36", align: "left" },
+      accent: "#157f36",
+      icon: SpellCheck,
       onClick: () => openCategory("Grammar"),
     },
     {
       name: "Vocabulary",
       subtitle: "Word lists and expressions to grow your everyday vocabulary.",
-      bgClass: "bg-gradient-to-r from-[#63a4f8] to-[#2f6fe4]",
-      textStyle: { color: WHITE },
-      align: "right",
-      button: { variant: "arrow-pill", color: "#2f6fe4", align: "right" },
+      accent: "#2f6fe4",
+      icon: Type,
       onClick: () => openCategory("Vocabulary"),
     },
     {
       name: "Speaking",
       subtitle: "Prompts and exercises to build real speaking confidence.",
-      bgClass: "bg-gradient-to-br from-[#f07ad3] via-[#e256bb] to-[#d13da4]",
-      textStyle: { color: WHITE },
-      button: { variant: "arrow-circle", color: "#d13da4", align: "right" },
+      accent: "#d13da4",
+      icon: Mic,
       onClick: () => openCategory("Speaking"),
     },
     {
       name: "Premium",
       subtitle: "Deep-dive guides and exclusive practice packs for Advance tier and up.",
-      bgClass: "bg-gradient-to-br from-[#a78bfa] via-[#8b5cf6] to-[#6d28d9]",
-      textStyle: { color: WHITE },
-      align: "right",
-      button: { variant: "label", color: "#6d28d9", align: "right" },
+      accent: "#b45309",
+      icon: Crown,
+      badge: <PremiumBadge />,
       onClick: () => openCategory(PREMIUM_KEY),
     },
     {
       name: "Getting Started",
       subtitle: "Everything you need to take your first steps with confidence.",
-      bgClass: "bg-gradient-to-r from-[#ffd731] via-[#fdaa1d] to-[#f97316]",
-      textStyle: { color: WHITE },
-      descRight: true,
-      button: { variant: "arrow-pill", color: "#f97316", align: "left" },
+      accent: "#f97316",
+      icon: Rocket,
       onClick: () => openCategory("Getting Started"),
     },
     {
       name: "Study Tips",
       subtitle: "Habits, routines and techniques to study smarter every week.",
-      bgClass: "bg-gradient-to-br from-[#ef4b4b] via-[#d92c3f] to-[#a41630]",
-      textStyle: { color: WHITE },
-      descRight: true,
-      button: { variant: "label", color: "#a41630", align: "left" },
+      accent: "#a41630",
+      icon: Lightbulb,
       onClick: () => openCategory("Study Tips"),
     },
     {
       name: "Business",
       subtitle: "Templates and phrases for professional communication.",
-      bgClass: "card-gradient-navy",
-      textStyle: { color: WHITE },
-      align: "center",
-      button: { variant: "arrow-circle", color: "#01304a", align: "right" },
+      accent: "#01304a",
+      icon: Briefcase,
       onClick: () => openCategory("Business"),
     },
     ...extraCategories.map((c, i) => ({
       name: c,
       subtitle: "Complementary resources for this category.",
-      bgClass: `bg-gradient-to-br ${CATEGORY_COVERS[i % CATEGORY_COVERS.length]}`,
-      textStyle: { color: WHITE },
+      accent: EXTRA_ACCENTS[i % EXTRA_ACCENTS.length],
+      icon: Tag as typeof Book,
       onClick: () => openCategory(c),
     })),
   ];
+
 
 
   const headerLabel = isPremiumView ? "Premium" : category;
