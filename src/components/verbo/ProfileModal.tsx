@@ -355,6 +355,7 @@ function AchievementsGallery({
   badges: ProfileBadgeDef[];
   ctx: BadgeContext;
 }) {
+  const { user } = useAuth();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
