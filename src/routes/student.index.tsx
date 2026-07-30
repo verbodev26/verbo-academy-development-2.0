@@ -1303,7 +1303,8 @@ function StudentDashboard() {
                   </section>
 
                   {/* Teacher's notes */}
-                  <section>
+                  <section className="vc-rise" style={{ animationDelay: "0.35s" }}>
+
                     <SectionHeadIcon
                       icon={<NotebookPen className="h-4 w-4" />}
                       circleClass="bg-[var(--orange-100)] text-[var(--orange-600)]"
