@@ -30,6 +30,12 @@ const PRODUCT_ICON: Record<ProductId, React.ComponentType<{ className?: string }
   international: Globe,
 };
 
+const PRODUCT_ICON_GRADIENT: Record<ProductId, string> = {
+  go: "linear-gradient(150deg, #b2ece3 0%, #7cd7cb 55%, #3ebbad 100%)",
+  enterprise: "linear-gradient(150deg, #073756 0%, #01304a 55%, #001a29 100%)",
+  international: "linear-gradient(150deg, #dea3ee 0%, #c86fe1 55%, #a34ac0 100%)",
+};
+
 const PREVIEW_STUDENT_ID = "teacher-preview";
 
 function Page() {
@@ -151,7 +157,7 @@ function Page() {
               onClick={() => { setProductId(pid); setLevelId(null); setUnitId(null); }}
               className="group flex flex-col items-start gap-4 rounded-2xl border border-border bg-card p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent hover:shadow-elevated"
             >
-              <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-[#01304a] to-[#024366] text-white">
+              <span className="flex h-14 w-14 items-center justify-center rounded-xl text-white" style={{ backgroundImage: PRODUCT_ICON_GRADIENT[pid] }}>
                 <Icon className="h-7 w-7" />
               </span>
               <div>
