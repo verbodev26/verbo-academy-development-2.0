@@ -246,7 +246,7 @@ export function StatRing({
   progressColor = "#f38934",
   textColor = "#01304a",
   valueClassName,
-}: { value: number; size?: number; stroke?: number; label?: string; trackColor?: string; progressColor?: string; textColor?: string; valueClassName?: string }) {
+}: { value: number; size?: number; stroke?: number; label?: ReactNode; trackColor?: string; progressColor?: string; textColor?: string; valueClassName?: string }) {
   const pct = Math.max(0, Math.min(100, value));
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;

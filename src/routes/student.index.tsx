@@ -2,6 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import experiencesClubs from "@/assets/experiences-clubs.png.asset.json";
 import teamsLogo from "@/assets/teams-logo.webp.asset.json";
 import verbotGif from "@/assets/Verbot_1.gif.asset.json";
+import verbotEmocionado from "@/assets/Verbot_emocionado.svg.asset.json";
+import verbotMotivado from "@/assets/Verbot_motivado.svg.asset.json";
+import verbotGuau from "@/assets/Verbot_guau.svg.asset.json";
+import verbotEmoji from "@/assets/Verbot_emoji.svg.asset.json";
+import verbotMolesto from "@/assets/Verbot_molesto.svg.asset.json";
+import verbotEnojado from "@/assets/Verbot_enojado.svg.asset.json";
+import verbotFurioso from "@/assets/Verbot_furioso.svg.asset.json";
 
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
@@ -21,7 +28,7 @@ import { unitsForStudent } from "@/lib/vip-courses-store";
 import { tailoredUnitsForStudent } from "@/lib/tailored-content-store";
 import { subscribeVipUnits, subscribeVipUnitCompletion } from "@/lib/vip-courses-store";
 import { useComputedMacros } from "@/components/verbo/PerformanceAnalytics";
-import { AccentModalHeader, GhostButton, InfoStatRow, Pill, PhotoPlaceholder, PrimaryButton, SectionTitle, StatRing, SuccessButton } from "@/components/verbo/ui";
+import { AccentModalHeader, AnimatedNumber, GhostButton, InfoStatRow, Pill, PhotoPlaceholder, PrimaryButton, SectionTitle, StatRing, SuccessButton } from "@/components/verbo/ui";
 import {
   ArrowDown,
   ArrowRight,
@@ -178,15 +185,38 @@ const SKILL_COLORS: Record<string, string> = {
   Reading: "oklch(0.6 0.104 185)",
 };
 
-// Attendance color scale (shared by the % value and the mini bar chart).
-function attendanceColorFor(pct: number): string {
-  if (pct >= 90) return "var(--green-500)";
-  if (pct >= 80) return "#ABFF32";
-  if (pct >= 70) return "#FEED0C";
-  if (pct >= 65) return "#FFC515";
-  if (pct >= 60) return "#FF9100";
-  return "#F10202";
+// Attendance theme scale — color, background gradient and Verbot expression
+// for each band. First band whose `min` is <= pct wins.
+const ATTENDANCE_THEME = [
+  { min: 95, gradient: ["#16a34a", "#15803d"], verbot: "emocionado" },
+  { min: 85, gradient: ["#7ee02d", "#3ea008"], verbot: "motivado" },
+  { min: 75, gradient: ["#c9e02d", "#9dbb0a"], verbot: "guau" },
+  { min: 65, gradient: ["#fde047", "#eab308"], verbot: "emoji" },
+  { min: 55, gradient: ["#fbbf24", "#d97706"], verbot: "molesto" },
+  { min: 45, gradient: ["#fb923c", "#c2410c"], verbot: "enojado" },
+  { min: 30, gradient: ["#f87171", "#b91c1c"], verbot: "furioso" },
+  { min: 0, gradient: ["#c2410c", "#760137"], verbot: "triste" },
+] as const;
+
+type AttendanceTheme = (typeof ATTENDANCE_THEME)[number];
+
+function attendanceThemeFor(pct: number): AttendanceTheme {
+  return ATTENDANCE_THEME.find((t) => pct >= t.min) ?? ATTENDANCE_THEME[ATTENDANCE_THEME.length - 1];
 }
+
+/** Verbot expression artwork by band name. */
+const VERBOT_EXPRESSIONS: Record<string, string> = {
+  emocionado: verbotEmocionado.url,
+  motivado: verbotMotivado.url,
+  guau: verbotGuau.url,
+  emoji: verbotEmoji.url,
+  molesto: verbotMolesto.url,
+  enojado: verbotEnojado.url,
+  furioso: verbotFurioso.url,
+  // No "triste" artwork uploaded yet — reuse the closest expression.
+  triste: verbotFurioso.url,
+};
+
 
 const ATTENDANCE_SCORES: Record<string, number> = {
   completed: 100,
@@ -266,21 +296,24 @@ function StudentDashboard() {
   const contractedLevels = user.contracted_levels ?? [];
   const currentLevelIdx = currentLevelName ? contractedLevels.indexOf(currentLevelName) : -1;
   const currentLevelRingLabel =
-    currentLevelIdx >= 0 && contractedLevels.length > 0
-      ? `${currentLevelIdx + 1}/${contractedLevels.length}`
-      : "";
+    currentLevelIdx >= 0 && contractedLevels.length > 0 ? (
+      <>
+        <AnimatedNumber value={currentLevelIdx + 1} />/{contractedLevels.length}
+      </>
+    ) : (
+      ""
+    );
+
 
 
   // Overall Attendance — shared helper (studentAttendance) so Admin, Teacher
   // and Student always show the exact same % for a given student.
   const { pct: attendancePct } = studentAttendance(mySessions, user);
+  const attendanceTheme = attendanceThemeFor(attendancePct);
+  const attendanceVerbot = VERBOT_EXPRESSIONS[attendanceTheme.verbot];
 
-  // Mini attendance sparkline — last 6 gradeable sessions (oldest → newest).
   const gradeable = history.filter((s) => s.status in ATTENDANCE_SCORES);
-  const attendanceBars: number[] = gradeable
-    .slice(0, 6)
-    .map((s) => ATTENDANCE_SCORES[s.status])
-    .reverse();
+
 
   // Trend: last 30 days vs the 31–60 day window. No data → no arrow.
   const attendanceTrend: "up" | "down" | null = (() => {
@@ -515,7 +548,7 @@ function StudentDashboard() {
               <div className="pr-2">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: "rgba(1,48,74,0.8)" }}>Level Progress</div>
                 <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-6xl font-bold leading-none tracking-tight" style={{ color: "#ffffff" }}>{levelProgress}</span>
+                  <AnimatedNumber value={levelProgress} className="text-6xl font-bold leading-none tracking-tight text-white" />
                   <span className="text-2xl font-bold" style={{ color: "#ffffff" }}>%</span>
 
                 </div>
@@ -535,40 +568,45 @@ function StudentDashboard() {
 
         {/* Overall Attendance */}
         <div className="relative">
-          <div className="card-gradient-lime shadow-card verbo-card-hover relative flex h-full min-h-[168px] items-center overflow-hidden rounded-[2rem] px-6 py-6">
-            <div
-              className="pointer-events-none absolute -right-8 -top-10 h-[140px] w-[140px] rounded-3xl"
-              style={{ background: "rgba(1,48,74,0.06)", transform: "rotate(14deg)" }}
-              aria-hidden
-            />
-            <div className="relative flex w-full items-center justify-between gap-4">
+          <div
+            className="shadow-card verbo-card-hover relative flex h-full min-h-[168px] items-center overflow-hidden rounded-[2rem] px-6 py-6"
+            style={{
+              background: `linear-gradient(135deg, ${attendanceTheme.gradient[0]} 0%, ${attendanceTheme.gradient[1]} 100%)`,
+            }}
+          >
+            {/* Verbot expression for the current attendance band — zoomed and
+             *  anchored bottom-right so only the torso/head reads. */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]" aria-hidden>
+              <img
+                src={attendanceVerbot}
+                alt=""
+                aria-hidden
+                className="absolute -bottom-2 right-0 h-[150%] w-auto select-none object-contain"
+                style={{
+                  objectPosition: "top",
+                  opacity: 0.88,
+                  filter: "drop-shadow(0 10px 18px rgba(0,0,0,0.22))",
+                }}
+              />
+            </div>
+            <div className="relative flex w-full items-start justify-between gap-4">
               <div className="pr-2">
                 <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>Overall Attendance</div>
                 <div className="mt-3 flex items-baseline gap-2">
-                  <span className="text-3xl font-bold tracking-tight" style={{ color: "#ffffff" }}>{attendancePct}%</span>
+                  <AnimatedNumber
+                    value={attendancePct}
+                    className="text-6xl font-bold leading-none tracking-tight text-white"
+                  />
+                  <span className="text-2xl font-bold" style={{ color: "#ffffff" }}>%</span>
                 </div>
-                <div className="mt-1 text-xs font-semibold" style={{ color: "rgba(1,48,74,0.8)" }}>last 90 days</div>
+                <div className="mt-1.5 text-xs font-semibold" style={{ color: "rgba(1,48,74,0.8)" }}>last 90 days</div>
               </div>
-              <div className="flex items-end gap-2">
-                <div className="flex h-14 items-end gap-1.5">
-                  {attendanceBars.map((b, i) => (
-                    <div
-                      key={i}
-                      className="w-1.5 rounded-full"
-                      style={{
-                        height: `${Math.max(8, (b / 100) * 56)}px`,
-                        backgroundColor: attendanceColorFor(b),
-                      }}
-                      aria-hidden
-                    />
-                  ))}
-                </div>
-                {attendanceTrend === "up" && <ArrowUp className="h-5 w-5" style={{ color: "var(--green-500)" }} aria-label="Attendance trending up" />}
-                {attendanceTrend === "down" && <ArrowDown className="h-5 w-5" style={{ color: "#F10202" }} aria-label="Attendance trending down" />}
-              </div>
+              {attendanceTrend === "up" && <ArrowUp className="h-5 w-5 shrink-0 text-white drop-shadow" aria-label="Attendance trending up" />}
+              {attendanceTrend === "down" && <ArrowDown className="h-5 w-5 shrink-0 text-white drop-shadow" aria-label="Attendance trending down" />}
             </div>
           </div>
         </div>
+
 
       </section>
 
@@ -608,7 +646,7 @@ function StudentDashboard() {
                     <div className="min-w-0">
                       <div className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">{m.key}</div>
                       <div className="text-base font-semibold tabular-nums" style={{ color: "#01304a" }}>
-                        {m.overall === null ? "--" : `${m.overall}%`}
+                        {m.overall === null ? "--" : <AnimatedNumber value={m.overall} suffix="%" />}
                       </div>
                     </div>
                   </div>
