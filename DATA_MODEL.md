@@ -441,8 +441,9 @@ Ranking del leaderboard: **global** — `USERS` filtrados solo por `role === "st
 
 ### `FlashChallenge`, `LightningState`, `FlashSeason`, `FlashConfig` (`src/lib/flash-challenges-store.ts`)
 
-**`FlashChallenge`**: `id, format: FlashFormat, product: FlashProductId, category, title, description, video_url?, premium?, submission_instructions?, skill_tags?, season_id?, icon_image_url?`. `submission_instructions` es texto libre opcional (formato de entrega esperado); si está vacío no se renderiza en los modales del alumno.
+**`FlashChallenge`**: `id, format: FlashFormat, product: FlashProductId, category, title, description, video_url?, premium?, submission_instructions?, skill_tags?, season_id?, icon_image_url?, synced_group_id?`. `submission_instructions` es texto libre opcional (formato de entrega esperado); si está vacío no se renderiza en los modales del alumno.
 
+- `synced_group_id?`: id compartido (`newSyncedGroupId()` → `sync-<ts>-<rand>`) que enlaza las copias por producto de un mismo reto autorado. En Admin > Flash, el checkbox "Apply to all 3 products" (solo al crear) genera un registro independiente por cada producto de `FLASH_PRODUCT_ORDER` con id propio y el mismo `synced_group_id`. Al editar cualquier copia, los campos de contenido (category, title, description, submission_instructions, video_url, premium, skill_tags, icon_image_url) se propagan a las hermanas del mismo grupo y formato; `id`, `product` y `season_id` de cada una nunca se tocan. La activación de Lightning y el filtrado por producto en student/teacher no cambian: cada producto sigue siendo un registro independiente.
 - `icon_image_url?`: imagen circular opcional del reto (data URL subida desde Admin > Flash, o URL remota). Se muestra como preview circular en el formulario.
 
 - `season_id?`: solo para `format === "season"`. FK → `FlashSeason.id`. Cada Season tiene su propia bolsa de retos (Admin > Flash > Season > "Challenges"), independiente de la de Mystery Box.
