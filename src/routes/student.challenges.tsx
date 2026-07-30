@@ -2157,18 +2157,17 @@ function SeasonRevealModal({
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
-              <GhostButton onClick={onClose}>Close</GhostButton>
+            <ChallengeModalFooter submission={submission} accent={accent} onClose={onClose} onResubmit={onResubmit}>
               {locked ? null : completed ? (
                 <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" /> Completed</Pill>
               ) : chosen ? (
-                <SuccessButton onClick={onComplete} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Mark as Completed
+                <SuccessButton onClick={onSubmit} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>
+                  <Upload className="h-3.5 w-3.5" /> Submit Challenge
                 </SuccessButton>
               ) : (
                 <PrimaryButton onClick={onChoose} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>Let's do it!</PrimaryButton>
               )}
-            </div>
+            </ChallengeModalFooter>
           </>
         )}
       </div>
