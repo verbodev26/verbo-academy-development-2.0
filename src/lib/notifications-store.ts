@@ -104,7 +104,7 @@ export interface Notification {
   read: boolean;
   /** Optional payload used by handlers that open a modal instead of routing
    *  (e.g. student_shared_challenge_result). */
-  data?: { studentId?: string; challengeId?: string };
+  data?: { studentId?: string; challengeId?: string; badgeStorageId?: string };
 }
 
 // ---------------------------------------------------------------------------
