@@ -541,10 +541,10 @@ function LevelsView({
           </div>
           <div className="relative z-10">
             <div className="relative z-10 flex flex-wrap items-center gap-5" style={{ color: "#01304a" }}>
-              <StatRing value={pct} size={104} stroke={8} valueClassName="text-2xl font-bold" />
+              <StatRing value={pct} size={104} stroke={8} valueClassName="text-2xl font-bold" label={<AnimatedNumber value={pct} suffix="%" />} />
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-semibold uppercase tracking-wider opacity-75">Overall progress</div>
-                <div className="mt-1 text-[4.5rem] font-extrabold leading-none tabular-nums">{passedUnits}</div>
+                <AnimatedNumber value={passedUnits} className="mt-1 block text-[4.5rem] font-extrabold leading-none tabular-nums" />
                 <div className="mt-1 text-lg font-semibold">of {totalUnits} units completed</div>
               </div>
               <div className="text-right">
