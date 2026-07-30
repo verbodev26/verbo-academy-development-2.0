@@ -87,7 +87,9 @@ export type NotificationKind =
   | "session_changed"
   | "club_opened"
   | "payment_or_sessions_ending_soon"
-  | "new_challenge_available";
+  | "new_challenge_available"
+  | "badge_unlocked";
+
 
 export interface Notification {
   id: string;
