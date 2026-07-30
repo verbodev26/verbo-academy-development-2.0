@@ -203,7 +203,7 @@ export function TopNav({ items, variant = "light" }: { items: NavEntry[]; varian
     width: 0,
     visible: false,
   });
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLElement>(null);
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);
 
