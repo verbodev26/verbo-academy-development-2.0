@@ -21,6 +21,9 @@ import {
   subscribeFlashConfig,
   loadLightning,
   subscribeLightning,
+  loadLightningTheme,
+  persistLightningTheme,
+  subscribeLightningTheme,
   activateLightning,
   endLightningEarly,
   type FlashSeason,
@@ -543,6 +546,7 @@ function LightningTab() {
   const [selectedChallengeId, setSelectedChallengeId] = useState<string>("");
   const [durationHours, setDurationHours] = useState<number>(LIGHTNING_DEFAULT_HOURS);
   const [confirmEnd, setConfirmEnd] = useState(false);
+  const [lightningTheme, setLightningTheme] = useState(loadLightningTheme);
 
   useEffect(() => {
     setList(loadFlashChallenges());
@@ -551,8 +555,10 @@ function LightningTab() {
     const un1 = subscribeFlashChallenges(() => setList(loadFlashChallenges()));
     const un2 = subscribeCategories(() => setCategories(loadCategories()));
     const un3 = subscribeLightning(() => setLightning(loadLightning()));
+    setLightningTheme(loadLightningTheme());
+    const un4 = subscribeLightningTheme(() => setLightningTheme(loadLightningTheme()));
     const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => { un1(); un2(); un3(); clearInterval(t); };
+    return () => { un1(); un2(); un3(); un4(); clearInterval(t); };
   }, []);
 
   // Auto-flip status when expires_at passes.
