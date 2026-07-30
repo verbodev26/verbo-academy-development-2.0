@@ -543,7 +543,7 @@ function StudentDetailModal({
                         <Icon className="h-4 w-4 text-muted-foreground" />
                         <div className="min-w-0">
                           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{m.key}</div>
-                          <div className="text-sm font-bold tabular-nums" style={{ color: "#01304a" }}>
+                          <div className="text-sm font-bold tabular-nums text-foreground">
                             {m.overall === null ? "--" : `${m.overall}%`}
                           </div>
                         </div>
