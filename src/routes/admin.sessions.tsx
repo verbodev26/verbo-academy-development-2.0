@@ -492,7 +492,8 @@ function StudentSessionsModal({
       const merged = { ...s, ...patch };
       if (rescheduleApplied) {
         if (s.status === "scheduled" || s.status === "rescheduled") merged.status = "rescheduled";
-        else if (s.status === "ready" || s.status === "rearranged") merged.status = "rearranged";
+        else if (s.status === "ready" || s.status === "rearranged") merged.status = "rescheduled";
+
       }
       return merged;
     });
