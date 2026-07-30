@@ -2604,7 +2604,7 @@ function PlayerProfileCard({ student }: { student: (typeof USERS)[number] }) {
     const all = loadProfileBadges();
     const ctx = buildProfileBadgeContext(student);
     return {
-      earned: all.filter((b) => isProfileBadgeEarned(b, ctx)),
+      earned: all.filter((b) => isProfileBadgeEarned(b, ctx) || isBadgeManuallyGranted(student.id, b.id, "profile")),
       equipped: loadEquippedBadgeIds(student.id),
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2857,7 +2857,7 @@ function ChallengeBadgesModal({
         key: `core-${b.id}`,
         badgeId: b.id,
         name: b.name,
-        earned: isBadgeEarned(b, ctx),
+        earned: isBadgeEarned(b, ctx) || isBadgeManuallyGranted(student.id, b.id, "challenge"),
         image: b.image || undefined,
         requirement: b.description || requirement,
         equippable: true,

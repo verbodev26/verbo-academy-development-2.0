@@ -1533,7 +1533,7 @@ function FeaturedBadgeStrip({ user }: { user: NonNullable<ReturnType<typeof useA
           continue;
         }
         const hit = coreCatalog.find((b) => b.id === id);
-        if (hit && isChallengeBadgeEarned(hit, ctx)) {
+        if (hit && (isChallengeBadgeEarned(hit, ctx) || isBadgeManuallyGranted(user.id, hit.id, "challenge"))) {
           out.push({
             key: id,
             name: hit.name,
@@ -1548,7 +1548,7 @@ function FeaturedBadgeStrip({ user }: { user: NonNullable<ReturnType<typeof useA
     if (out.length < 3) {
       const profileCatalog = loadProfileBadges();
       const profileCtx = buildProfileBadgeContext(user);
-      const earnedProfile = new Set(profileCatalog.filter((b) => isBadgeEarned(b, profileCtx)).map((b) => b.id));
+      const earnedProfile = new Set(profileCatalog.filter((b) => isBadgeEarned(b, profileCtx) || isBadgeManuallyGranted(user.id, b.id, "profile")).map((b) => b.id));
       const equippedProfile = loadEquippedBadgeIds(user.id);
       for (const id of equippedProfile) {
         if (out.length >= 3) break;
