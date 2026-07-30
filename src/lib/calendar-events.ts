@@ -248,14 +248,15 @@ export const CALENDAR_STATUS_META: Record<ExtSessionStatus, { label: string; col
   scheduled:          { label: "Scheduled",          color: "#94a3b8" },
   ready:              { label: "Ready",              color: "#8b5cf6" },
   completed:          { label: "Completed",          color: "#16a34a" },
-  absent:             { label: "Absent",             color: "#dc2626" },
+  absent:             { label: "Absent",             color: "#7f1d1d" },
   // Cancelled reassigned to a slate blue-gray, distinct from Scheduled's
   // #94a3b8. The lighter tint used for justified-cancelled variants lives in
   // SUB_STATUS_META (#cbd5e1).
-  cancelled:          { label: "Cancelled",          color: "#a8556c" },
+  cancelled:          { label: "Cancelled",          color: "#64748b" },
   pending_reschedule: { label: "Pending Reschedule", color: "#b45309" },
   no_show:            { label: "No Show",            color: "#334155" },
-  rescheduled:        { label: "Rescheduled",        color: "#94a3b8" },
+  rescheduled:        { label: "Rescheduled",        color: "#f97316" },
+
   rearranged:         { label: "Rearranged",         color: "#eab308" },
   delayed:            { label: "Delayed",            color: "#db2777" },
   converted_to_spotlight: { label: "Converted to Spotlight", color: "#4f46e5" },
