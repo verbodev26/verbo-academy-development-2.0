@@ -1179,35 +1179,48 @@ function StudentDashboard() {
             const hasRealPdf = !!s.report_pdf_url && s.report_pdf_url !== "/mock-report.pdf";
             const isUpcoming = s.status === "scheduled" || s.status === "rescheduled" || s.status === "ready";
             const d = new Date(s.date_time);
+            // Single source of truth for the modal's colors: same palette as the
+            // calendar pill for this session's real status.
+            const theme = calendarEventTheme({
+              kind: "class",
+              status: s.status,
+              sub_status: s.attendance_sub_status,
+            } as any);
+            const StatusIcon =
+              s.status === "completed"
+                ? CheckCircle2
+                : s.status === "absent" || s.status === "no_show"
+                ? XCircle
+                : CalendarClock;
+            const statusPill = (
+              <span className={statusBadgeClass} style={statusBadgeStyle(s.status)}>{s.status}</span>
+            );
             const headerBlock = (
               <div className="space-y-2">
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  <div className="rounded-lg border border-border bg-background px-3 py-2">
-                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      <CalendarClock className="h-3.5 w-3.5" /> Date
-                    </div>
-                    <div className="mt-0.5 text-sm font-medium text-foreground">
-                      {d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}
-                    </div>
-                  </div>
-                  <div className="rounded-lg border border-border bg-background px-3 py-2">
-                    <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      <Clock className="h-3.5 w-3.5" /> Time
-                    </div>
-                    <div className="mt-0.5 text-sm font-medium text-foreground">
-                      {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · {s.duration_minutes} min
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <span className={statusBadgeClass} style={statusBadgeStyle(s.status)}>{s.status}</span>
-                  <span>with {teacher?.name ?? "Teacher"}</span>
-                </div>
+                <InfoStatRow
+                  items={[
+                    {
+                      icon: CalendarClock,
+                      value: d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }),
+                      label: "Date",
+                      tint: theme.solid,
+                    },
+                    {
+                      icon: Clock,
+                      value: d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                      label: "Time",
+                      tint: theme.solid,
+                    },
+                    { icon: StatusIcon, value: statusPill, label: "Status", tint: theme.solid },
+                  ]}
+                />
+                <div className="text-xs text-muted-foreground">with {teacher?.name ?? "Teacher"}</div>
                 {isAbsent && absentMsg && (
                   <div className="text-xs text-muted-foreground">{absentMsg}.</div>
                 )}
               </div>
             );
+
 
             if (isUpcoming) {
               return (
