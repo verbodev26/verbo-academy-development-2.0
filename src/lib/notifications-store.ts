@@ -50,7 +50,7 @@ import { computeAllEarnedBadges } from "./badge-unlock";
 import { hasSeenBadgeUnlock, BADGE_UNLOCK_SEEN_EVENT } from "./badge-unlock-seen-store";
 import { BADGES_EVENT as CHALLENGE_BADGES_EVENT } from "./badges-store";
 import { BADGES_EVENT as PROFILE_BADGES_EVENT } from "./profile-badges-store";
-import { SEASONS_EVENT } from "./flash-challenges-store";
+import { SEASONS_EVENT, loadFlashChallenges, FLASH_EVENT } from "./flash-challenges-store";
 
 
 
@@ -155,6 +155,15 @@ export function markAllNotificationsRead(userId: string, ids: string[]) {
 // ---------------------------------------------------------------------------
 // Derivation — Teacher
 // ---------------------------------------------------------------------------
+/** Title of any challenge id, from the regular bank or the Verbo Flash bank. */
+function challengeTitle(challengeId: string): string {
+  return (
+    loadChallenges().find((c) => c.id === challengeId)?.title ??
+    loadFlashChallenges().find((c) => c.id === challengeId)?.title ??
+    "Challenge"
+  );
+}
+
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
     month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
