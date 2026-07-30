@@ -700,7 +700,9 @@ function EventDetailsModal({
             </button>
           </div>
         )}
+        </div>
       </div>
+
     </div>
   );
 }
