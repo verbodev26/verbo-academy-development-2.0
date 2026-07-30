@@ -18,6 +18,13 @@ import { loadSessions, SUB_STATUS_META } from "./sessions-store";
 import { loadClubs, type Club, type ClubType, type TimeStatus } from "./clubs-store";
 import { groupsByStudentId } from "./groups-store";
 import { isBooked } from "./club-bookings-store";
+import {
+  STATUS_PALETTE,
+  SUBSTITUTION_COLOR,
+  ABSENT_SUB_GRADIENT,
+  isPendingStatusKey,
+} from "./status-palette";
+
 
 
 export type CalendarEventKind =
