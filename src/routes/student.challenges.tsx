@@ -1541,7 +1541,7 @@ function ChallengeDetail({
       `}</style>
       <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-card shadow-elevated" onClick={(e) => e.stopPropagation()}>
         {/* HEADER — solid category color + decorative radial blobs + watermark */}
-        <div className="relative overflow-hidden p-6 text-white" style={{ backgroundColor: theme.solid }}>
+        <div className="relative overflow-hidden p-4 text-white" style={{ backgroundColor: theme.solid }}>
           <span
             aria-hidden
             className="vc-blob pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full blur-2xl"
@@ -1554,17 +1554,17 @@ function ChallengeDetail({
           />
           <span
             aria-hidden
-            className="pointer-events-none absolute -right-6 -top-8 z-0 select-none whitespace-nowrap text-[86px] font-black leading-none tracking-tighter text-white/[0.13]"
+            className="pointer-events-none absolute -right-3 top-1 z-0 select-none whitespace-nowrap text-[92px] font-black leading-none tracking-tighter text-white/[0.13]"
           >
             {catLabel}
           </span>
 
           <div className="relative z-10 flex items-start justify-between gap-4">
             <span
-              className="vc-logo flex h-[52px] w-[52px] items-center justify-center rounded-2xl bg-white shadow-lg"
+              className="vc-logo flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-lg"
               style={{ color: theme.solid }}
             >
-              <CatIcon className="h-6 w-6" />
+              <CatIcon className="h-5 w-5" />
             </span>
             <div className="flex items-center gap-2">
               {challenge.premium && <PremiumBadge />}
@@ -1578,16 +1578,16 @@ function ChallengeDetail({
             </div>
           </div>
 
-          <div className="relative z-10 mt-5">
-            <div className="vc-rise flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/85" style={{ animationDelay: "0.15s" }}>
+          <div className="relative z-10 mt-3">
+            <div className="vc-rise flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/85" style={{ animationDelay: "0.15s" }}>
               <span aria-hidden className="h-px w-6 bg-white/60" />
               {catLabel}
             </div>
-            <h3 className="vc-rise mt-2 text-2xl font-bold tracking-tight" style={{ animationDelay: "0.2s" }}>
+            <h3 className="vc-rise mt-1.5 text-lg font-bold tracking-tight" style={{ animationDelay: "0.2s" }}>
               {challenge.title}
             </h3>
             {challenge.skill_tags && challenge.skill_tags.length > 0 && (
-              <div className="vc-rise mt-3 flex flex-wrap gap-1" style={{ animationDelay: "0.25s" }}>
+              <div className="vc-rise mt-2 flex flex-wrap gap-1" style={{ animationDelay: "0.25s" }}>
                 {challenge.skill_tags.map((s) => <SkillChip key={s} label={s} />)}
               </div>
             )}
@@ -1653,12 +1653,12 @@ function ChallengeDetail({
               onClick={onComplete}
               disabled={onCooldown}
               title={onCooldown ? COOLDOWN_MSG : undefined}
-              style={{ boxShadow: `0 8px 20px -6px ${theme.solid}` }}
+              style={{ backgroundColor: theme.solid, color: "#fff", boxShadow: `0 8px 20px -6px ${theme.solid}` }}
             >
               <CheckCircle2 className="h-3.5 w-3.5" /> Mark as Completed
             </SuccessButton>
           ) : (
-            <PrimaryButton onClick={onChoose} style={{ boxShadow: `0 8px 20px -6px ${theme.solid}` }}>
+            <PrimaryButton onClick={onChoose} style={{ backgroundColor: theme.solid, color: "#fff", boxShadow: `0 8px 20px -6px ${theme.solid}` }}>
               Let's do it!
             </PrimaryButton>
           )}
