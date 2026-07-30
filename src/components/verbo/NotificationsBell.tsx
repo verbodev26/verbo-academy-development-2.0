@@ -12,6 +12,9 @@ import {
 import { USERS } from "@/lib/mock-data";
 import { loadChallenges } from "@/lib/challenges-store";
 import { Pill } from "@/components/verbo/ui";
+import { BadgeUnlockModal } from "@/components/verbo/BadgeUnlockCelebration";
+import { computeAllEarnedBadges, type UnlockBadge } from "@/lib/badge-unlock";
+import { markBadgeUnlockSeen } from "@/lib/badge-unlock-seen-store";
 
 const MAX_VISIBLE = 15;
 
