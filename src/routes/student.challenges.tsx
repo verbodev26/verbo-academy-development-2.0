@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   ArrowLeft,
   ChevronRight,
@@ -56,6 +56,8 @@ import {
   categoryColor,
 } from "@/lib/challenges-store";
 import {
+  type ChallengeSubmission,
+  type ChallengeSubmissionFormat,
   chooseChallenge,
   completeChallenge,
   completeCooldownRemaining,
@@ -63,6 +65,9 @@ import {
   hasCompletedChallenge,
   getSharedResult,
   shareChallengeResult,
+  getSubmission,
+  submitChallenge,
+  resubmitChallenge,
   subscribeStudents,
   openMysteryBox,
   mysteryBoxCooldownRemaining,
@@ -424,8 +429,14 @@ function Page() {
   const [difficulty, setDifficulty] = useState<DifficultyId | null>(null);
   const [category, setCategory] = useState<string | "all">("all");
   const [open, setOpen] = useState<Challenge | null>(null);
-  const [shareFor, setShareFor] = useState<Challenge | null>(null);
-  const [shareForTheme, setShareForTheme] = useState<{ accent: string; icon: LucideIcon } | null>(null);
+  const [submitFor, setSubmitFor] = useState<{
+    id: string;
+    title: string;
+    format: ChallengeSubmissionFormat;
+    accent: string;
+    icon: LucideIcon;
+    mode: "submit" | "resubmit";
+  } | null>(null);
   const [mystery, setMystery] = useState<{ opening: boolean; reveal: FlashChallenge | null; blocked: boolean }>({ opening: false, reveal: null, blocked: false });
   const [lightning, setLightning] = useState<LightningState>(loadLightning);
   const [lightningOpen, setLightningOpen] = useState<FlashChallenge | null>(null);
@@ -475,6 +486,21 @@ function Page() {
   const countByDifficulty = (d: DifficultyId) =>
     productChallenges.filter((c) => c.difficulty === d).length;
 
+  /** Opens the mandatory submission form for any challenge flavour. */
+  const openSubmit = (
+    c: { id: string; title: string; category?: string },
+    format: ChallengeSubmissionFormat,
+    mode: "submit" | "resubmit",
+    theme?: { accent: string; icon: LucideIcon },
+  ) =>
+    setSubmitFor({
+      id: c.id,
+      title: c.title,
+      format,
+      mode,
+      accent: theme?.accent ?? categoryTheme(c.category ?? "").solid,
+      icon: theme?.icon ?? categoryIcon(c.category ?? ""),
+    });
 
 
 
@@ -555,7 +581,7 @@ function Page() {
                   done={done}
                   shared={shared}
                   onOpen={() => setOpen(c)}
-                  onShare={() => setShareFor(c)}
+                  onShare={() => setOpen(c)}
                 />
               );
 
@@ -572,30 +598,24 @@ function Page() {
             completed={hasCompletedChallenge(student.id, open.id)}
             cooldownRemaining={completeCooldownRemaining(student.id)}
             onChoose={() => { chooseChallenge(student.id, open.id); }}
-            onComplete={() => {
-              const ok = completeChallenge(student.id, open.id);
-              if (ok) {
-                // Immediately prompt for optional share step.
-                const justCompleted = open;
-                setOpen(null);
-                setShareForTheme({ accent: categoryTheme(justCompleted.category).solid, icon: categoryIcon(justCompleted.category) });
-                setShareFor(justCompleted);
-              }
-            }}
+            submission={getSubmission(student.id, open.id)}
+            onSubmit={() => openSubmit(open, "normal", "submit")}
+            onResubmit={() => openSubmit(open, "normal", "resubmit")}
           />
         )}
 
-        {shareFor && (
-          <ShareResultModal
-            challenge={shareFor}
-            accent={shareForTheme?.accent ?? "#111827"}
-            icon={shareForTheme?.icon ?? Share2}
-            initialLink={getSharedResult(student.id, shareFor.id)}
-            onClose={() => { setShareFor(null); setShareForTheme(null); }}
-            onSave={(link) => {
-              shareChallengeResult(student.id, shareFor.id, link);
-              setShareFor(null);
-              setShareForTheme(null);
+        {submitFor && (
+          <SubmitChallengeModal
+            title={submitFor.title}
+            accent={submitFor.accent}
+            icon={submitFor.icon}
+            mode={submitFor.mode}
+            onClose={() => setSubmitFor(null)}
+            onSubmit={(link, note) => {
+              const ok = submitFor.mode === "resubmit"
+                ? resubmitChallenge(student.id, submitFor.id, link, note)
+                : submitChallenge(student.id, submitFor.id, submitFor.format, link, note);
+              if (ok) { setSubmitFor(null); setOpen(null); setTick((t) => t + 1); }
             }}
           />
         )}
@@ -829,16 +849,9 @@ function Page() {
           acceptedCount={lightning.accepted_student_ids.length}
           hasPremiumAccess={hasPremiumAccess}
           completed={hasCompletedChallenge(student.id, lightningOpen.id)}
-          onComplete={() => {
-            const target = lightningOpen;
-            if (!target) return;
-            const ok = completeLightningChallenge(student.id, target.id);
-            if (ok) {
-              setLightningOpen(null);
-              setShareForTheme({ accent: lightningTheme.accent_color || "#0284c7", icon: Zap });
-              setShareFor(target as unknown as Challenge);
-            }
-          }}
+          submission={getSubmission(student.id, lightningOpen.id)}
+          onSubmit={() => openSubmit(lightningOpen, "lightning", "submit", { accent: lightningTheme.accent_color || "#0284c7", icon: Zap })}
+          onResubmit={() => openSubmit(lightningOpen, "lightning", "resubmit", { accent: lightningTheme.accent_color || "#0284c7", icon: Zap })}
           onClose={() => setLightningOpen(null)}
         />
       )}
@@ -857,17 +870,9 @@ function Page() {
           completed={mystery.reveal ? hasCompletedChallenge(student.id, mystery.reveal.id) : false}
           cooldownRemaining={completeCooldownRemaining(student.id)}
           onChoose={() => { if (mystery.reveal) chooseChallenge(student.id, mystery.reveal.id); }}
-          onComplete={() => {
-            if (!mystery.reveal) return;
-            const ok = completeChallenge(student.id, mystery.reveal.id);
-            if (ok) {
-              const c = mystery.reveal;
-              setMystery({ opening: false, reveal: null, blocked: false });
-              // Reuse the standard share prompt for consistency.
-              setShareForTheme({ accent: flashConfig.accent_color || "#7e22ce", icon: Gift });
-              setShareFor(c as unknown as Challenge);
-            }
-          }}
+          submission={mystery.reveal ? getSubmission(student.id, mystery.reveal.id) : null}
+          onSubmit={() => { if (mystery.reveal) openSubmit(mystery.reveal, "mystery_box", "submit", { accent: flashConfig.accent_color || "#7e22ce", icon: Gift }); }}
+          onResubmit={() => { if (mystery.reveal) openSubmit(mystery.reveal, "mystery_box", "resubmit", { accent: flashConfig.accent_color || "#7e22ce", icon: Gift }); }}
           onClose={() => setMystery({ opening: false, reveal: null, blocked: false })}
         />
       )}
@@ -887,32 +892,32 @@ function Page() {
           chosen={seasonState.reveal ? hasChosenChallenge(student.id, seasonState.reveal.id) : false}
           completed={seasonState.reveal ? hasCompletedChallenge(student.id, seasonState.reveal.id) : false}
           onChoose={() => { if (seasonState.reveal) chooseChallenge(student.id, seasonState.reveal.id); }}
-          onComplete={() => {
-            if (!seasonState.reveal) return;
-            const ok = completeSeasonChallenge(student.id, seasonState.reveal.id, seasonState.season.id);
-            if (ok) {
-              const c = seasonState.reveal;
-              setSeasonState(null);
-              setShareForTheme({ accent: seasonState.season.accent_color || "#7e22ce", icon: Sparkles });
-              setShareFor(c as unknown as Challenge);
-            }
-          }}
+          submission={seasonState.reveal ? getSubmission(student.id, seasonState.reveal.id) : null}
+          onSubmit={() => { if (seasonState.reveal) openSubmit(seasonState.reveal, "season", "submit", { accent: seasonState.season.accent_color || "#7e22ce", icon: Sparkles }); }}
+          onResubmit={() => { if (seasonState.reveal) openSubmit(seasonState.reveal, "season", "resubmit", { accent: seasonState.season.accent_color || "#7e22ce", icon: Sparkles }); }}
           onClose={() => setSeasonState(null)}
         />
       )}
 
 
-      {shareFor && (
-        <ShareResultModal
-          challenge={shareFor}
-          accent={shareForTheme?.accent ?? "#111827"}
-          icon={shareForTheme?.icon ?? Share2}
-          initialLink={getSharedResult(student.id, shareFor.id)}
-          onClose={() => { setShareFor(null); setShareForTheme(null); }}
-          onSave={(link) => {
-            shareChallengeResult(student.id, shareFor.id, link);
-            setShareFor(null);
-            setShareForTheme(null);
+      {submitFor && (
+        <SubmitChallengeModal
+          title={submitFor.title}
+          accent={submitFor.accent}
+          icon={submitFor.icon}
+          mode={submitFor.mode}
+          onClose={() => setSubmitFor(null)}
+          onSubmit={(link, note) => {
+            const ok = submitFor.mode === "resubmit"
+              ? resubmitChallenge(student.id, submitFor.id, link, note)
+              : submitChallenge(student.id, submitFor.id, submitFor.format, link, note);
+            if (ok) {
+              setSubmitFor(null);
+              setLightningOpen(null);
+              setMystery({ opening: false, reveal: null, blocked: false });
+              setSeasonState(null);
+              setTick((t) => t + 1);
+            }
           }}
         />
       )}
@@ -1353,6 +1358,67 @@ function SubmissionInstructions({ text, delay }: { text?: string; delay?: string
   );
 }
 
+/** Shared footer for the 4 challenge-info modals. Renders the review state of
+ *  the student's submission (pending / sent back / rejected) and falls back to
+ *  `children` (the modal's own Let's do it! / Submit / Completed action) when
+ *  there is no submission or it was already approved. */
+function ChallengeModalFooter({
+  submission,
+  accent,
+  onClose,
+  onResubmit,
+  delay,
+  children,
+}: {
+  submission: ChallengeSubmission | null;
+  accent: string;
+  onClose: () => void;
+  onResubmit: () => void;
+  delay?: string;
+  children?: ReactNode;
+}) {
+  const status = submission?.status;
+  const feedback = submission?.teacher_feedback?.trim();
+  const showFeedback = (status === "needs_resubmission" || status === "rejected") && !!feedback;
+
+  return (
+    <div
+      className="vc-rise border-t border-border bg-secondary/30 p-4"
+      style={delay ? { animationDelay: delay } : undefined}
+    >
+      {showFeedback && (
+        <div className="mb-3 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs text-foreground">
+          <div className="font-semibold">
+            {status === "needs_resubmission"
+              ? "Your teacher asked you to try again:"
+              : "Your teacher's feedback:"}
+          </div>
+          <p className="mt-1 leading-relaxed">{feedback}</p>
+        </div>
+      )}
+      <div className="flex items-center justify-end gap-3">
+        <GhostButton onClick={onClose}>Close</GhostButton>
+        {status === "pending_review" ? (
+          <Pill tone="muted">⏳ Pending review</Pill>
+        ) : status === "needs_resubmission" ? (
+          <PrimaryButton
+            onClick={onResubmit}
+            style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}
+          >
+            <Upload className="h-3.5 w-3.5" /> Resubmit
+          </PrimaryButton>
+        ) : status === "rejected" ? (
+          <Pill tone="muted">Not approved</Pill>
+        ) : (
+          children
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
 function MysteryCooldownModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
@@ -1378,7 +1444,9 @@ function MysteryRevealModal({
   completed,
   cooldownRemaining,
   onChoose,
-  onComplete,
+  onSubmit,
+  onResubmit,
+  submission,
   onClose,
 }: {
   opening: boolean;
@@ -1389,7 +1457,9 @@ function MysteryRevealModal({
   completed: boolean;
   cooldownRemaining: number | null;
   onChoose: () => void;
-  onComplete: () => void;
+  onSubmit: () => void;
+  onResubmit: () => void;
+  submission: ChallengeSubmission | null;
   onClose: () => void;
 }) {
   const locked = !!challenge?.premium && !hasPremiumAccess;
@@ -1502,18 +1572,17 @@ function MysteryRevealModal({
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
-              <GhostButton onClick={onClose}>Close</GhostButton>
+            <ChallengeModalFooter submission={submission} accent={accent} onClose={onClose} onResubmit={onResubmit}>
               {locked ? null : completed ? (
                 <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" /> Completed</Pill>
               ) : chosen ? (
-                <SuccessButton onClick={onComplete} disabled={onCooldown} title={onCooldown ? COOLDOWN_MSG : undefined} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Mark as Completed
+                <SuccessButton onClick={onSubmit} disabled={onCooldown} title={onCooldown ? COOLDOWN_MSG : undefined} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>
+                  <Upload className="h-3.5 w-3.5" /> Submit Challenge
                 </SuccessButton>
               ) : (
                 <PrimaryButton onClick={onChoose} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>Let's do it!</PrimaryButton>
               )}
-            </div>
+            </ChallengeModalFooter>
           </>
         )}
       </div>
@@ -1533,7 +1602,9 @@ function ChallengeDetail({
   completed,
   cooldownRemaining,
   onChoose,
-  onComplete,
+  onSubmit,
+  onResubmit,
+  submission,
 }: {
   challenge: Challenge;
   onClose: () => void;
@@ -1542,7 +1613,9 @@ function ChallengeDetail({
   completed: boolean;
   cooldownRemaining: number | null;
   onChoose: () => void;
-  onComplete: () => void;
+  onSubmit: () => void;
+  onResubmit: () => void;
+  submission: ChallengeSubmission | null;
 }) {
   const locked = !!challenge.premium && !hasPremiumAccess;
   const onCooldown = !completed && chosen && cooldownRemaining !== null;
@@ -1669,25 +1742,30 @@ function ChallengeDetail({
           )}
         </div>
 
-        <div className="vc-rise flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4" style={{ animationDelay: "0.6s" }}>
-          <GhostButton onClick={onClose}>Close</GhostButton>
+        <ChallengeModalFooter
+          submission={submission}
+          accent={theme.solid}
+          onClose={onClose}
+          onResubmit={onResubmit}
+          delay="0.6s"
+        >
           {locked ? null : completed ? (
             <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" /> Completed</Pill>
           ) : chosen ? (
             <SuccessButton
-              onClick={onComplete}
+              onClick={onSubmit}
               disabled={onCooldown}
               title={onCooldown ? COOLDOWN_MSG : undefined}
               style={{ backgroundColor: theme.solid, color: "#fff", boxShadow: `0 8px 20px -6px ${theme.solid}` }}
             >
-              <CheckCircle2 className="h-3.5 w-3.5" /> Mark as Completed
+              <Upload className="h-3.5 w-3.5" /> Submit Challenge
             </SuccessButton>
           ) : (
             <PrimaryButton onClick={onChoose} style={{ backgroundColor: theme.solid, color: "#fff", boxShadow: `0 8px 20px -6px ${theme.solid}` }}>
               Let's do it!
             </PrimaryButton>
           )}
-        </div>
+        </ChallengeModalFooter>
       </div>
     </div>
   );
@@ -1697,23 +1775,28 @@ function ChallengeDetail({
 /* -------------------------------------------------------------------------- */
 /* Share Result modal — optional URL + locked "Upload File" (Coming soon).    */
 /* -------------------------------------------------------------------------- */
-function ShareResultModal({
-  challenge,
+/** Mandatory submission modal. A challenge is only ever "delivered" through
+ *  this form — the student must provide a link (uploads coming later) plus an
+ *  optional note, and the result goes to the teacher as "pending_review". */
+function SubmitChallengeModal({
+  title,
   accent,
   icon,
-  initialLink,
+  mode,
   onClose,
-  onSave,
+  onSubmit,
 }: {
-  challenge: Challenge;
+  title: string;
   accent: string;
   icon: LucideIcon;
-  initialLink: string;
+  mode: "submit" | "resubmit";
   onClose: () => void;
-  onSave: (link: string) => void;
+  onSubmit: (link: string, note: string) => void;
 }) {
   const [source, setSource] = useState<"url" | "upload">("url");
-  const [link, setLink] = useState(initialLink);
+  const [link, setLink] = useState("");
+  const [note, setNote] = useState("");
+  const valid = source === "url" && link.trim().length > 0;
 
   return (
     <div className="fixed inset-0 z-[55] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
@@ -1725,15 +1808,15 @@ function ShareResultModal({
           background={accent}
           iconTint={accent}
           icon={icon}
-          eyebrow="Challenge completed"
-          title={challenge.title}
-          watermark={{ type: "text", value: "SHARE" }}
+          eyebrow={mode === "resubmit" ? "Try again" : "Submit your work"}
+          title={title}
+          watermark={{ type: "text", value: "SUBMIT" }}
           onClose={onClose}
         />
 
         <div className="space-y-4 p-5">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            Want to share your result? (optional)
+            Your teacher will review this submission
           </p>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -1765,12 +1848,24 @@ function ShareResultModal({
               <Upload className="h-4 w-4" /> Coming soon — file uploads (pdf / video / image, max 10MB) will be available soon.
             </div>
           )}
+
+          <textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={3}
+            placeholder="Add a note for your teacher (optional)"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
+          />
         </div>
 
         <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
-          <GhostButton onClick={onClose}>Skip</GhostButton>
-          <PrimaryButton onClick={() => onSave(link)} disabled={source !== "url"} style={{ backgroundColor: accent, color: "#fff" }}>
-            Save
+          <GhostButton onClick={onClose}>Cancel</GhostButton>
+          <PrimaryButton
+            onClick={() => onSubmit(link.trim(), note.trim())}
+            disabled={!valid}
+            style={{ backgroundColor: accent, color: "#fff" }}
+          >
+            <Upload className="h-3.5 w-3.5" /> {mode === "resubmit" ? "Resubmit" : "Submit"}
           </PrimaryButton>
         </div>
       </div>
@@ -1799,7 +1894,9 @@ function LightningRevealModal({
   acceptedCount,
   hasPremiumAccess,
   completed,
-  onComplete,
+  onSubmit,
+  onResubmit,
+  submission,
   onClose,
 }: {
   challenge: FlashChallenge;
@@ -1810,7 +1907,9 @@ function LightningRevealModal({
   acceptedCount: number;
   hasPremiumAccess: boolean;
   completed: boolean;
-  onComplete: () => void;
+  onSubmit: () => void;
+  onResubmit: () => void;
+  submission: ChallengeSubmission | null;
   onClose: () => void;
 }) {
   const remaining = expiresAt ? +new Date(expiresAt) - nowTick : 0;
@@ -1903,16 +2002,15 @@ function LightningRevealModal({
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
-          <GhostButton onClick={onClose}>Close</GhostButton>
+        <ChallengeModalFooter submission={submission} accent={accent} onClose={onClose} onResubmit={onResubmit}>
           {completed ? (
             <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" /> Completed</Pill>
           ) : canComplete ? (
-            <SuccessButton onClick={onComplete} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>
-              <CheckCircle2 className="h-3.5 w-3.5" /> Mark as Completed
+            <SuccessButton onClick={onSubmit} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>
+              <Upload className="h-3.5 w-3.5" /> Submit Challenge
             </SuccessButton>
           ) : null}
-        </div>
+        </ChallengeModalFooter>
       </div>
     </div>
   );
@@ -1951,7 +2049,9 @@ function SeasonRevealModal({
   chosen,
   completed,
   onChoose,
-  onComplete,
+  onSubmit,
+  onResubmit,
+  submission,
   onClose,
 }: {
   season: FlashSeason;
@@ -1961,7 +2061,9 @@ function SeasonRevealModal({
   chosen: boolean;
   completed: boolean;
   onChoose: () => void;
-  onComplete: () => void;
+  onSubmit: () => void;
+  onResubmit: () => void;
+  submission: ChallengeSubmission | null;
   onClose: () => void;
 }) {
   const locked = !!challenge?.premium && !hasPremiumAccess;
@@ -2072,18 +2174,17 @@ function SeasonRevealModal({
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
-              <GhostButton onClick={onClose}>Close</GhostButton>
+            <ChallengeModalFooter submission={submission} accent={accent} onClose={onClose} onResubmit={onResubmit}>
               {locked ? null : completed ? (
                 <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" /> Completed</Pill>
               ) : chosen ? (
-                <SuccessButton onClick={onComplete} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Mark as Completed
+                <SuccessButton onClick={onSubmit} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>
+                  <Upload className="h-3.5 w-3.5" /> Submit Challenge
                 </SuccessButton>
               ) : (
                 <PrimaryButton onClick={onChoose} style={{ backgroundColor: accent, color: "#fff", boxShadow: `0 8px 20px -6px ${accent}` }}>Let's do it!</PrimaryButton>
               )}
-            </div>
+            </ChallengeModalFooter>
           </>
         )}
       </div>

@@ -5,7 +5,14 @@
 // USERS singleton. This module exposes the SAME underlying data so other
 // views (e.g. Sessions) read and write the exact same field instead of
 // duplicating it. Editing the link here reflects in Students and vice-versa.
-import { USERS, type User } from "./mock-data";
+import {
+  USERS,
+  type User,
+  type ChallengeSubmission,
+  type ChallengeSubmissionFormat,
+} from "./mock-data";
+
+export type { ChallengeSubmission, ChallengeSubmissionFormat };
 
 // NOTE: these keys must match the ones used by src/routes/admin.students.tsx
 export const PROFILE_KEY = "verbo:student-profile-overrides";
@@ -312,6 +319,114 @@ export function completeSeasonChallenge(
 }
 
 
+
+
+/* -------------------------------------------------------------------------- */
+/* Challenge submissions (Etapa 2) — the student never completes a challenge   */
+/* directly anymore: they SUBMIT a delivery that a teacher reviews.            */
+/* completeChallenge / completeLightningChallenge / completeSeasonChallenge     */
+/* stay in this file untouched — Etapa 3's approveSubmission will call them.    */
+/* -------------------------------------------------------------------------- */
+
+export function getSubmission(
+  studentId: string,
+  challengeId: string,
+): ChallengeSubmission | null {
+  const u = USERS.find((x) => x.id === studentId);
+  return (u?.challenge_submissions ?? []).find((s) => s.challenge_id === challengeId) ?? null;
+}
+
+/** Create a submission for a challenge (status "pending_review").
+ *
+ *  - "normal" / "mystery_box": enforces the same 24h cooldown as
+ *    completeCooldownRemaining and advances the streak counters right away with
+ *    the same "≤14 days keeps the streak alive" rule, storing the pre-change
+ *    current_streak in `streak_before`.
+ *  - "lightning" / "season": no counters are touched here — those move to the
+ *    teacher approval step in Etapa 3.
+ *
+ *  Returns false if blocked (unknown student, cooldown, or already submitted). */
+export function submitChallenge(
+  studentId: string,
+  challengeId: string,
+  format: ChallengeSubmissionFormat,
+  link: string,
+  note?: string,
+): boolean {
+  const u = USERS.find((x) => x.id === studentId);
+  if (!u) return false;
+  const list = u.challenge_submissions ?? [];
+  if (list.some((s) => s.challenge_id === challengeId)) return false;
+
+  const streakFormat = format === "normal" || format === "mystery_box";
+  if (streakFormat && completeCooldownRemaining(studentId) !== null) return false;
+
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const submission: ChallengeSubmission = {
+    challenge_id: challengeId,
+    challenge_format: format,
+    status: "pending_review",
+    link: link.trim(),
+    note: note?.trim() || undefined,
+    submitted_at: nowIso,
+    history: [],
+  };
+
+  const patch: Partial<User> = {};
+  if (streakFormat) {
+    const last = u.last_completed_at ? new Date(u.last_completed_at) : null;
+    const diffDays = last ? (now.getTime() - last.getTime()) / 86_400_000 : Infinity;
+    const nextCurrent = last && diffDays <= 14 ? (u.current_streak ?? 0) + 1 : 1;
+    submission.streak_before = u.current_streak ?? 0;
+    patch.last_completed_at = nowIso;
+    patch.current_streak = nextCurrent;
+    patch.longest_streak = Math.max(u.longest_streak ?? 0, nextCurrent);
+  }
+
+  persistStudentPatch(studentId, {
+    ...patch,
+    challenge_submissions: [...list, submission],
+  });
+  return true;
+}
+
+/** Replace the delivery of a submission the teacher sent back. Only valid while
+ *  the current status is "needs_resubmission". Archives the previous attempt in
+ *  `history` and returns the submission to "pending_review". Streak untouched. */
+export function resubmitChallenge(
+  studentId: string,
+  challengeId: string,
+  link: string,
+  note?: string,
+): boolean {
+  const u = USERS.find((x) => x.id === studentId);
+  if (!u) return false;
+  const list = u.challenge_submissions ?? [];
+  const idx = list.findIndex((s) => s.challenge_id === challengeId);
+  if (idx < 0) return false;
+  const prev = list[idx];
+  if (prev.status !== "needs_resubmission") return false;
+
+  const nowIso = new Date().toISOString();
+  const next = [...list];
+  next[idx] = {
+    ...prev,
+    status: "pending_review",
+    link: link.trim(),
+    note: note?.trim() || undefined,
+    submitted_at: nowIso,
+    history: [
+      ...prev.history,
+      { link: prev.link, note: prev.note, submitted_at: prev.submitted_at },
+    ],
+    reviewed_at: undefined,
+    reviewer_id: undefined,
+    teacher_feedback: undefined,
+  };
+  persistStudentPatch(studentId, { challenge_submissions: next });
+  return true;
+}
 
 export function subscribeStudents(cb: () => void): () => void {
   if (typeof window === "undefined") return () => {};

@@ -2,6 +2,36 @@
 export type Role = "student" | "teacher" | "admin";
 export type AdminType = "super_admin" | "coordinator_ops" | "coordinator_fin";
 
+/** Formats a challenge submission can come from. */
+export type ChallengeSubmissionFormat = "normal" | "mystery_box" | "lightning" | "season";
+
+/** Review lifecycle of a student's challenge delivery. Completion counters and
+ *  streak/badge effects are only applied by the teacher-side approval step. */
+export type ChallengeSubmissionStatus =
+  | "pending_review"
+  | "needs_resubmission"
+  | "rejected"
+  | "approved";
+
+export interface ChallengeSubmission {
+  challenge_id: string;
+  challenge_format: ChallengeSubmissionFormat;
+  status: ChallengeSubmissionStatus;
+  link: string;
+  note?: string;
+  submitted_at: string;
+  /** Every previous attempt, appended on each resubmission. */
+  history: Array<{ link: string; note?: string; submitted_at: string }>;
+  /** current_streak value BEFORE this submission touched it — lets the review
+   *  step roll the streak back if the delivery is rejected. */
+  streak_before?: number;
+  reviewed_at?: string;
+  reviewer_id?: string;
+  teacher_feedback?: string;
+}
+
+
+
 export interface User {
   id: string;
   name: string;
@@ -75,6 +105,9 @@ export interface User {
    *  counters, keyed by season.id. Independent from Mystery Box and Lightning. */
   last_season_opened_at?: Record<string, string>;
   season_completions?: Record<string, number>;
+  /** Teacher-reviewed challenge submissions (Etapa 2). One entry per challenge
+   *  id; the student only earns completion once the teacher approves it. */
+  challenge_submissions?: ChallengeSubmission[];
   // ----- Product-type branch (Register Student flow) -----
   // "performance" is the classic Performance Sessions student. "workshops"
   // and "insights" are standalone customers who only bought that add-on and

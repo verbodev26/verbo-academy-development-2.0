@@ -379,6 +379,32 @@ Persistencia: `Record<studentId, LearningPathEvent[]>`, dedupe 60s, máx. 100 ev
 
 ✅ Verificado 2026-07-11 contra el código real: `DifficultyId` sí incluye `'experto'` y `Challenge` sí declara `premium`/`skill_tags`. No había ninguna inconsistencia real.
 
+### `ChallengeSubmission` (`src/lib/mock-data.ts` + lógica en `src/lib/students-store.ts`)
+
+Entrega obligatoria de un reto. El alumno **ya no marca "Completed"**: envía y el profesor revisa. Vive en `User.challenge_submissions?: ChallengeSubmission[]` (una entrada por `challenge_id`).
+
+| campo | tipo | requerido/opcional | notas |
+|---|---|---|---|
+| challenge_id | string | requerido | reto normal, mystery box, lightning o season |
+| challenge_format | `"normal"\|"mystery_box"\|"lightning"\|"season"` | requerido | determina qué contadores/streak toca al aprobar |
+| status | `"pending_review"\|"approved"\|"needs_resubmission"\|"rejected"` | requerido | estado del ciclo de revisión |
+| link | string | requerido | URL entregada (uploads de archivo: pendiente) |
+| note | string | opcional | nota del alumno para el profesor |
+| submitted_at | string ISO | requerido | fecha del envío vigente |
+| reviewed_at | string ISO | opcional | fecha de la última revisión del profesor |
+| reviewed_by | string | opcional | id del profesor que revisó |
+| teacher_feedback | string | opcional | se muestra al alumno en `needs_resubmission` / `rejected` |
+| history | `{ link, note?, submitted_at, status, teacher_feedback? }[]` | opcional | intentos previos archivados al reenviar |
+
+Reglas de datos (todas en `students-store.ts`):
+- `getSubmission(studentId, challengeId)` — lectura única para la UI.
+- `submitChallenge(studentId, challengeId, format, link, note?)` — crea la entrega en `pending_review`; falla si ya existe una. Para `normal` y `mystery_box` aplica el mismo cooldown de 24h que `completeCooldownRemaining` y avanza `current_streak`/`longest_streak` con la regla de "≤14 días mantiene el streak".
+- `resubmitChallenge(studentId, challengeId, link, note?)` — solo válido si el estado es `needs_resubmission`; archiva el intento anterior en `history` y vuelve a `pending_review`.
+- `completeChallenge` / `completeLightningChallenge` / `completeSeasonChallenge` siguen existiendo pero **ya no se invocan desde el flujo del alumno**: quedan reservadas para la aprobación del profesor.
+
+En `student.challenges.tsx` los 4 modales de reto comparten `ChallengeModalFooter`, que lee la entrega y muestra "⏳ Pending review", "Resubmit" (con el feedback del profesor) o "Not approved"; el envío se hace siempre por `SubmitChallengeModal` (link obligatorio + nota opcional).
+
+
 ### `BadgeDef` (`src/lib/badges-store.ts`)
 
 Catálogo editable por Admin de los badges de Challenges mostrados al estudiante (los 8 core: First Challenge, Challenge Explorer, Challenge Master, On a Roll, Challenge Streak, Unstoppable, Well-Rounded, Elite Challenger). NO incluye Lightning Bolt (Verbo Flash, vive aparte) ni Season badges dinámicos (owned by `flash-challenges-store.ts`). Persistido en `localStorage` bajo `verbo:challenge-badges`; broadcast por `verbo:challenge-badges-updated`.
