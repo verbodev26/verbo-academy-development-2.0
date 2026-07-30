@@ -567,13 +567,17 @@ function LevelsView({
             <div className="relative z-10 flex items-center justify-between gap-4 text-white">
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-semibold uppercase tracking-wider text-white/75">Login streak</div>
-                {streakDays > 0 ? (
+                  {streakDays > 0 ? (
                   <>
-                    <AnimatedNumber
-                      value={streakDays}
-                      suffix={streakDays === 1 ? " day" : " days"}
-                      className="mt-1 block text-[3.25rem] font-extrabold leading-none tracking-tight text-white tabular-nums drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)]"
-                    />
+                    <div className="mt-1 flex items-baseline gap-1">
+                      <AnimatedNumber
+                        value={streakDays}
+                        className="text-[3.25rem] font-extrabold leading-none tracking-tight text-white tabular-nums drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)]"
+                      />
+                      <span className="text-lg font-normal text-white/90">
+                        {streakDays === 1 ? "day" : "days"}
+                      </span>
+                    </div>
                     <div className="mt-1.5 text-sm font-medium text-white/85">{streakTier ? streakTier.name : "Keep going"}</div>
                   </>
                 ) : (
