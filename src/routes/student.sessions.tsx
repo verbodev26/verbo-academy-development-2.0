@@ -37,10 +37,11 @@ import {
 } from "@/lib/sessions-store";
 import { CalendarView } from "@/components/verbo/CalendarView";
 import {
-  studentCalendarEvents, CALENDAR_STATUS_META, EVENT_KIND_META,
+  studentCalendarEvents, CALENDAR_STATUS_META, EVENT_KIND_META, calendarEventTheme,
   type CalendarEvent, type CalendarEventKind,
 } from "@/lib/calendar-events";
-import { Card, PrimaryButton, GhostButton } from "@/components/verbo/ui";
+import { Card, PrimaryButton, GhostButton, AccentModalHeader } from "@/components/verbo/ui";
+
 import { X, Video, AlertTriangle, Sparkles, CalendarClock, RefreshCcw, ArrowLeft, ChevronRight, Users as UsersIcon, BookOpen, Star } from "lucide-react";
 import spotlightArt from "@/assets/spotlight1.png.asset.json";
 import nextUpArt from "@/assets/Verbot_up_next.svg.asset.json";
@@ -542,7 +543,8 @@ function EventDetailsModal({
   };
 
   const planBlock = plan ? (
-    <section className="mt-4">
+    <section className="vc-rise mt-4" style={{ animationDelay: "0.35s" }}>
+
       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {isCompleted ? "What we covered" : "What we'll cover"}
       </h4>
@@ -557,7 +559,8 @@ function EventDetailsModal({
   ) : null;
 
   const notesBlock = (
-    <section className="mt-4">
+    <section className="vc-rise mt-4" style={{ animationDelay: "0.4s" }}>
+
       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Teacher's notes</h4>
       <p className="mt-2 text-sm text-muted-foreground">
         {session?.report_comments || "No notes were left for this session."}
@@ -565,38 +568,30 @@ function EventDetailsModal({
     </section>
   );
 
+  const theme = calendarEventTheme(event);
+  const HeadIcon = isSpotlight ? Sparkles : event.kind === "workshop" ? UsersIcon : Video;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md rounded-2xl bg-card p-6 shadow-floating">
-        <button onClick={onClose} aria-label="Close" className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground">
-          <X className="h-4 w-4" />
-        </button>
-        <div className="flex items-start gap-3">
-          <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white"
-            style={{ background: kindMeta.color }}
-          >
-            <CalendarClock className="h-5 w-5" />
-          </div>
-          <div className="min-w-0">
-            <span
-              className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white"
-              style={{ background: kindMeta.color }}
-            >
-              {kindMeta.label}
-            </span>
-            <h3 className="mt-1.5 text-lg font-semibold tracking-tight" style={{ color: "#01304a" }}>
-              {isSpotlight && teacherName ? `Spotlight with ${teacherName}` : isClass && teacherName ? `Session with ${teacherName}` : event.title}
-            </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {fmtDT(event.date)} · {event.duration_minutes} min
-            </p>
-          </div>
-        </div>
+      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-floating">
+        <AccentModalHeader
+          background={theme.background}
+          iconTint={theme.solid}
+          icon={HeadIcon}
+          eyebrow={kindMeta.label}
+          title={isSpotlight && teacherName ? `Spotlight with ${teacherName}` : isClass && teacherName ? `Session with ${teacherName}` : event.title}
+          watermark={{ type: "icon", icon: HeadIcon }}
+          onClose={onClose}
+        />
+        <div className="px-6 py-5">
+        <p className="vc-rise text-sm text-muted-foreground" style={{ animationDelay: "0.25s" }}>
+          {fmtDT(event.date)} · {event.duration_minutes} min
+        </p>
+
 
 
         {(isClass || isSpotlight) && session && (
-          <div className="mt-4 space-y-2 text-sm">
+          <div className="vc-rise mt-4 space-y-2 text-sm" style={{ animationDelay: "0.3s" }}>
             <Row label="Teacher" value={teacherName ?? "—"} />
             <Row
               label="Status"
@@ -700,7 +695,9 @@ function EventDetailsModal({
             </button>
           </div>
         )}
+        </div>
       </div>
+
     </div>
   );
 }
@@ -734,27 +731,33 @@ function SpotlightRequestFlow({ studentId, onClose }: { studentId: string; onClo
   if (step === "explain") {
     return (
       <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-        <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md rounded-2xl bg-card p-6 shadow-floating">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#ccf1eb] text-[#0d9488]">
-              <Sparkles className="h-5 w-5" />
+        <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-floating">
+          <AccentModalHeader
+            background="#0d9488"
+            iconTint="#0d9488"
+            icon={Sparkles}
+            eyebrow="SPOTLIGHT SESSION"
+            title="What is a Spotlight Session?"
+            watermark={{ type: "icon", icon: Sparkles }}
+            onClose={onClose}
+          />
+          <div className="px-6 py-5">
+            <p className="vc-rise text-sm font-medium text-foreground" style={{ animationDelay: "0.25s" }}>Stuck on something specific?</p>
+            <p className="vc-rise mt-2 text-sm leading-relaxed text-muted-foreground" style={{ animationDelay: "0.3s" }}>
+              A Spotlight Session is a focused 60-minute 1:1 with an Elite Instructor — built around exactly what you need: a presentation, an interview, a tricky email, anything on your plate. Tell us what it is, and they'll show up ready for it.
+            </p>
+            <div className="mt-6 flex justify-end">
+              <button
+                disabled={secondsLeft > 0}
+                onClick={() => setStep("form")}
+                className="cursor-pointer rounded-lg bg-[#0d9488] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {secondsLeft > 0 ? `Understood (${secondsLeft})` : "Understood"}
+              </button>
             </div>
-            <h3 className="text-lg font-semibold tracking-tight" style={{ color: "#01304a" }}>What is a Spotlight Session?</h3>
-          </div>
-          <p className="mt-3 text-sm font-medium text-foreground">Stuck on something specific?</p>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            A Spotlight Session is a focused 60-minute 1:1 with an Elite Instructor — built around exactly what you need: a presentation, an interview, a tricky email, anything on your plate. Tell us what it is, and they'll show up ready for it.
-          </p>
-          <div className="mt-6 flex justify-end">
-            <button
-              disabled={secondsLeft > 0}
-              onClick={() => setStep("form")}
-              className="cursor-pointer rounded-lg bg-[#0d9488] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {secondsLeft > 0 ? `Understood (${secondsLeft})` : "Understood"}
-            </button>
           </div>
         </div>
+
       </div>
     );
   }
@@ -870,17 +873,21 @@ function SpotlightFormModal({ studentId, onClose }: { studentId: string; onClose
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md rounded-2xl bg-card p-6 shadow-floating">
-        <button onClick={onClose} aria-label="Close" className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"><X className="h-4 w-4" /></button>
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#ccf1eb] text-[#0d9488]">
-            <Sparkles className="h-5 w-5" />
-          </div>
-          <h3 className="text-lg font-semibold tracking-tight" style={{ color: "#01304a" }}>Request a Spotlight Session</h3>
-        </div>
-        <p className="mt-2 text-xs text-muted-foreground">
+      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-floating">
+        <AccentModalHeader
+          background="#0d9488"
+          iconTint="#0d9488"
+          icon={Sparkles}
+          eyebrow="SPOTLIGHT SESSION"
+          title="Request a Spotlight Session"
+          watermark={{ type: "icon", icon: Sparkles }}
+          onClose={onClose}
+        />
+        <div className="px-6 py-5">
+        <p className="vc-rise text-xs text-muted-foreground" style={{ animationDelay: "0.25s" }}>
           Pick one of the available start times. Spotlight sessions are always <strong>60 min</strong>, and require at least 24h notice.
         </p>
+
         <div className="mt-4 rounded-2xl border border-[var(--navy-100)] bg-[var(--navy-50)] p-4">
           <div>
             <label className="text-xs font-medium text-foreground">Date</label>
@@ -921,9 +928,11 @@ function SpotlightFormModal({ studentId, onClose }: { studentId: string; onClose
         )}
         <div className="mt-5 flex justify-end gap-2">
           <GhostButton onClick={onClose}><ArrowLeft className="h-3.5 w-3.5" /> Return</GhostButton>
-          <PrimaryButton onClick={submit}>Publish Request</PrimaryButton>
+          <PrimaryButton onClick={submit} style={{ backgroundColor: "#0d9488", color: "#fff" }}>Publish Request</PrimaryButton>
+        </div>
         </div>
       </div>
+
     </div>
   );
 }

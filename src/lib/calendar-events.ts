@@ -235,11 +235,12 @@ export function isClubFull(ev: CalendarEvent): boolean {
 
 /** Meta a chip/legend can render for each supported event kind. */
 export const EVENT_KIND_META: Record<CalendarEventKind, { label: string; color: string; short: string }> = {
-  class:      { label: "Performance Session", color: "#01304a", short: "1:1" },
+  class:      { label: "Performance Session", color: "#6d28d9", short: "1:1" },
   workshop:   { label: "Workshop",       color: "#7c3aed", short: "WS" },
-  insight:    { label: "Insight",        color: "#0ea5e9", short: "IN" },
-  book_club:  { label: "Book Club",      color: "#d97706", short: "BC" },
-  spotlight:  { label: "Spotlight",      color: "#0f766e", short: "SP" },
+  insight:    { label: "Insight",        color: "#01304a", short: "IN" },
+  book_club:  { label: "Book Club",      color: "#c2410c", short: "BC" },
+  spotlight:  { label: "Spotlight",      color: "#2dd4bf", short: "SP" },
+
 };
 
 /** The 7 canonical statuses in the order they appear in the legend. */
@@ -247,14 +248,15 @@ export const CALENDAR_STATUS_META: Record<ExtSessionStatus, { label: string; col
   scheduled:          { label: "Scheduled",          color: "#94a3b8" },
   ready:              { label: "Ready",              color: "#8b5cf6" },
   completed:          { label: "Completed",          color: "#16a34a" },
-  absent:             { label: "Absent",             color: "#dc2626" },
+  absent:             { label: "Absent",             color: "#7f1d1d" },
   // Cancelled reassigned to a slate blue-gray, distinct from Scheduled's
   // #94a3b8. The lighter tint used for justified-cancelled variants lives in
   // SUB_STATUS_META (#cbd5e1).
-  cancelled:          { label: "Cancelled",          color: "#a8556c" },
+  cancelled:          { label: "Cancelled",          color: "#64748b" },
   pending_reschedule: { label: "Pending Reschedule", color: "#b45309" },
   no_show:            { label: "No Show",            color: "#334155" },
-  rescheduled:        { label: "Rescheduled",        color: "#94a3b8" },
+  rescheduled:        { label: "Rescheduled",        color: "#f97316" },
+
   rearranged:         { label: "Rearranged",         color: "#eab308" },
   delayed:            { label: "Delayed",            color: "#db2777" },
   converted_to_spotlight: { label: "Converted to Spotlight", color: "#4f46e5" },
@@ -280,4 +282,30 @@ export function eventPillDisplay(ev: CalendarEvent): { color: string; short: str
     ? CALENDAR_STATUS_META[status].label
     : "";
   return { color, short: ev.is_group ? "G" : kind.short, cellLabel };
+}
+
+/** Accent theme for MODAL HEADERS only (pills stay flat, see EVENT_KIND_META).
+ *  `background` may be a solid hex or a CSS gradient; `solid` is always a hex
+ *  usable for icon tints and text. Status overrides only apply to the kinds
+ *  that carry an ExtSessionStatus. */
+export function calendarEventTheme(ev: CalendarEvent): { background: string; solid: string } {
+  const byKind: Record<CalendarEventKind, { background: string; solid: string }> = {
+    class:     { background: "#6d28d9", solid: "#6d28d9" },
+    workshop:  { background: "#7c3aed", solid: "#7c3aed" },
+    insight:   { background: "linear-gradient(135deg, #01304a 0%, #05070a 100%)", solid: "#01304a" },
+    book_club: { background: "#c2410c", solid: "#c2410c" },
+    spotlight: { background: "#2dd4bf", solid: "#2dd4bf" },
+  };
+  const supportsStatus = ev.kind === "class" || ev.kind === "workshop" || ev.kind === "spotlight";
+  if (supportsStatus) {
+    switch (ev.status as ExtSessionStatus | undefined) {
+      case "rescheduled":
+        return { background: "linear-gradient(135deg, #fbbf24 0%, #f97316 100%)", solid: "#f97316" };
+      case "cancelled":
+        return { background: "#64748b", solid: "#64748b" };
+      case "absent":
+        return { background: "linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%)", solid: "#7f1d1d" };
+    }
+  }
+  return byKind[ev.kind];
 }

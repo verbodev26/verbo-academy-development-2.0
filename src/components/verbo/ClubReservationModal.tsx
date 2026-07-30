@@ -65,7 +65,10 @@ export function ClubReservationModal({
     const now = Date.now();
     return now >= start - 5 * 60 * 1000 && now <= start + club.duration_minutes * 60 * 1000;
   }, [club.date, club.duration_minutes]);
-  const accent = isBook ? "#d97706" : "#0ea5e9";
+  // Matches calendarEventTheme() for book_club / insight so the modal reads as
+  // the same entity as its calendar pill.
+  const accent = isBook ? "#c2410c" : "#01304a";
+
   const label = isBook ? "Book Club" : "Verbo Insight";
 
   const seatsPct = club.spots_total ? Math.min(100, Math.round(((club.spots_taken ?? 0) / club.spots_total) * 100)) : 0;
