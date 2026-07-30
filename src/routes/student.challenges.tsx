@@ -892,29 +892,35 @@ function Page() {
           chosen={seasonState.reveal ? hasChosenChallenge(student.id, seasonState.reveal.id) : false}
           completed={seasonState.reveal ? hasCompletedChallenge(student.id, seasonState.reveal.id) : false}
           onChoose={() => { if (seasonState.reveal) chooseChallenge(student.id, seasonState.reveal.id); }}
-          onComplete={() => {
-            if (!seasonState.reveal) return;
-            const ok = completeSeasonChallenge(student.id, seasonState.reveal.id, seasonState.season.id);
-            if (ok) {
-              const c = seasonState.reveal;
-              setSeasonState(null);
-              setShareForTheme({ accent: seasonState.season.accent_color || "#7e22ce", icon: Sparkles });
-              setShareFor(c as unknown as Challenge);
-            }
-          }}
+          submission={seasonState.reveal ? getSubmission(student.id, seasonState.reveal.id) : null}
+          onSubmit={() => { if (seasonState.reveal) openSubmit(seasonState.reveal, "season", "submit", { accent: seasonState.season.accent_color || "#7e22ce", icon: Sparkles }); }}
+          onResubmit={() => { if (seasonState.reveal) openSubmit(seasonState.reveal, "season", "resubmit", { accent: seasonState.season.accent_color || "#7e22ce", icon: Sparkles }); }}
           onClose={() => setSeasonState(null)}
         />
       )}
 
 
-      {shareFor && (
-        <ShareResultModal
-          challenge={shareFor}
-          accent={shareForTheme?.accent ?? "#111827"}
-          icon={shareForTheme?.icon ?? Share2}
-          initialLink={getSharedResult(student.id, shareFor.id)}
-          onClose={() => { setShareFor(null); setShareForTheme(null); }}
-          onSave={(link) => {
+      {submitFor && (
+        <SubmitChallengeModal
+          title={submitFor.title}
+          accent={submitFor.accent}
+          icon={submitFor.icon}
+          mode={submitFor.mode}
+          onClose={() => setSubmitFor(null)}
+          onSubmit={(link, note) => {
+            const ok = submitFor.mode === "resubmit"
+              ? resubmitChallenge(student.id, submitFor.id, link, note)
+              : submitChallenge(student.id, submitFor.id, submitFor.format, link, note);
+            if (ok) {
+              setSubmitFor(null);
+              setLightningOpen(null);
+              setMystery({ opening: false, reveal: null, blocked: false });
+              setSeasonState(null);
+              setTick((t) => t + 1);
+            }
+          }}
+        />
+      )}
             shareChallengeResult(student.id, shareFor.id, link);
             setShareFor(null);
             setShareForTheme(null);
