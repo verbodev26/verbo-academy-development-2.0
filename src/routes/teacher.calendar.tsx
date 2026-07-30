@@ -169,7 +169,7 @@ function Page() {
       </div>
 
       <Card>
-        <CalendarView events={events} onEventClick={handleEventClick} />
+        <CalendarView events={events} onEventClick={handleEventClick} substitutionAware />
       </Card>
 
       <div>
