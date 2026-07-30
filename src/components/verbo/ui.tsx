@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { UserRound, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useCountUp } from "@/lib/use-count-up";
 
 /** Watermark variants supported by AccentModalHeader. */
 export type AccentWatermark =
@@ -248,7 +250,14 @@ export function StatRing({
   const pct = Math.max(0, Math.min(100, value));
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
-  const offset = c - (pct / 100) * c;
+  // Start at 0 on mount so the CSS transition also plays on first render.
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setShown(pct));
+    return () => cancelAnimationFrame(raf);
+  }, [pct]);
+  const offset = c - (shown / 100) * c;
+
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
@@ -279,6 +288,24 @@ export function StatRing({
     </div>
   );
 }
+
+/** Number that counts up to `value` on mount and on every change. */
+export function AnimatedNumber({
+  value,
+  suffix,
+  durationMs,
+  className = "",
+}: { value: number; suffix?: string; durationMs?: number; className?: string }) {
+  const animated = useCountUp(value, durationMs);
+  return (
+    <span className={`tabular-nums ${className}`}>
+      {animated}
+      {suffix}
+    </span>
+  );
+}
+
+
 
 export function MetricCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (

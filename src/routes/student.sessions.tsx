@@ -967,17 +967,24 @@ function RemainingRing({ remaining, hired }: { remaining: number; hired: number 
   const r = 30;
   const c = 2 * Math.PI * r;
   const ratio = hired > 0 ? Math.max(0, Math.min(1, remaining / hired)) : 0;
+  // Start empty on mount so the fill transition also plays on first render.
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setShown(ratio));
+    return () => cancelAnimationFrame(raf);
+  }, [ratio]);
   return (
     <svg viewBox="0 0 72 72" className="h-[72px] w-[72px] shrink-0 -rotate-90">
       <circle cx="36" cy="36" r={r} fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="7" />
       <circle
         cx="36" cy="36" r={r} fill="none" stroke="#01304a" strokeWidth="7" strokeLinecap="round"
-        strokeDasharray={c} strokeDashoffset={c * (1 - ratio)}
-        style={{ transition: "stroke-dashoffset 400ms ease-out" }}
+        strokeDasharray={c} strokeDashoffset={c * (1 - shown)}
+        style={{ transition: "stroke-dashoffset 700ms ease-out" }}
       />
     </svg>
   );
 }
+
 
 function SessionsRemainingCard({ studentId }: { studentId: string }) {
   const u = USERS.find((x) => x.id === studentId);
