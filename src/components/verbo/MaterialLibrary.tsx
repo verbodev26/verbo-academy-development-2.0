@@ -23,7 +23,18 @@ import {
   Search,
   Sparkles,
   Lock,
+  Headphones,
+  SpellCheck,
+  Type,
+  Mic,
+  Crown,
+  Rocket,
+  Lightbulb,
+  Briefcase,
+  LifeBuoy,
+  Tag,
 } from "lucide-react";
+
 
 const TYPE_ICON: Record<MaterialType, typeof Book> = {
   book: Book,
