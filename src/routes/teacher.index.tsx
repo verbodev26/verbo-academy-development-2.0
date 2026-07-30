@@ -534,30 +534,10 @@ function TeacherDashboard() {
             }
           >
             <div className="relative w-full">
-              <div className="flex items-start justify-between gap-2">
-                <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
-                  Performance
-                </div>
-                <div className="flex flex-wrap justify-end gap-1">
-                  {kpis && <BonusBadge status={kpis.bonusStatus} size="sm" />}
-                  {warningLevel === "yellow" && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white/85 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-                      <AlertTriangle className="h-3 w-3" /> 1 KPI Below Target
-                    </span>
-                  )}
-                  {warningLevel === "red" && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-destructive">
-                      <AlertTriangle className="h-3 w-3" /> {belowTarget} KPIs Below Target
-                    </span>
-                  )}
-                  {strikes > 0 && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-destructive">
-                      {Math.min(3, strikes)}/3 Strikes (6 months)
-                    </span>
-                  )}
-                </div>
+              <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "rgba(1,48,74,0.8)" }}>
+                Performance
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none text-white">
+              <div className="mt-2 text-6xl font-bold leading-none text-white">
                 <AnimatedNumber value={kpis?.composite ?? 0} suffix="%" />
                 {kpis?.onboarding && (
                   <span className="ml-2 rounded-full bg-white/85 px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wider text-blue-700">
@@ -565,16 +545,11 @@ function TeacherDashboard() {
                   </span>
                 )}
               </div>
-              <div className="mt-2 flex items-center gap-1.5 text-xs">
-                <span
-                  className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold"
-                  style={{ backgroundColor: rating30Band.bg, color: rating30Band.fg }}
-                >
-                  <Star className="h-3 w-3 fill-current" /> {avgRating30 != null ? avgRating30.toFixed(1) : "—"}
-                </span>
-                <span className="font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>Composite Score · view balance</span>
+              <div className="mt-2 text-xs font-medium" style={{ color: "rgba(1,48,74,0.8)" }}>
+                Composite Score · view balance
               </div>
             </div>
+
           </HeroStatCard>
         </Link>
       </section>
