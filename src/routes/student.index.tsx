@@ -32,6 +32,7 @@ import {
   BookOpen,
   CalendarClock,
   Download,
+  Medal,
   NotebookPen,
   ShieldAlert,
   Sparkles,
