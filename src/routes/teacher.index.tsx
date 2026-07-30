@@ -45,6 +45,18 @@ function fmt(iso: string) {
 
 const REPORT_WINDOW_MS = 24 * 3_600_000;
 
+// Accent colors for the three compressed dashboard panels (mirror the
+// card-gradient-* utilities used by their cards).
+const CRIMSON = "#b52904";
+const CRIMSON_BG = "linear-gradient(150deg, #c2410c 0%, #b52904 55%, #760137 100%)";
+const VIOLET = "var(--violet-500)";
+const VIOLET_BG = "linear-gradient(150deg, var(--violet-300) 0%, var(--violet-500) 55%, var(--violet-900) 100%)";
+const GREEN = "var(--green-500)";
+const GREEN_BG = "linear-gradient(150deg, var(--green-300) 0%, var(--green-500) 55%, var(--green-700) 100%)";
+
+type DashboardPanel = "attention" | "plan" | "complete";
+
+
 type LocalSession = Session & { _noReport?: boolean };
 
 function TeacherDashboard() {
