@@ -40,6 +40,7 @@ import {
   Users,
   Video,
   X,
+  Zap,
 } from "lucide-react";
 import {
   loadBadges as loadProfileBadges,
@@ -63,6 +64,7 @@ import {
   subscribeEquippedChallengeBadges,
 } from "@/lib/equipped-challenge-badges-store";
 import { loadChallenges } from "@/lib/challenges-store";
+import { loadSeasons } from "@/lib/flash-challenges-store";
 import { loadClubs, type Club } from "@/lib/clubs-store";
 import { isBooked } from "@/lib/club-bookings-store";
 import { ClubReservationModal } from "@/components/verbo/ClubReservationModal";
@@ -431,7 +433,7 @@ function StudentDashboard() {
               <h1 className="text-3xl font-semibold tracking-tight" style={{ color: "#01304a" }}>
                 {user.name.split(" ")[0]}
               </h1>
-              <FeaturedProfileBadge user={user} />
+              <FeaturedBadgeStrip user={user} />
               {user.access_plan === "Elite" && <Pill tone="elite">Elite</Pill>}
               {productLabel && <Pill tone="muted">{productLabel}</Pill>}
             </div>
