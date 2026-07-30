@@ -1016,6 +1016,126 @@ function SeasonFlashBanner({
   );
 }
 
+/** Compact Verbo Flash banner — same visual language as SeasonFlashBanner
+ *  (theme image with lateral fade, watermark, editable gradient, pulse) at
+ *  half the height, with a single square action button as the only click
+ *  target. Used by Mystery Box and Lightning. */
+function CompactFlashBanner({
+  themeImageUrl,
+  watermarkImageUrl,
+  gradientCss,
+  className,
+  style,
+  eyebrow,
+  title,
+  status,
+  icon,
+  available,
+  onAction,
+  actionLabel,
+  actionClassName,
+  actionStyle,
+  cta,
+}: {
+  themeImageUrl?: string;
+  watermarkImageUrl?: string;
+  gradientCss: string;
+  className?: string;
+  style?: React.CSSProperties;
+  eyebrow: string;
+  title: string;
+  status: string;
+  icon: React.ReactNode;
+  available: boolean;
+  onAction?: () => void;
+  actionLabel: string;
+  actionClassName?: string;
+  actionStyle?: React.CSSProperties;
+  cta?: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`relative flex items-center w-full min-h-[105px] overflow-hidden rounded-3xl border border-white/15 shadow-elevated sm:min-h-[130px] ${
+        available ? "verbo-season-pulse" : "opacity-60 saturate-50"
+      } ${className ?? ""}`}
+      style={{
+        background: gradientCss,
+        ...(available ? { animation: "verbo-season-pulse 2.6s ease-in-out infinite" } : null),
+        ...style,
+      }}
+    >
+      <style>{`
+        @keyframes verbo-season-pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.25); }
+          50% { box-shadow: 0 0 0 8px rgba(255,255,255,0); }
+        }
+        @keyframes verbo-season-glow {
+          0%, 100% { box-shadow: 0 0 0px 0px rgba(255,255,255,0), 0 4px 10px rgba(0,0,0,0.25); }
+          50% { box-shadow: 0 0 16px 4px rgba(255,255,255,0.55), 0 4px 10px rgba(0,0,0,0.25); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .verbo-season-pulse, .verbo-season-glow { animation: none !important; }
+        }
+      `}</style>
+
+      {themeImageUrl && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-cover bg-left bg-no-repeat"
+          style={{
+            backgroundImage: `url(${themeImageUrl})`,
+            WebkitMaskImage: "linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 58%)",
+            maskImage: "linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 20%, rgba(0,0,0,0) 58%)",
+          }}
+        />
+      )}
+
+      {watermarkImageUrl ? (
+        <img
+          aria-hidden
+          src={watermarkImageUrl}
+          alt=""
+          className="pointer-events-none absolute right-6 top-1/2 h-[130%] max-h-none -translate-y-1/2 select-none object-contain opacity-10"
+        />
+      ) : (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-y-0 left-[40%] flex select-none items-center overflow-hidden whitespace-nowrap text-[110px] font-black leading-none tracking-tight text-white/10 sm:text-[150px]"
+        >
+          {title}
+        </span>
+      )}
+
+      <div className="relative flex w-full flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:p-6">
+        <div className="min-w-0">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
+            {eyebrow}
+          </div>
+          <div className="mt-2 truncate text-5xl font-black tracking-tight text-white drop-shadow-md sm:text-7xl">
+            {title}
+          </div>
+          <div className="mt-2 text-xs text-white/85">{status}</div>
+          {cta && <div className="mt-2">{cta}</div>}
+        </div>
+
+        <div className="flex shrink-0 items-center justify-end">
+          <button
+            type="button"
+            onClick={onAction}
+            disabled={!onAction}
+            aria-label={actionLabel}
+            title={actionLabel}
+            style={{ animation: "verbo-season-glow 2.2s ease-in-out infinite", ...actionStyle }}
+            className={`verbo-season-glow flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border-2 border-white/50 bg-white/15 shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white disabled:cursor-not-allowed sm:h-20 sm:w-20 ${actionClassName ?? ""}`}
+          >
+            {icon}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function VerboFlashBanner({
 
   icon,
