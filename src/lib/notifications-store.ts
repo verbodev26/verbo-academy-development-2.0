@@ -534,6 +534,23 @@ function adminNotifications(): Notification[] {
     });
   }
 
+  // ---- Challenge deliveries flagged (rejected by a teacher) --------------
+  for (const st of USERS) {
+    for (const sub of st.challenge_submissions ?? []) {
+      if (sub.status !== "rejected") continue;
+      out.push({
+        id: `challenge-flagged:${st.id}:${sub.challenge_id}`,
+        kind: "challenge_flagged",
+        title: "Challenge submission flagged",
+        body: `${st.name} — ${challengeTitle(sub.challenge_id)}`,
+        createdAt: sub.reviewed_at ?? sub.submitted_at,
+        to: "/admin/challenges",
+        read: false,
+        data: { studentId: st.id, challengeId: sub.challenge_id },
+      });
+    }
+  }
+
   return out;
 }
 
@@ -765,6 +782,46 @@ function studentNotifications(studentId: string): Notification[] {
     }
   }
 
+  // ---- Challenge submission reviewed by the teacher ----------------------
+  for (const sub of uu?.challenge_submissions ?? []) {
+    const when = sub.reviewed_at ?? sub.submitted_at;
+    const title = challengeTitle(sub.challenge_id);
+    if (sub.status === "needs_resubmission") {
+      out.push({
+        id: `challenge-needs-resubmission:${studentId}:${sub.challenge_id}:${when}`,
+        kind: "challenge_needs_resubmission",
+        title: "Your teacher asked for another attempt",
+        body: `${title}${sub.teacher_feedback ? ` — ${sub.teacher_feedback}` : ""}`,
+        createdAt: when,
+        to: "/student/challenges",
+        read: false,
+        data: { studentId, challengeId: sub.challenge_id },
+      });
+    } else if (sub.status === "approved") {
+      out.push({
+        id: `challenge-approved:${studentId}:${sub.challenge_id}:${when}`,
+        kind: "challenge_submission_approved",
+        title: "Challenge approved!",
+        body: title,
+        createdAt: when,
+        to: "/student/challenges",
+        read: false,
+        data: { studentId, challengeId: sub.challenge_id },
+      });
+    } else if (sub.status === "rejected") {
+      out.push({
+        id: `challenge-rejected:${studentId}:${sub.challenge_id}:${when}`,
+        kind: "challenge_submission_rejected",
+        title: "Challenge not approved",
+        body: `${title}${sub.teacher_feedback ? ` — ${sub.teacher_feedback}` : ""}`,
+        createdAt: when,
+        to: "/student/challenges",
+        read: false,
+        data: { studentId, challengeId: sub.challenge_id },
+      });
+    }
+  }
+
   return out;
 
 }
@@ -792,6 +849,7 @@ const SOURCE_EVENTS = [
   REPORTS_EVENT, CONDUCT_REPORTS_EVENT, FIN_ISSUES_EVENT, STUDENTS_EVENT, CHALLENGES_EVENT,
   REQUESTS_EVENT, VIP_UNITS_EVENT, TAILORED_UNITS_EVENT, LP_EVENT, LESSON_PLANS_EVENT,
   CHALLENGE_BADGES_EVENT, PROFILE_BADGES_EVENT, SEASONS_EVENT, BADGE_UNLOCK_SEEN_EVENT,
+  FLASH_EVENT,
 ];
 
 function subscribe(cb: () => void): () => void {
