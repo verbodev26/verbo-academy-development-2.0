@@ -1622,6 +1622,7 @@ function ChallengeDetail({
             <p className="vc-rise text-sm leading-relaxed text-foreground" style={{ animationDelay: "0.35s" }}>
               {challenge.description || "No description available."}
             </p>
+            <SubmissionInstructions text={challenge.submission_instructions} delay="0.38s" />
             {challenge.video_url && (
               <a
                 href={challenge.video_url}
