@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { UserRound, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useCountUp } from "@/lib/use-count-up";
 
 /** Watermark variants supported by AccentModalHeader. */
 export type AccentWatermark =
