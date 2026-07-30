@@ -43,6 +43,7 @@ import {
   Users,
   Video,
   X,
+  XCircle,
   Zap,
 } from "lucide-react";
 import {
