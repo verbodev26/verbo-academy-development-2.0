@@ -556,27 +556,35 @@ function LevelsView({
 
         <Card className="relative border border-white/15">
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden>
-            <div className="card-gradient-lime absolute inset-0 rounded-[inherit]" />
+            <div
+              className="absolute inset-0 rounded-[inherit]"
+              style={{ backgroundImage: `linear-gradient(135deg, ${streakTheme.gradient[0]} 0%, ${streakTheme.gradient[1]} 100%)` }}
+            />
           </div>
           <div className="relative z-10">
-            <div className="relative z-10 flex items-center justify-between gap-4" style={{ color: "#01304a" }}>
+            <div className="relative z-10 flex items-center justify-between gap-4 text-white">
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-semibold uppercase tracking-wider opacity-75">Login streak</div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-white/75">Login streak</div>
                 {streakDays > 0 ? (
                   <>
-                    <div className="mt-2 text-2xl font-semibold tabular-nums">{streakDays} {streakDays === 1 ? "day" : "days"}</div>
-                    <div className="mt-0.5 text-sm font-medium opacity-80">{streakTier ? streakTier.name : "Keep going"}</div>
+                    <AnimatedNumber
+                      value={streakDays}
+                      suffix={streakDays === 1 ? " day" : " days"}
+                      className="mt-1 block text-[3.25rem] font-extrabold leading-none tracking-tight text-white tabular-nums drop-shadow-[0_2px_10px_rgba(0,0,0,0.25)]"
+                    />
+                    <div className="mt-1.5 text-sm font-medium text-white/85">{streakTier ? streakTier.name : "Keep going"}</div>
                   </>
                 ) : (
-                  <p className="mt-2 text-sm opacity-80">Log in tomorrow to start your streak</p>
+                  <p className="mt-2 text-sm text-white/85">Log in tomorrow to start your streak</p>
                 )}
               </div>
-              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/35">
-                <Flame className="h-9 w-9" />
+              <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/25 ring-1 ring-white/40">
+                <img src={FLAME_ART[streakTheme.flame]} alt="" aria-hidden className="h-11 w-11 object-contain" />
               </span>
             </div>
           </div>
         </Card>
+
 
         <Card className="relative border border-white/15">
           <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden>
