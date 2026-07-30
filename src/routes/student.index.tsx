@@ -129,10 +129,10 @@ function TeacherAvatar({
 }
 
 /** Section heading with a colored icon circle (Class Details modal). */
-function SectionHeadIcon({ icon, circleClass, label }: { icon: React.ReactNode; circleClass: string; label: string }) {
+function SectionHeadIcon({ icon, circleClass = "", label }: { icon: React.ReactNode; circleClass?: string; label: string }) {
   return (
     <div className="flex items-center gap-2">
-      <span className={`flex h-7 w-7 items-center justify-center rounded-full ${circleClass}`}>{icon}</span>
+      <span className={`flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-border ${circleClass}`}>{icon}</span>
       <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</h4>
     </div>
   );
