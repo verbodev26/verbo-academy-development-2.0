@@ -2,6 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import experiencesClubs from "@/assets/experiences-clubs.png.asset.json";
 import teamsLogo from "@/assets/teams-logo.webp.asset.json";
 import verbotGif from "@/assets/Verbot_1.gif.asset.json";
+import verbotEmocionado from "@/assets/Verbot_emocionado.svg.asset.json";
+import verbotMotivado from "@/assets/Verbot_motivado.svg.asset.json";
+import verbotGuau from "@/assets/Verbot_guau.svg.asset.json";
+import verbotEmoji from "@/assets/Verbot_emoji.svg.asset.json";
+import verbotMolesto from "@/assets/Verbot_molesto.svg.asset.json";
+import verbotEnojado from "@/assets/Verbot_enojado.svg.asset.json";
+import verbotFurioso from "@/assets/Verbot_furioso.svg.asset.json";
 
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
