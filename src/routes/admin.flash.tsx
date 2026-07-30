@@ -606,6 +606,15 @@ function LightningTab() {
 
   return (
     <div className="space-y-6">
+      <BannerThemeCard
+        key={`lightning-theme-${JSON.stringify(lightningTheme)}`}
+        title="Lightning banner"
+        description="Controls how the Lightning banner looks on the student side."
+        value={lightningTheme}
+        onSave={(theme) => persistLightningTheme(theme)}
+      />
+
+
       {isLive && activeChallenge ? (
         <Card>
           <div className="flex flex-col gap-4 rounded-2xl bg-gradient-to-br from-[#1e3a8a] via-[#0284c7] to-[#facc15] p-6 text-white">
