@@ -503,7 +503,7 @@ function TeacherDashboard() {
           </HeroStatCard>
         </Link>
         <Link to="/teacher/calendar" className="block cursor-pointer">
-          <HeroStatCard className="border border-border bg-card">
+          <HeroStatCard className="!items-start border border-border bg-card">
             <div
               className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
               style={{ color: "#a34ac0", background: "rgba(163,74,192,0.12)" }}
@@ -514,7 +514,8 @@ function TeacherDashboard() {
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Upcoming Sessions
               </div>
-              <div className="mt-2 text-5xl font-bold leading-none" style={{ color: "#a34ac0" }}>
+              <div className="mt-2 text-5xl font-bold leading-none text-foreground">
+
                 <AnimatedNumber value={upcoming7dCount} />
               </div>
               <div className="mt-2 text-xs font-medium text-muted-foreground">next 7 days</div>
