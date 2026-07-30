@@ -16,6 +16,7 @@ import {
   flashChallengesFor,
   seasonChallengesFor,
   newFlashChallengeId,
+  newSyncedGroupId,
   loadFlashConfig,
   persistFlashConfig,
   subscribeFlashConfig,
@@ -129,9 +130,10 @@ function MysteryBoxTab() {
     [list, product],
   );
 
-  const save = (c: FlashChallenge) => {
+  const save = (cs: FlashChallenge[]) => {
     setList((prev) => {
-      const next = [...prev.filter((x) => x.id !== c.id), c];
+      const ids = new Set(cs.map((c) => c.id));
+      const next = [...prev.filter((x) => !ids.has(x.id)), ...cs];
       persistFlashChallenges(next);
       return next;
     });
@@ -294,7 +296,7 @@ function MysteryBoxTab() {
           editing={modal.mode === "edit" ? modal.challenge : undefined}
           onAddCategory={addCategory}
           onClose={() => setModal(null)}
-          onSave={(c) => { save(c); setModal(null); }}
+          onSave={(cs) => { save(cs); setModal(null); }}
         />
       )}
     </div>
@@ -326,7 +328,7 @@ function FlashModal({
   titleOverride?: string;
   onAddCategory: (name: string) => void;
   onClose: () => void;
-  onSave: (c: FlashChallenge) => void;
+  onSave: (cs: FlashChallenge[]) => void;
 }) {
   const isEdit = !!editing;
   const [category, setCategory] = useState(editing?.category ?? "");
@@ -340,6 +342,7 @@ function FlashModal({
   const [videoSource, setVideoSource] = useState<"url" | "upload">("url");
   const [iconImageUrl, setIconImageUrl] = useState(editing?.icon_image_url ?? "");
   const [iconError, setIconError] = useState("");
+  const [applyAllProducts, setApplyAllProducts] = useState(false);
 
   const handleIconFile = (file?: File | null) => {
     if (!file) return;
@@ -361,11 +364,7 @@ function FlashModal({
   };
 
   const handleSave = () => {
-    const id = editing?.id ?? newFlashChallengeId(format, product, existing);
-    onSave({
-      id,
-      format,
-      product,
+    const content = {
       category: category.trim(),
       title: title.trim(),
       description: description.trim(),
@@ -374,8 +373,53 @@ function FlashModal({
       premium,
       skill_tags: editing?.skill_tags ?? [],
       icon_image_url: iconImageUrl || undefined,
-      ...(format === "season" ? { season_id: seasonId } : {}),
-    });
+    };
+
+    if (!isEdit && applyAllProducts) {
+      const groupId = newSyncedGroupId();
+      const pool = [...existing];
+      const created: FlashChallenge[] = [];
+      for (const p of FLASH_PRODUCT_ORDER) {
+        const c: FlashChallenge = {
+          id: newFlashChallengeId(format, p, pool),
+          format,
+          product: p,
+          ...content,
+          synced_group_id: groupId,
+          ...(format === "season" ? { season_id: seasonId } : {}),
+        };
+        pool.push(c);
+        created.push(c);
+      }
+      onSave(created);
+      return;
+    }
+
+    const primary: FlashChallenge = {
+      id: editing?.id ?? newFlashChallengeId(format, product, existing),
+      format,
+      product: editing?.product ?? product,
+      ...content,
+      ...(editing?.synced_group_id ? { synced_group_id: editing.synced_group_id } : {}),
+      ...(format === "season"
+        ? { season_id: editing?.season_id ?? seasonId }
+        : {}),
+    };
+
+    if (isEdit && editing?.synced_group_id) {
+      const siblings = existing
+        .filter(
+          (c) =>
+            c.id !== primary.id &&
+            c.format === format &&
+            c.synced_group_id === editing.synced_group_id,
+        )
+        .map((c) => ({ ...c, ...content }));
+      onSave([primary, ...siblings]);
+      return;
+    }
+
+    onSave([primary]);
   };
 
   const headerTitle =
@@ -398,6 +442,11 @@ function FlashModal({
           <div>
             <div className="text-base font-semibold tracking-tight">{headerTitle}</div>
             <div className="mt-0.5 text-xs text-white/70">{FLASH_PRODUCT_LABEL[product]}</div>
+            {editing?.synced_group_id && (
+              <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-semibold text-white/90">
+                🔗 Synced across products
+              </div>
+            )}
           </div>
           <button onClick={onClose} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
         </div>
@@ -457,6 +506,21 @@ function FlashModal({
               <span className="mt-0.5 block text-[11px] text-muted-foreground">Restricts this challenge to students on Advance or Elite access plans.</span>
             </span>
           </label>
+
+          {!isEdit && (
+            <label className="flex items-start gap-3 rounded-lg border border-border bg-secondary/30 px-3 py-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={applyAllProducts}
+                onChange={(e) => setApplyAllProducts(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-border text-[#7e22ce] focus:ring-[#7e22ce]"
+              />
+              <span className="flex-1">
+                <span className="block text-xs font-semibold text-foreground">Apply to all 3 products</span>
+                <span className="mt-0.5 block text-[11px] text-muted-foreground">Creates one linked copy for Enterprise, GO and International. Editing any copy later updates all of them.</span>
+              </span>
+            </label>
+          )}
 
           <Field label="Attachment (optional)">
             <div className="grid grid-cols-2 gap-2">
@@ -579,9 +643,10 @@ function LightningTab() {
     [list, product],
   );
 
-  const save = (c: FlashChallenge) => {
+  const save = (cs: FlashChallenge[]) => {
     setList((prev) => {
-      const next = [...prev.filter((x) => x.id !== c.id), c];
+      const ids = new Set(cs.map((c) => c.id));
+      const next = [...prev.filter((x) => !ids.has(x.id)), ...cs];
       persistFlashChallenges(next);
       return next;
     });
@@ -797,7 +862,7 @@ function LightningTab() {
           editing={modal.mode === "edit" ? modal.challenge : undefined}
           onAddCategory={addCategory}
           onClose={() => setModal(null)}
-          onSave={(c) => { save(c); setModal(null); }}
+          onSave={(cs) => { save(cs); setModal(null); }}
         />
       )}
     </div>
@@ -938,9 +1003,10 @@ function SeasonChallengesModal({ season, onClose }: { season: FlashSeason; onClo
     [list, season.id, product],
   );
 
-  const save = (c: FlashChallenge) => {
+  const save = (cs: FlashChallenge[]) => {
     setList((prev) => {
-      const next = [...prev.filter((x) => x.id !== c.id), c];
+      const ids = new Set(cs.map((c) => c.id));
+      const next = [...prev.filter((x) => !ids.has(x.id)), ...cs];
       persistFlashChallenges(next);
       return next;
     });
@@ -1071,7 +1137,7 @@ function SeasonChallengesModal({ season, onClose }: { season: FlashSeason; onClo
           titleOverride={`${modal.mode === "edit" ? "Edit" : "New"} ${season.display_name} Challenge`}
           onAddCategory={addCategory}
           onClose={() => setModal(null)}
-          onSave={(c) => { save(c); setModal(null); }}
+          onSave={(cs) => { save(cs); setModal(null); }}
         />
       )}
     </div>
