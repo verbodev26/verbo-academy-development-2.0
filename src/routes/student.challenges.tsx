@@ -418,6 +418,7 @@ function Page() {
   const [category, setCategory] = useState<string | "all">("all");
   const [open, setOpen] = useState<Challenge | null>(null);
   const [shareFor, setShareFor] = useState<Challenge | null>(null);
+  const [shareForTheme, setShareForTheme] = useState<{ accent: string; icon: LucideIcon } | null>(null);
   const [mystery, setMystery] = useState<{ opening: boolean; reveal: FlashChallenge | null; blocked: boolean }>({ opening: false, reveal: null, blocked: false });
   const [lightning, setLightning] = useState<LightningState>(loadLightning);
   const [lightningOpen, setLightningOpen] = useState<FlashChallenge | null>(null);
@@ -570,6 +571,7 @@ function Page() {
                 // Immediately prompt for optional share step.
                 const justCompleted = open;
                 setOpen(null);
+                setShareForTheme({ accent: categoryTheme(justCompleted.category).solid, icon: categoryIcon(justCompleted.category) });
                 setShareFor(justCompleted);
               }
             }}
@@ -579,11 +581,14 @@ function Page() {
         {shareFor && (
           <ShareResultModal
             challenge={shareFor}
+            accent={shareForTheme?.accent ?? "#111827"}
+            icon={shareForTheme?.icon ?? Share2}
             initialLink={getSharedResult(student.id, shareFor.id)}
-            onClose={() => setShareFor(null)}
+            onClose={() => { setShareFor(null); setShareForTheme(null); }}
             onSave={(link) => {
               shareChallengeResult(student.id, shareFor.id, link);
               setShareFor(null);
+              setShareForTheme(null);
             }}
           />
         )}
@@ -823,6 +828,7 @@ function Page() {
             const ok = completeLightningChallenge(student.id, target.id);
             if (ok) {
               setLightningOpen(null);
+              setShareForTheme({ accent: lightningTheme.accent_color || "#0284c7", icon: Zap });
               setShareFor(target as unknown as Challenge);
             }
           }}
@@ -851,6 +857,7 @@ function Page() {
               const c = mystery.reveal;
               setMystery({ opening: false, reveal: null, blocked: false });
               // Reuse the standard share prompt for consistency.
+              setShareForTheme({ accent: flashConfig.accent_color || "#7e22ce", icon: Gift });
               setShareFor(c as unknown as Challenge);
             }
           }}
@@ -879,6 +886,7 @@ function Page() {
             if (ok) {
               const c = seasonState.reveal;
               setSeasonState(null);
+              setShareForTheme({ accent: seasonState.season.accent_color || "#7e22ce", icon: Sparkles });
               setShareFor(c as unknown as Challenge);
             }
           }}
@@ -890,11 +898,14 @@ function Page() {
       {shareFor && (
         <ShareResultModal
           challenge={shareFor}
+          accent={shareForTheme?.accent ?? "#111827"}
+          icon={shareForTheme?.icon ?? Share2}
           initialLink={getSharedResult(student.id, shareFor.id)}
-          onClose={() => setShareFor(null)}
+          onClose={() => { setShareFor(null); setShareForTheme(null); }}
           onSave={(link) => {
             shareChallengeResult(student.id, shareFor.id, link);
             setShareFor(null);
+            setShareForTheme(null);
           }}
         />
       )}
