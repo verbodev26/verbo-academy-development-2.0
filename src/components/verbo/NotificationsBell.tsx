@@ -260,6 +260,18 @@ export function NotificationsBell({ variant = "light" }: { variant?: "light" | "
           onClose={() => setSharedModal(null)}
         />
       )}
+
+      {badgeModal && (
+        <BadgeUnlockModal
+          badge={badgeModal}
+          studentId={user.id}
+          onClose={() => {
+            markBadgeUnlockSeen(user.id, badgeModal.storageId);
+            setBadgeModal(null);
+          }}
+        />
+      )}
     </div>
+
   );
 }
