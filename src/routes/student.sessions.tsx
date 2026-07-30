@@ -219,7 +219,7 @@ function Page() {
                 onClick={() => { if (canRequestSpotlight) freemium.tryOpen("spotlight", () => setSpotlightOpen(true)); }}
                 disabled={!canRequestSpotlight}
                 title={!canRequestSpotlight ? "You've used all your Spotlight requests for this month." : undefined}
-                className={`mt-4 inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-3 py-2.5 text-xs font-semibold transition-transform duration-200 ${canRequestSpotlight ? "cursor-pointer active:scale-[0.97]" : "cursor-not-allowed opacity-60"}`}
+                className={`mt-4 inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white px-3 py-2.5 text-xs font-semibold transition-transform duration-200 hover:scale-[1.04] hover:shadow-md ${canRequestSpotlight ? "cursor-pointer active:scale-[0.97]" : "cursor-not-allowed opacity-60"}`}
                 style={{ color: "#01304a" }}
               >
                 <Sparkles className="h-3.5 w-3.5" /> Request a Spotlight
