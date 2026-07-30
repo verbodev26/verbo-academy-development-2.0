@@ -34,6 +34,9 @@ import {
   Megaphone,
   Briefcase,
   Tag,
+  Clock,
+  Shield,
+
   type LucideIcon,
 } from "lucide-react";
 
@@ -1490,31 +1493,97 @@ function ChallengeDetail({
 }) {
   const locked = !!challenge.premium && !hasPremiumAccess;
   const onCooldown = !completed && chosen && cooldownRemaining !== null;
+  const theme = categoryTheme(challenge.category);
+  const CatIcon = categoryIcon(challenge.category);
+  const catLabel = (challenge.category || "Challenge").toUpperCase();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+      <style>{`
+        @keyframes vc-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        @keyframes vc-blob { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: scale(1); } }
+        @keyframes vc-logo { from { opacity: 0; transform: scale(0.7) rotate(-15deg); } to { opacity: 1; transform: scale(1) rotate(0deg); } }
+        .vc-rise { opacity: 0; animation: vc-rise 0.55s cubic-bezier(0.16,1,0.3,1) forwards; }
+        .vc-blob { opacity: 0; animation: vc-blob 0.8s cubic-bezier(0.16,1,0.3,1) forwards; }
+        .vc-logo { opacity: 0; animation: vc-logo 0.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+        @media (prefers-reduced-motion: reduce) {
+          .vc-rise, .vc-blob, .vc-logo { animation: none !important; opacity: 1 !important; transform: none !important; }
+        }
+      `}</style>
       <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-card shadow-elevated" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between gap-4 bg-gradient-to-br from-[#01304a] to-[#024366] p-6 text-white">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <CategoryBadge name={challenge.category} />
+        {/* HEADER — solid category color + decorative radial blobs + watermark */}
+        <div className="relative overflow-hidden p-6 text-white" style={{ backgroundColor: theme.solid }}>
+          <span
+            aria-hidden
+            className="vc-blob pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full blur-2xl"
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 70%)" }}
+          />
+          <span
+            aria-hidden
+            className="vc-blob pointer-events-none absolute -bottom-24 -left-20 h-64 w-64 rounded-full blur-2xl"
+            style={{ background: "radial-gradient(circle, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 70%)" }}
+          />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -right-6 -top-8 z-0 select-none whitespace-nowrap text-[86px] font-black leading-none tracking-tighter text-white/[0.13]"
+          >
+            {catLabel}
+          </span>
+
+          <div className="relative z-10 flex items-start justify-between gap-4">
+            <span
+              className="vc-logo flex h-[52px] w-[52px] items-center justify-center rounded-2xl bg-white shadow-lg"
+              style={{ color: theme.solid }}
+            >
+              <CatIcon className="h-6 w-6" />
+            </span>
+            <div className="flex items-center gap-2">
               {challenge.premium && <PremiumBadge />}
+              <button
+                onClick={onClose}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20 hover:text-white"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
-            <div className="mt-2 text-base font-semibold tracking-tight">{challenge.title}</div>
+          </div>
+
+          <div className="relative z-10 mt-5">
+            <div className="vc-rise flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/85" style={{ animationDelay: "0.15s" }}>
+              <span aria-hidden className="h-px w-6 bg-white/60" />
+              {catLabel}
+            </div>
+            <h3 className="vc-rise mt-2 text-2xl font-bold tracking-tight" style={{ animationDelay: "0.2s" }}>
+              {challenge.title}
+            </h3>
             {challenge.skill_tags && challenge.skill_tags.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
+              <div className="vc-rise mt-3 flex flex-wrap gap-1" style={{ animationDelay: "0.25s" }}>
                 {challenge.skill_tags.map((s) => <SkillChip key={s} label={s} />)}
               </div>
             )}
           </div>
-          <button onClick={onClose} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close">
-            <X className="h-4 w-4" />
-          </button>
+        </div>
+
+        {/* PLACEHOLDER: contenido real de estos 4 stats pendiente de definir por Jaret */}
+        <div className="vc-rise grid grid-cols-4 border-b border-border bg-secondary/40" style={{ animationDelay: "0.3s" }}>
+          {[
+            { label: "Duration", Icon: Clock },
+            { label: "Format", Icon: Tag },
+            { label: "Reward", Icon: Trophy },
+            { label: "Validity", Icon: Shield },
+          ].map(({ label, Icon }, i) => (
+            <div key={label} className={`flex flex-col items-center gap-1 px-2 py-3 ${i > 0 ? "border-l border-border/70" : ""}`}>
+              <Icon className="h-4 w-4 text-muted-foreground" />
+              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
+              <span className="text-sm font-bold text-foreground">—</span>
+            </div>
+          ))}
         </div>
 
         <div className="relative p-6">
           <div className={locked ? "pointer-events-none select-none blur-sm" : ""}>
-            <p className="text-sm leading-relaxed text-foreground">
+            <p className="vc-rise text-sm leading-relaxed text-foreground" style={{ animationDelay: "0.35s" }}>
               {challenge.description || "No description available."}
             </p>
             {challenge.video_url && (
@@ -1522,13 +1591,14 @@ function ChallengeDetail({
                 href={challenge.video_url}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary"
+                className="vc-rise mt-4 inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/50 px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary"
+                style={{ animationDelay: "0.4s" }}
               >
                 <Play className="h-3.5 w-3.5" /> Watch reference video
               </a>
             )}
             {onCooldown && (
-              <div className="mt-4 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs font-medium text-foreground">
+              <div className="vc-rise mt-4 rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs font-medium text-foreground" style={{ animationDelay: "0.45s" }}>
                 {COOLDOWN_MSG}
               </div>
             )}
@@ -1545,22 +1615,30 @@ function ChallengeDetail({
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
+        <div className="vc-rise flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4" style={{ animationDelay: "0.6s" }}>
           <GhostButton onClick={onClose}>Close</GhostButton>
           {locked ? null : completed ? (
             <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" /> Completed</Pill>
           ) : chosen ? (
-            <SuccessButton onClick={onComplete} disabled={onCooldown} title={onCooldown ? COOLDOWN_MSG : undefined}>
+            <SuccessButton
+              onClick={onComplete}
+              disabled={onCooldown}
+              title={onCooldown ? COOLDOWN_MSG : undefined}
+              style={{ boxShadow: `0 8px 20px -6px ${theme.solid}` }}
+            >
               <CheckCircle2 className="h-3.5 w-3.5" /> Mark as Completed
             </SuccessButton>
           ) : (
-            <PrimaryButton onClick={onChoose}>Let's do it!</PrimaryButton>
+            <PrimaryButton onClick={onChoose} style={{ boxShadow: `0 8px 20px -6px ${theme.solid}` }}>
+              Let's do it!
+            </PrimaryButton>
           )}
         </div>
       </div>
     </div>
   );
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* Share Result modal — optional URL + locked "Upload File" (Coming soon).    */
