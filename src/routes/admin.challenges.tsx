@@ -398,7 +398,7 @@ function ChallengeModal({
       description: description.trim(),
       video_url: videoUrl.trim(),
       premium,
-      skill_tags: editing?.skill_tags ?? [],
+      skill_tags: skillTags,
       created_at: editing?.created_at ?? new Date().toISOString(),
     });
   };
