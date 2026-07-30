@@ -575,15 +575,14 @@ function StudentDashboard() {
             }}
           >
             {/* Verbot expression for the current attendance band — zoomed and
-             *  anchored bottom-right so only the torso/head reads. */}
+             *  anchored top-right so the head/shoulders expression reads. */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]" aria-hidden>
               <img
                 src={attendanceVerbot}
                 alt=""
                 aria-hidden
-                className="absolute -bottom-2 right-0 h-[150%] w-auto select-none object-contain"
+                className="absolute -top-4 right-0 h-[150%] w-auto select-none object-contain"
                 style={{
-                  objectPosition: "top",
                   opacity: 0.88,
                   filter: "drop-shadow(0 10px 18px rgba(0,0,0,0.22))",
                 }}
