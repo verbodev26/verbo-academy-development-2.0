@@ -23,6 +23,13 @@ export interface FlashChallenge {
   season_id?: string;
   /** Optional circular icon image (data URL or remote URL). */
   icon_image_url?: string;
+  /** Shared id linking the per-product copies of one authored challenge. */
+  synced_group_id?: string;
+}
+
+/** New id for a group of per-product copies of the same challenge content. */
+export function newSyncedGroupId(): string {
+  return `sync-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export interface FlashConfig {
