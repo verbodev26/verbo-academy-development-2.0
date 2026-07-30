@@ -719,7 +719,25 @@ function studentNotifications(studentId: string): Notification[] {
     }
   }
 
+  // ---- Badge unlocked (not yet seen) --------------------------------------
+  if (uu) {
+    for (const b of computeAllEarnedBadges(uu)) {
+      if (hasSeenBadgeUnlock(studentId, b.storageId)) continue;
+      out.push({
+        id: `badge-unlocked:${studentId}:${b.storageId}`,
+        kind: "badge_unlocked",
+        title: "New badge unlocked!",
+        body: b.name,
+        createdAt: new Date().toISOString(),
+        to: "/student/challenges",
+        read: false,
+        data: { badgeStorageId: b.storageId },
+      });
+    }
+  }
+
   return out;
+
 }
 
 // ---------------------------------------------------------------------------
