@@ -17,7 +17,7 @@ import {
   cancelSeat,
   useBookings,
 } from "@/lib/club-bookings-store";
-import { GhostButton, PrimaryButton } from "@/components/verbo/ui";
+import { AccentModalHeader, InfoStatRow, PrimaryButton } from "@/components/verbo/ui";
 
 function fmtLong(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
