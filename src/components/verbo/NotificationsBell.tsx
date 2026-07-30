@@ -146,6 +146,14 @@ export function NotificationsBell({ variant = "light" }: { variant?: "light" | "
       setSharedModal({ studentId: n.data.studentId, challengeId: n.data.challengeId });
       return;
     }
+    if (n.kind === "badge_unlocked" && n.data?.badgeStorageId) {
+      const student = USERS.find((u) => u.id === user.id);
+      const badge = student
+        ? computeAllEarnedBadges(student).find((b) => b.storageId === n.data!.badgeStorageId)
+        : undefined;
+      if (badge) setBadgeModal(badge);
+      return;
+    }
     navigate({ to: n.to });
   };
 
