@@ -162,7 +162,7 @@ export function BadgeUnlockModal({
             {badge.image ? (
               <img src={badge.image} alt={badge.name} className="h-full w-full object-cover" />
             ) : (
-              badge.icon
+              ICON_BY_KIND[badge.iconKind]
             )}
 
             {phase === "zoom-shine" && (
