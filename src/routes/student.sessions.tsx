@@ -46,6 +46,7 @@ import { X, Video, AlertTriangle, Sparkles, CalendarClock, Clock, RefreshCcw, Ar
 import spotlightArt from "@/assets/spotlight1.png.asset.json";
 import nextUpArt from "@/assets/Verbot_up_next.svg.asset.json";
 import { getLessonPlan } from "@/lib/lesson-plans-store";
+import { NextEventCard } from "@/components/verbo/NextEventCard";
 import { resolvePlanTopic } from "@/lib/product-courses-store";
 import { unitsForStudent } from "@/lib/vip-courses-store";
 import { tailoredUnitsForStudent } from "@/lib/tailored-content-store";
