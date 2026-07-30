@@ -425,6 +425,10 @@ Ranking del leaderboard: **global** — `USERS` filtrados solo por `role === "st
 
 **`LightningTheme`** (key `verbo:flash-lightning-theme`, evento `verbo:flash-lightning-theme-updated`; `loadLightningTheme` / `persistLightningTheme` / `subscribeLightningTheme`): `{ theme_image_url?, watermark_image_url?, accent_color?, accent_color_to?, fill_mode?, gradient_stops? }`. Tema **estático** del banner de Lightning, persistido aparte de `LightningState` (estado runtime de activación) para que sobreviva a activaciones/expiraciones. Devuelve `{}` cuando no hay nada guardado.
 
+**Mystery Box — pick activo (`User`)**: `last_mystery_box_opened_at?: string | null` (sello del último sorteo, base del cooldown de 24h vía `mysteryBoxCooldownRemaining` / `openMysteryBox`) y `mystery_box_pick_id?: string | null` (id del reto ya revelado y **no** completado). `activeMysteryBoxPick(studentId)` devuelve ese id solo si `hasCompletedChallenge` es `false`; `setMysteryBoxPick(studentId, challengeId)` lo persiste al sortear. Regla: el cooldown de 24h solo aplica para sortear un reto **nuevo**; mientras haya pick activo el alumno puede reabrir la caja sin límite. El pick se limpia implícitamente al completarse el reto.
+
+
+
 ⚠️ `FlashProductId` (`"enterprise"|"go"|"international"`, **sin `"vip"`**) es inconsistente con `ChallengeProductId` de `challenges-store.ts` (sí incluye `"vip"`).
 
 ---
