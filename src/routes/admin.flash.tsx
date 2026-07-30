@@ -441,6 +441,10 @@ function FlashModal({
             <textarea value={description} onChange={(e) => setDescription(e.target.value)} className={textareaCls} placeholder="Describe the challenge…" />
           </Field>
 
+          <Field label="Submission instructions">
+            <textarea value={submissionInstructions} onChange={(e) => setSubmissionInstructions(e.target.value)} className={textareaCls} placeholder="Explain the expected delivery format — video, audio, written text, a link, etc." />
+          </Field>
+
           <label className="flex items-start gap-3 rounded-lg border border-border bg-secondary/30 px-3 py-2.5 cursor-pointer">
             <input
               type="checkbox"
