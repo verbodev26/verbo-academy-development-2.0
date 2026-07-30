@@ -907,23 +907,8 @@ function SeasonFlashBanner({
       )}
 
       <div className="relative flex w-full flex-col gap-6 p-7 sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:p-10 sm:pl-[18%]">
-        <div className="min-w-0">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
-            Verbo Flash · Season
-          </div>
-          <div
-            className="mt-2 truncate text-5xl font-black tracking-tight text-white drop-shadow-md sm:text-7xl"
-            style={{ fontFamily: font }}
-          >
-            {season.display_name}
-          </div>
-          <div className="mt-2 text-xs text-white/85">
-            {available ? "Complete the challenges to unlock an exclusive badge" : "Coming soon"}
-          </div>
-        </div>
-
-        {available && (
-          <div className="flex shrink-0 flex-col items-center gap-6 sm:flex-row sm:items-center">
+        <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
+          {available && (
             <div className="flex shrink-0 flex-col items-center gap-1.5 text-center">
               <div
                 className={`relative flex h-16 w-16 items-center justify-center rounded-full border-2 backdrop-blur transition-transform duration-200 sm:h-20 sm:w-20 ${
@@ -947,61 +932,78 @@ function SeasonFlashBanner({
                 Complete all challenges to unlock this badge
               </div>
             </div>
+          )}
 
-            <div className="flex shrink-0 items-center justify-end gap-3">
-              {visible.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => onOpenChallenge(c)}
-                  title={c.title}
-                  style={{ animation: "verbo-season-glow 2.2s ease-in-out infinite" }}
-                  className="verbo-season-glow flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/50 bg-white/15 shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
-                >
-                  {c.icon_image_url ? (
-                    <img src={c.icon_image_url} alt={c.title} className="h-full w-full object-cover" />
-                  ) : (
-                    <Sparkles className="h-7 w-7 text-white" strokeWidth={1.6} />
-                  )}
-                </button>
-              ))}
-              {rest.length > 0 && (
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setMoreOpen((v) => !v)}
-                    style={{ animation: "verbo-season-glow 2.2s ease-in-out infinite" }}
-                    className="verbo-season-glow flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/50 bg-white/20 text-sm font-bold text-white shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
-                  >
-                    +{rest.length}
-                  </button>
-                  {moreOpen && (
-                    <div className="absolute right-0 z-20 mt-2 w-60 overflow-hidden rounded-2xl border border-border bg-card p-1 shadow-elevated">
-                      {rest.map((c) => (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => {
-                            setMoreOpen(false);
-                            onOpenChallenge(c);
-                          }}
-                          className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-foreground hover:bg-muted"
-                        >
-                          <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
-                            {c.icon_image_url ? (
-                              <img src={c.icon_image_url} alt="" className="h-full w-full object-cover" />
-                            ) : (
-                              <Sparkles className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </span>
-                          <span className="truncate">{c.title}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+          <div className="min-w-0">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
+              Verbo Flash · Season
             </div>
+            <div
+              className="mt-2 truncate text-5xl font-black tracking-tight text-white drop-shadow-md sm:text-7xl"
+              style={{ fontFamily: font }}
+            >
+              {season.display_name}
+            </div>
+            <div className="mt-2 text-xs text-white/85">
+              {available ? "Complete the challenges to unlock an exclusive badge" : "Coming soon"}
+            </div>
+          </div>
+        </div>
+
+        {available && (
+          <div className="flex shrink-0 items-center justify-end gap-3">
+            {visible.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => onOpenChallenge(c)}
+                title={c.title}
+                style={{ animation: "verbo-season-glow 2.2s ease-in-out infinite" }}
+                className="verbo-season-glow flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-white/50 bg-white/15 shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
+              >
+                {c.icon_image_url ? (
+                  <img src={c.icon_image_url} alt={c.title} className="h-full w-full object-cover" />
+                ) : (
+                  <Sparkles className="h-7 w-7 text-white" strokeWidth={1.6} />
+                )}
+              </button>
+            ))}
+            {rest.length > 0 && (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setMoreOpen((v) => !v)}
+                  style={{ animation: "verbo-season-glow 2.2s ease-in-out infinite" }}
+                  className="verbo-season-glow flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/50 bg-white/20 text-sm font-bold text-white shadow-lg backdrop-blur transition-transform duration-200 hover:-translate-y-1 hover:border-white sm:h-16 sm:w-16"
+                >
+                  +{rest.length}
+                </button>
+                {moreOpen && (
+                  <div className="absolute right-0 z-20 mt-2 w-60 overflow-hidden rounded-2xl border border-border bg-card p-1 shadow-elevated">
+                    {rest.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          setMoreOpen(false);
+                          onOpenChallenge(c);
+                        }}
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-foreground hover:bg-muted"
+                      >
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
+                          {c.icon_image_url ? (
+                            <img src={c.icon_image_url} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <Sparkles className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </span>
+                        <span className="truncate">{c.title}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
