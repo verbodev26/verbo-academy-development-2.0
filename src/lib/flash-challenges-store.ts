@@ -73,6 +73,8 @@ export const FLASH_CONFIG_KEY = "verbo:flash-config";
 export const FLASH_CONFIG_EVENT = "verbo:flash-config-updated";
 export const LIGHTNING_KEY = "verbo:flash-lightning";
 export const LIGHTNING_EVENT = "verbo:flash-lightning-updated";
+export const LIGHTNING_THEME_KEY = "verbo:flash-lightning-theme";
+export const LIGHTNING_THEME_EVENT = "verbo:flash-lightning-theme-updated";
 
 /* -------------------- Challenges -------------------- */
 
