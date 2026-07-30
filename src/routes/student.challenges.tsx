@@ -1371,6 +1371,7 @@ function MysteryCooldownModal({ onClose }: { onClose: () => void }) {
 function MysteryRevealModal({
   opening,
   challenge,
+  flashConfig,
   hasPremiumAccess,
   chosen,
   completed,
@@ -1381,6 +1382,7 @@ function MysteryRevealModal({
 }: {
   opening: boolean;
   challenge: FlashChallenge | null;
+  flashConfig: FlashConfig;
   hasPremiumAccess: boolean;
   chosen: boolean;
   completed: boolean;
@@ -1391,6 +1393,10 @@ function MysteryRevealModal({
 }) {
   const locked = !!challenge?.premium && !hasPremiumAccess;
   const onCooldown = !completed && chosen && cooldownRemaining !== null;
+  const accent = flashConfig.accent_color || "#7e22ce";
+  const headerBg = flashConfig.theme_image_url
+    ? `center / cover no-repeat url(${flashConfig.theme_image_url}), ${seasonGradientCss(flashConfig)}`
+    : seasonGradientCss(flashConfig);
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
@@ -1405,33 +1411,51 @@ function MysteryRevealModal({
             80% { transform: translateX(4px) rotate(6deg); }
           }
           @media (prefers-reduced-motion: reduce) { .verbo-box-shake { animation: none !important; } }
-          ${FLASH_HEADER_KEYFRAMES}
+          ${VC_HEADER_KEYFRAMES}
         `}</style>
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#4a044e] via-[#7e22ce] to-[#f59e0b] p-6 text-white">
-          <FlashHeaderDecor watermark={<Gift className="h-40 w-40" strokeWidth={1} />} />
-          <div className="relative flex items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/80" style={flashEyebrowStyle}>
-                <span className="verbo-flash-pop inline-flex" style={flashPopStyle}>
-                  <Zap className="h-3.5 w-3.5" />
-                </span>{" "}
-                Verbo Flash · Mystery Box
-              </div>
-              {challenge && !opening && (
-                <>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <CategoryBadge name={challenge.category} />
-                    {challenge.premium && <PremiumBadge />}
-                  </div>
-                  <div className="mt-2 text-base font-semibold tracking-tight" style={flashTitleStyle}>{challenge.title}</div>
-                </>
-              )}
-            </div>
-            <button onClick={onClose} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close">
+        <div className="relative overflow-hidden p-6 text-white" style={{ background: headerBg }}>
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+          <span
+            aria-hidden
+            className="vc-blob pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full blur-2xl"
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 70%)" }}
+          />
+          <span
+            aria-hidden
+            className="vc-blob pointer-events-none absolute -bottom-24 -left-20 h-64 w-64 rounded-full blur-2xl"
+            style={{ background: "radial-gradient(circle, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 70%)" }}
+          />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -right-3 top-1 z-0 select-none whitespace-nowrap text-[92px] font-black leading-none tracking-tighter text-white/[0.13]"
+          >
+            MYSTERY BOX
+          </span>
+          <div className="relative z-10 flex items-start justify-between gap-4">
+            <span className="vc-logo flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-lg" style={{ color: accent }}>
+              <Gift className="h-5 w-5" />
+            </span>
+            <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white/90 transition-colors hover:bg-white/20 hover:text-white" aria-label="Close">
               <X className="h-4 w-4" />
             </button>
           </div>
+          <div className="relative z-10 mt-3">
+            <div className="vc-rise flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/85" style={{ animationDelay: "0.15s" }}>
+              <span aria-hidden className="h-px w-6 bg-white/60" />
+              Verbo Flash · Mystery Box
+            </div>
+            {challenge && !opening && (
+              <>
+                <div className="vc-rise mt-2 text-base font-semibold tracking-tight" style={{ animationDelay: "0.2s" }}>{challenge.title}</div>
+                <div className="vc-rise mt-2 flex flex-wrap items-center gap-2" style={{ animationDelay: "0.25s" }}>
+                  <CategoryBadge name={challenge.category} />
+                  {challenge.premium && <PremiumBadge />}
+                </div>
+              </>
+            )}
+          </div>
         </div>
+
 
 
         {opening || !challenge ? (
