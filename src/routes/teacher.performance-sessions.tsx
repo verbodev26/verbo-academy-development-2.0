@@ -30,6 +30,12 @@ const PRODUCT_ICON: Record<ProductId, React.ComponentType<{ className?: string }
   international: Globe,
 };
 
+const PRODUCT_ICON_GRADIENT: Record<ProductId, string> = {
+  go: "linear-gradient(150deg, #b2ece3 0%, #7cd7cb 55%, #3ebbad 100%)",
+  enterprise: "linear-gradient(150deg, #073756 0%, #01304a 55%, #001a29 100%)",
+  international: "linear-gradient(150deg, #dea3ee 0%, #c86fe1 55%, #a34ac0 100%)",
+};
+
 const PREVIEW_STUDENT_ID = "teacher-preview";
 
 function Page() {
