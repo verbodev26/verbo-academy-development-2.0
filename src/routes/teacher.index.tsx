@@ -83,6 +83,8 @@ function TeacherDashboard() {
   const [clubReports, setClubReports] = useState<Record<string, ClubReport>>({});
   const [reportingClub, setReportingClub] = useState<ClubReportEventInput | null>(null);
   const [showRatingTrend, setShowRatingTrend] = useState(false);
+  const [openPanel, setOpenPanel] = useState<DashboardPanel | null>(null);
+
 
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000 * 30);
