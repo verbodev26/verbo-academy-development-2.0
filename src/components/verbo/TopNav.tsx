@@ -151,30 +151,36 @@ function NavGroupDropdown({ group, pathname, isDark, registerRef }: { group: Nav
         {group.label}
         <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
       </button>
-      <div
-        id={menuId}
-        ref={menuRef}
-        role="menu"
-        aria-label={group.label}
-        hidden={!open}
-        onKeyDown={onMenuKeyDown}
-        className="absolute left-0 top-full z-40 mt-1 min-w-[220px] rounded-xl border border-border bg-card p-1.5 shadow-elevated before:absolute before:-top-2 before:left-0 before:h-2 before:w-full before:content-['']"
-      >
-        {group.items.map((it) => {
-          const itemActive = isActive(pathname, it);
-          return (
-            <Link
-              key={it.to}
-              to={it.to}
-              role="menuitem"
-              data-status={itemActive ? "active" : undefined}
-              className="block rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus:bg-secondary focus:text-foreground focus:outline-none data-[status=active]:bg-secondary data-[status=active]:text-foreground"
-            >
-              {it.label}
-            </Link>
-          );
-        })}
-      </div>
+      {createPortal(
+        <div
+          id={menuId}
+          ref={menuRef}
+          role="menu"
+          aria-label={group.label}
+          hidden={!open}
+          onKeyDown={onMenuKeyDown}
+          onMouseEnter={() => { cancelClose(); setOpen(true); }}
+          onMouseLeave={scheduleClose}
+          style={{ position: "fixed", top: menuPos.top, left: menuPos.left }}
+          className="z-[60] min-w-[220px] rounded-xl border border-border bg-card p-1.5 shadow-elevated before:absolute before:-top-2 before:left-0 before:h-2 before:w-full before:content-['']"
+        >
+          {group.items.map((it) => {
+            const itemActive = isActive(pathname, it);
+            return (
+              <Link
+                key={it.to}
+                to={it.to}
+                role="menuitem"
+                data-status={itemActive ? "active" : undefined}
+                className="block rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus:bg-secondary focus:text-foreground focus:outline-none data-[status=active]:bg-secondary data-[status=active]:text-foreground"
+              >
+                {it.label}
+              </Link>
+            );
+          })}
+        </div>,
+        document.body,
+      )}
     </div>
   );
 }
