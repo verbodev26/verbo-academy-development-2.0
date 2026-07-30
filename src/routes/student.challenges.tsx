@@ -657,7 +657,7 @@ function Page() {
                     gradientCss={lightGradient}
                     themeImageUrl={lightningTheme.theme_image_url}
                     watermarkImageUrl={lightningTheme.watermark_image_url}
-                    className="opacity-70 saturate-50"
+                    
                     eyebrow={completed ? "⚡ Completed" : "⚡ Expired — you missed this one"}
                     title={ch.title || "Lightning Challenge"}
                     status={completed ? "You completed this Lightning." : "This Lightning has passed. The next one could strike anytime — stay ready."}
