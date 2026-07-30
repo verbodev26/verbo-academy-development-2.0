@@ -3,6 +3,8 @@
 // exactly once per badge. localStorage only.
 
 export const BADGE_UNLOCK_SEEN_PREFIX = "verbo:badge-unlock-seen:";
+export const BADGE_UNLOCK_SEEN_EVENT = "verbo:badge-unlock-seen-updated";
+
 
 function keyFor(studentId: string) {
   return `${BADGE_UNLOCK_SEEN_PREFIX}${studentId}`;
@@ -32,7 +34,9 @@ export function markBadgeUnlockSeen(studentId: string, badgeStorageId: string): 
   if (seen.includes(badgeStorageId)) return false;
   try {
     localStorage.setItem(keyFor(studentId), JSON.stringify([...seen, badgeStorageId]));
+    window.dispatchEvent(new CustomEvent(BADGE_UNLOCK_SEEN_EVENT));
   } catch {
+
     /* noop */
   }
   return true;

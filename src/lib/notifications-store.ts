@@ -46,6 +46,12 @@ import {
   resolvedRemainingSeats, type AccessKind,
 } from "./club-bookings-store";
 import { groupsByStudentId } from "./groups-store";
+import { computeAllEarnedBadges } from "./badge-unlock";
+import { hasSeenBadgeUnlock, BADGE_UNLOCK_SEEN_EVENT } from "./badge-unlock-seen-store";
+import { BADGES_EVENT as CHALLENGE_BADGES_EVENT } from "./badges-store";
+import { BADGES_EVENT as PROFILE_BADGES_EVENT } from "./profile-badges-store";
+import { SEASONS_EVENT } from "./flash-challenges-store";
+
 
 
 export type NotificationKind =
@@ -81,7 +87,9 @@ export type NotificationKind =
   | "session_changed"
   | "club_opened"
   | "payment_or_sessions_ending_soon"
-  | "new_challenge_available";
+  | "new_challenge_available"
+  | "badge_unlocked";
+
 
 export interface Notification {
   id: string;
@@ -96,7 +104,7 @@ export interface Notification {
   read: boolean;
   /** Optional payload used by handlers that open a modal instead of routing
    *  (e.g. student_shared_challenge_result). */
-  data?: { studentId?: string; challengeId?: string };
+  data?: { studentId?: string; challengeId?: string; badgeStorageId?: string };
 }
 
 // ---------------------------------------------------------------------------
@@ -711,7 +719,25 @@ function studentNotifications(studentId: string): Notification[] {
     }
   }
 
+  // ---- Badge unlocked (not yet seen) --------------------------------------
+  if (uu) {
+    for (const b of computeAllEarnedBadges(uu)) {
+      if (hasSeenBadgeUnlock(studentId, b.storageId)) continue;
+      out.push({
+        id: `badge-unlocked:${studentId}:${b.storageId}`,
+        kind: "badge_unlocked",
+        title: "New badge unlocked!",
+        body: b.name,
+        createdAt: new Date().toISOString(),
+        to: "/student/challenges",
+        read: false,
+        data: { badgeStorageId: b.storageId },
+      });
+    }
+  }
+
   return out;
+
 }
 
 // ---------------------------------------------------------------------------
@@ -736,6 +762,7 @@ const SOURCE_EVENTS = [
   AVAIL_EVENT, STRIKES_EVENT, ANN_EVENT, NOTIF_EVENT,
   REPORTS_EVENT, CONDUCT_REPORTS_EVENT, FIN_ISSUES_EVENT, STUDENTS_EVENT, CHALLENGES_EVENT,
   REQUESTS_EVENT, VIP_UNITS_EVENT, TAILORED_UNITS_EVENT, LP_EVENT, LESSON_PLANS_EVENT,
+  CHALLENGE_BADGES_EVENT, PROFILE_BADGES_EVENT, SEASONS_EVENT, BADGE_UNLOCK_SEEN_EVENT,
 ];
 
 function subscribe(cb: () => void): () => void {

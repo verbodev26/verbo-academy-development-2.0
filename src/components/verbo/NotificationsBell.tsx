@@ -12,6 +12,9 @@ import {
 import { USERS } from "@/lib/mock-data";
 import { loadChallenges } from "@/lib/challenges-store";
 import { Pill } from "@/components/verbo/ui";
+import { BadgeUnlockModal } from "@/components/verbo/BadgeUnlockCelebration";
+import { computeAllEarnedBadges, type UnlockBadge } from "@/lib/badge-unlock";
+import { markBadgeUnlockSeen } from "@/lib/badge-unlock-seen-store";
 
 const MAX_VISIBLE = 15;
 
@@ -106,6 +109,7 @@ export function NotificationsBell({ variant = "light" }: { variant?: "light" | "
   const { notifications, unreadCount } = useNotifications(user ?? null);
   const [open, setOpen] = useState(false);
   const [sharedModal, setSharedModal] = useState<{ studentId: string; challengeId: string } | null>(null);
+  const [badgeModal, setBadgeModal] = useState<UnlockBadge | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -140,6 +144,14 @@ export function NotificationsBell({ variant = "light" }: { variant?: "light" | "
     setOpen(false);
     if (n.kind === "student_shared_challenge_result" && n.data?.studentId && n.data?.challengeId) {
       setSharedModal({ studentId: n.data.studentId, challengeId: n.data.challengeId });
+      return;
+    }
+    if (n.kind === "badge_unlocked" && n.data?.badgeStorageId) {
+      const student = USERS.find((u) => u.id === user.id);
+      const badge = student
+        ? computeAllEarnedBadges(student).find((b) => b.storageId === n.data!.badgeStorageId)
+        : undefined;
+      if (badge) setBadgeModal(badge);
       return;
     }
     navigate({ to: n.to });
@@ -248,6 +260,18 @@ export function NotificationsBell({ variant = "light" }: { variant?: "light" | "
           onClose={() => setSharedModal(null)}
         />
       )}
+
+      {badgeModal && (
+        <BadgeUnlockModal
+          badge={badgeModal}
+          studentId={user.id}
+          onClose={() => {
+            markBadgeUnlockSeen(user.id, badgeModal.storageId);
+            setBadgeModal(null);
+          }}
+        />
+      )}
     </div>
+
   );
 }
