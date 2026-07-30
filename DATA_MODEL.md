@@ -375,6 +375,7 @@ Persistencia: `Record<studentId, LearningPathEvent[]>`, dedupe 60s, máx. 100 ev
 | category | string | requerido | libre |
 | title / description | string | requerido | |
 | video_url | string | requerido | vacío = sin adjunto |
+| submission_instructions | string | opcional | texto libre del admin con el formato de entrega esperado; vacío = no se muestra nada al alumno |
 
 ✅ Verificado 2026-07-11 contra el código real: `DifficultyId` sí incluye `'experto'` y `Challenge` sí declara `premium`/`skill_tags`. No había ninguna inconsistencia real.
 
