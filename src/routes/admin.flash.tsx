@@ -369,6 +369,7 @@ function FlashModal({
       category: category.trim(),
       title: title.trim(),
       description: description.trim(),
+      submission_instructions: submissionInstructions.trim(),
       video_url: videoUrl.trim() || undefined,
       premium,
       skill_tags: editing?.skill_tags ?? [],
