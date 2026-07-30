@@ -73,11 +73,15 @@ function CoverArt({ m, className = "" }: { m: StoredMaterial; className?: string
     return <img src={m.cover_image} alt={m.title} className={`h-full w-full object-cover ${className}`} />;
   }
   return (
-    <div className={`flex h-full w-full items-center justify-center ${TYPE_TINT[m.material_type]} ${className}`}>
-      <Icon className="h-10 w-10" />
+    <div className={`relative h-full w-full bg-gradient-to-br from-secondary/60 to-secondary/20 ${className}`}>
+      <Icon
+        className={`absolute bottom-3 right-3 h-16 w-16 ${TYPE_TINT[m.material_type].split(" ").find((c) => c.startsWith("text-")) ?? "text-foreground"}`}
+        style={{ opacity: 0.15 }}
+      />
     </div>
   );
 }
+
 
 function PreviewModal({ m, onClose }: { m: StoredMaterial; onClose: () => void }) {
   const isPdf = m.material_type === "pdf";
