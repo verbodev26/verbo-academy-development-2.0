@@ -203,6 +203,29 @@ export function TopNav({ items, variant = "light" }: { items: NavEntry[]; varian
     width: 0,
     visible: false,
   });
+  const scrollRef = useRef<HTMLElement>(null);
+  const [showLeftFade, setShowLeftFade] = useState(false);
+  const [showRightFade, setShowRightFade] = useState(false);
+
+  const updateFades = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollLeft, scrollWidth, clientWidth } = el;
+    setShowLeftFade(scrollLeft > 2);
+    setShowRightFade(scrollLeft + clientWidth < scrollWidth - 2);
+  };
+
+  useEffect(() => {
+    updateFades();
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateFades, { passive: true });
+    window.addEventListener("resize", updateFades);
+    return () => {
+      el.removeEventListener("scroll", updateFades);
+      window.removeEventListener("resize", updateFades);
+    };
+  }, [items, pathname]);
 
   // Progressive transparency: fully opaque near the top, fully transparent
   // past FADE_END. Applied straight to the DOM node (no React state) so it
@@ -284,29 +307,46 @@ export function TopNav({ items, variant = "light" }: { items: NavEntry[]; varian
         }`}
         style={isDark ? { backgroundColor: "#01304a", border: "1px solid rgba(255,255,255,0.08)" } : undefined}
       >
-        <div className="flex items-center gap-10">
+        <div className="flex min-w-0 flex-1 items-center gap-10">
           <Logo dark={isDark} />
-          <nav ref={navRef} className="relative hidden items-center gap-1 md:flex h-16">
-            {isDark && (
+          <div className="relative min-w-0 flex-1">
+            <nav
+              ref={(el) => { navRef.current = el; if (el) scrollRef.current = el; }}
+              className="relative hidden items-center gap-1 md:flex h-16 overflow-x-auto scrollbar-none"
+            >
+              {isDark && (
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-0 top-1/2 z-0 h-9 rounded-full bg-white/12 transition-all duration-300 ease-out"
+                  style={{
+                    transform: `translateY(-50%) translateX(${indicator.left}px)`,
+                    width: `${indicator.width}px`,
+                    opacity: indicator.visible ? 1 : 0,
+                  }}
+                />
+              )}
+              {items.map((item) => {
+                if (isGroup(item)) {
+                  return <NavGroupDropdown key={item.label} group={item} pathname={pathname} isDark={isDark} registerRef={registerRef} />;
+                }
+                return <SingleNav key={item.to} item={item} pathname={pathname} isDark={isDark} registerRef={registerRef} />;
+              })}
+            </nav>
+            {showLeftFade && (
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute left-0 top-1/2 z-0 h-9 rounded-full bg-white/12 transition-all duration-300 ease-out"
-                style={{
-                  transform: `translateY(-50%) translateX(${indicator.left}px)`,
-                  width: `${indicator.width}px`,
-                  opacity: indicator.visible ? 1 : 0,
-                }}
+                className={`pointer-events-none absolute inset-y-0 left-0 z-20 w-8 bg-gradient-to-r ${isDark ? "from-[#01304a]" : "from-background"} to-transparent`}
               />
             )}
-            {items.map((item) => {
-              if (isGroup(item)) {
-                return <NavGroupDropdown key={item.label} group={item} pathname={pathname} isDark={isDark} registerRef={registerRef} />;
-              }
-              return <SingleNav key={item.to} item={item} pathname={pathname} isDark={isDark} registerRef={registerRef} />;
-            })}
-          </nav>
+            {showRightFade && (
+              <div
+                aria-hidden="true"
+                className={`pointer-events-none absolute inset-y-0 right-0 z-20 w-8 bg-gradient-to-l ${isDark ? "from-[#01304a]" : "from-background"} to-transparent`}
+              />
+            )}
+          </div>
         </div>
-        <div className={`flex items-center ${isDark ? "gap-6" : "gap-3"}`}>
+        <div className={`flex shrink-0 items-center ${isDark ? "gap-6" : "gap-3"}`}>
           <div className="hidden text-right md:block">
             <div className={`text-sm font-medium ${isDark ? "text-white" : "text-foreground"}`}>{user?.name}</div>
             <div className={`text-xs ${isDark ? "text-[#94a3b8]" : "text-muted-foreground"}`}>{roleLabel(user)}</div>

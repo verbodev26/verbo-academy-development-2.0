@@ -31,7 +31,6 @@ function Layout() {
 
   const items: (NavItem | NavGroup)[] = [
     { to: "/teacher", label: "Dashboard" },
-    { to: "/teacher/availability", label: "Availability" },
     { label: "Academic", items: academicItems },
     { to: "/teacher/financial", label: "Financial" },
   ];
