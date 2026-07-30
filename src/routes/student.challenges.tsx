@@ -2397,17 +2397,19 @@ function ChallengeBadgesModal({
     });
     const bolt: ChallengeBadgeTile = {
       key: "lightning",
+      badgeId: "lightning",
       name: "⚡ Lightning Bolt",
       earned: (student.lightning_completions ?? 0) >= 1,
       requirement: "Complete a Lightning challenge within its live window.",
-      equippable: false,
+      equippable: true,
     };
     const seasonTiles: ChallengeBadgeTile[] = seasons.map((s) => ({
       key: `season-${s.id}`,
+      badgeId: `season-${s.id}`,
       name: s.badge_name,
       earned: (student.season_completions?.[s.id] ?? 0) >= 1,
       requirement: `Complete a challenge during the ${s.display_name} Season.`,
-      equippable: false,
+      equippable: true,
     }));
     return [...core, bolt, ...seasonTiles];
   }, [badges, ctx, seasons, student.lightning_completions, student.season_completions]);
@@ -2425,6 +2427,19 @@ function ChallengeBadgesModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true">
       <div className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-border bg-card p-6 shadow-elevated">
+        <style>{`
+          @keyframes verbo-badge-glow {
+            0%, 100% { box-shadow: 0 0 0px 0px rgba(245,158,11,0), 0 2px 6px rgba(0,0,0,0.15); }
+            50% { box-shadow: 0 0 14px 3px rgba(245,158,11,0.55), 0 2px 6px rgba(0,0,0,0.15); }
+          }
+          @keyframes verbo-badge-lock-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(100,116,139,0.25); }
+            50% { box-shadow: 0 0 0 6px rgba(100,116,139,0); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .verbo-badge-glow, .verbo-badge-lock-pulse { animation: none !important; }
+          }
+        `}</style>
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h3 className="text-lg font-bold tracking-tight text-foreground">Challenge badges</h3>
@@ -2455,9 +2470,10 @@ function ChallengeBadgesModal({
                     clickable ? "cursor-pointer hover:scale-105" : ""
                   } ${
                     t.earned
-                      ? "bg-amber-500/15 text-amber-600 ring-2 ring-amber-400/50"
-                      : "bg-secondary text-muted-foreground grayscale"
+                      ? "verbo-badge-glow bg-amber-500/15 text-amber-600 ring-2 ring-amber-400/50"
+                      : "verbo-badge-lock-pulse bg-secondary text-muted-foreground grayscale"
                   } ${isEquipped ? "ring-4 ring-[#f38934]" : ""}`}
+                  style={{ animation: t.earned ? "verbo-badge-glow 2.2s ease-in-out infinite" : "verbo-badge-lock-pulse 2.6s ease-in-out infinite" }}
                 >
                   {t.image ? (
                     <img src={t.image} alt="" className={`h-full w-full rounded-full object-cover ${t.earned ? "" : "grayscale opacity-60"}`} />

@@ -32,6 +32,7 @@ import {
   BookOpen,
   CalendarClock,
   Download,
+  Medal,
   NotebookPen,
   ShieldAlert,
   Sparkles,
@@ -39,6 +40,7 @@ import {
   Users,
   Video,
   X,
+  Zap,
 } from "lucide-react";
 import {
   loadBadges as loadProfileBadges,
@@ -62,6 +64,7 @@ import {
   subscribeEquippedChallengeBadges,
 } from "@/lib/equipped-challenge-badges-store";
 import { loadChallenges } from "@/lib/challenges-store";
+import { loadSeasons } from "@/lib/flash-challenges-store";
 import { loadClubs, type Club } from "@/lib/clubs-store";
 import { isBooked } from "@/lib/club-bookings-store";
 import { ClubReservationModal } from "@/components/verbo/ClubReservationModal";
@@ -430,7 +433,7 @@ function StudentDashboard() {
               <h1 className="text-3xl font-semibold tracking-tight" style={{ color: "#01304a" }}>
                 {user.name.split(" ")[0]}
               </h1>
-              <FeaturedProfileBadge user={user} />
+              <FeaturedBadgeStrip user={user} />
               {user.access_plan === "Elite" && <Pill tone="elite">Elite</Pill>}
               {productLabel && <Pill tone="muted">{productLabel}</Pill>}
             </div>
@@ -1401,12 +1404,11 @@ function RatingStarsCompact({ value }: { value: number }) {
 }
 
 /* --------------------------------------------------------------------------
- * FeaturedProfileBadge — replaces the old fixed "On Fire" flame in the
- * dashboard header. Renders the student's currently featured profile badge
- * (equipped-first, else highest-threshold earned) or nothing at all if the
- * student has not earned any badge yet.
+ * FeaturedBadgeStrip — up to 3 equipped + earned badges in the dashboard
+ * header: Challenge/Flash badges first (core + Lightning + Season), then
+ * Profile badges to fill the remaining slots.
  * ------------------------------------------------------------------------ */
-function FeaturedProfileBadge({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"]> }) {
+function FeaturedBadgeStrip({ user }: { user: NonNullable<ReturnType<typeof useAuth>["user"]> }) {
   const [tick, setTick] = useState(0);
   useEffect(() => {
     const bump = () => setTick((t) => t + 1);
@@ -1418,66 +1420,99 @@ function FeaturedProfileBadge({ user }: { user: NonNullable<ReturnType<typeof us
     return () => { un1(); un2(); un3(); un4(); un5(); };
   }, []);
 
-  // Challenge Badges take precedence over Profile Badges when one is equipped
-  // AND actually unlocked. Independent catalog/storage — see badges-store.ts.
-  const featuredChallenge = useMemo<ChallengeBadgeDef | null>(() => {
+  type StripItem = { key: string; name: string; image?: string; icon: React.ReactNode };
+
+  const items = useMemo(() => {
     void tick;
-    const equipped = loadEquippedChallengeBadgeIds(user.id);
-    if (equipped.length === 0) return null;
-    const done = user.completed_challenges ?? [];
-    const map = new Map(loadChallenges().map((c) => [c.id, c]));
-    const cats = new Set<string>();
-    let premiumDone = false;
-    for (const entry of done) {
-      const ch = map.get(entry.challenge_id);
-      if (!ch) continue;
-      if (ch.category) cats.add(ch.category);
-      if (ch.premium) premiumDone = true;
+    const out: StripItem[] = [];
+
+    // Challenge / Verbo Flash badges (core + Lightning + Season), equipped and earned.
+    const equippedChallenge = loadEquippedChallengeBadgeIds(user.id);
+    if (equippedChallenge.length > 0) {
+      const done = user.completed_challenges ?? [];
+      const map = new Map(loadChallenges().map((c) => [c.id, c]));
+      const cats = new Set<string>();
+      let premiumDone = false;
+      for (const entry of done) {
+        const ch = map.get(entry.challenge_id);
+        if (!ch) continue;
+        if (ch.category) cats.add(ch.category);
+        if (ch.premium) premiumDone = true;
+      }
+      const ctx = {
+        completedCount: done.length,
+        longestStreak: user.longest_streak ?? 0,
+        distinctCategories: cats.size,
+        hasCompletedPremium: premiumDone,
+      };
+      const coreCatalog = loadChallengeBadges();
+      const seasons = loadSeasons();
+      for (const id of equippedChallenge) {
+        if (id === "lightning") {
+          if ((user.lightning_completions ?? 0) >= 1) {
+            out.push({ key: "lightning", name: "Lightning Bolt", icon: <Zap className="h-5 w-5 text-white" /> });
+          }
+          continue;
+        }
+        if (id.startsWith("season-")) {
+          const seasonId = id.slice("season-".length);
+          const season = seasons.find((s) => s.id === seasonId);
+          if (season && (user.season_completions?.[seasonId] ?? 0) >= 1) {
+            out.push({ key: id, name: season.badge_name, icon: <Medal className="h-5 w-5 text-white" /> });
+          }
+          continue;
+        }
+        const hit = coreCatalog.find((b) => b.id === id);
+        if (hit && isChallengeBadgeEarned(hit, ctx)) {
+          out.push({
+            key: id,
+            name: hit.name,
+            image: hit.image || undefined,
+            icon: <Award className="h-5 w-5 text-white" />,
+          });
+        }
+      }
     }
-    const ctx = {
-      completedCount: done.length,
-      longestStreak: user.longest_streak ?? 0,
-      distinctCategories: cats.size,
-      hasCompletedPremium: premiumDone,
-    };
-    const catalog = loadChallengeBadges();
-    for (const id of equipped) {
-      const hit = catalog.find((b) => b.id === id);
-      if (hit && isChallengeBadgeEarned(hit, ctx)) return hit;
+
+    // Profile badges, equipped and earned — fill remaining slots.
+    if (out.length < 3) {
+      const profileCatalog = loadProfileBadges();
+      const profileCtx = buildProfileBadgeContext(user);
+      const earnedProfile = new Set(profileCatalog.filter((b) => isBadgeEarned(b, profileCtx)).map((b) => b.id));
+      const equippedProfile = loadEquippedBadgeIds(user.id);
+      for (const id of equippedProfile) {
+        if (out.length >= 3) break;
+        if (!earnedProfile.has(id)) continue;
+        const hit = profileCatalog.find((b) => b.id === id);
+        if (hit) {
+          out.push({
+            key: `profile-${id}`,
+            name: hit.name,
+            image: hit.image || undefined,
+            icon: <Award className="h-5 w-5 text-white" />,
+          });
+        }
+      }
     }
-    return null;
+
+    return out.slice(0, 3);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, tick]);
 
-  // The subscriptions above bump `tick`, which invalidates the memo below.
-  const featured = useMemo<ProfileBadgeDef | null>(() => {
-    const badges = loadProfileBadges();
-    const ctx = buildProfileBadgeContext(user);
-    const earned = badges.filter((b) => isBadgeEarned(b, ctx));
-    if (earned.length === 0) return null;
-    const equipped = loadEquippedBadgeIds(user.id);
-    for (const id of equipped) {
-      const hit = earned.find((b) => b.id === id);
-      if (hit) return hit;
-    }
-    return earned.slice().sort((a, b) => (b.rule.threshold ?? 1) - (a.rule.threshold ?? 1))[0];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, tick]);
-
-  const shown = featuredChallenge ?? featured;
-  if (!shown) return null;
+  if (items.length === 0) return null;
 
   return (
-    <div
-      title={`Equipped: ${shown.name}`}
-      className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full shadow-md"
-      style={{ background: "linear-gradient(135deg, #01304a, #0a4a6e)" }}
-    >
-      {shown.image ? (
-        <img src={shown.image} alt={shown.name} className="h-full w-full object-cover" />
-      ) : (
-        <Award className="h-5 w-5 text-white" />
-      )}
+    <div className="flex items-center -space-x-2">
+      {items.map((it) => (
+        <div
+          key={it.key}
+          title={`Equipped: ${it.name}`}
+          className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full shadow-md ring-2 ring-background"
+          style={{ background: "linear-gradient(135deg, #01304a, #0a4a6e)" }}
+        >
+          {it.image ? <img src={it.image} alt={it.name} className="h-full w-full object-cover" /> : it.icon}
+        </div>
+      ))}
     </div>
   );
 }
