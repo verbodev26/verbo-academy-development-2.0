@@ -580,6 +580,14 @@ function Page() {
 
         const openMystery = () => {
           if (pool.length === 0) return;
+          const pendingId = activeMysteryBoxPick(student.id);
+          if (pendingId) {
+            const pending = pool.find((c) => c.id === pendingId) ?? flashList.find((c) => c.id === pendingId);
+            if (pending) {
+              setMystery({ opening: false, reveal: pending, blocked: false });
+              return;
+            }
+          }
           if (!openMysteryBox(student.id)) {
             setMystery({ opening: false, reveal: null, blocked: true });
             return;
@@ -587,6 +595,7 @@ function Page() {
           setMystery({ opening: true, reveal: null, blocked: false });
           setTimeout(() => {
             const pick = pool[Math.floor(Math.random() * pool.length)];
+            setMysteryBoxPick(student.id, pick.id);
             setMystery({ opening: false, reveal: pick, blocked: false });
           }, 900);
         };
