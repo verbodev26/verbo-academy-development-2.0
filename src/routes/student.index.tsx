@@ -1295,8 +1295,7 @@ function StudentDashboard() {
                   <section className="vc-rise" style={{ animationDelay: "0.3s" }}>
 
                     <SectionHeadIcon
-                      icon={<BookOpen className="h-4 w-4" />}
-                      circleClass="bg-[var(--navy-100)] text-[#01304a]"
+                      icon={<BookOpen className="h-4 w-4" style={{ color: "#01304a" }} />}
                       label="What we covered"
                     />
                     {plan ? (
