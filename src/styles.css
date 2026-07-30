@@ -946,3 +946,12 @@
 @media (prefers-reduced-motion: reduce) {
   .vc-rise, .vc-blob, .vc-logo { animation: none !important; opacity: 1 !important; transform: none !important; }
 }
+
+/* Hide scrollbar cleanly for horizontal nav scroll */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
