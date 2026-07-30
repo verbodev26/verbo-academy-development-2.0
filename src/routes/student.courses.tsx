@@ -27,7 +27,6 @@ import {
   Info,
   
   PartyPopper,
-  Flame,
   Medal,
   ShieldAlert,
 } from "lucide-react";
