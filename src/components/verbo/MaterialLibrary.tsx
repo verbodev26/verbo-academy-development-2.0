@@ -259,23 +259,32 @@ function SpotlightCategoryCard({
 
 
 function MaterialCard({ m, onPreview }: { m: StoredMaterial; onPreview: (m: StoredMaterial) => void }) {
+  const TypeIcon = TYPE_ICON[m.material_type];
   return (
     <Card className="!p-0 overflow-hidden verbo-card-hover">
-      <div className="aspect-video w-full overflow-hidden border-b border-border">
-        <CoverArt m={m} />
+      <div className="relative">
+        <div className="aspect-video w-full overflow-hidden border-b border-border">
+          <CoverArt m={m} />
+        </div>
+        <div
+          className={`absolute -bottom-4 left-4 flex h-9 w-9 items-center justify-center rounded-xl bg-white/95 shadow-sm ${TYPE_TINT[m.material_type].split(" ").find((c) => c.startsWith("text-")) ?? ""}`}
+        >
+          <TypeIcon className="h-4.5 w-4.5" />
+        </div>
       </div>
-      <div className="space-y-3 p-4">
+      <div className="space-y-3 p-4 pt-6">
         <div>
           <div className="text-base font-semibold text-foreground">{m.title}</div>
           <div className="mt-1 flex flex-wrap items-center gap-1.5">
             <span
-              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium ${TYPE_TINT[m.material_type]}`}
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ring-1 ring-inset ring-current/30 ${TYPE_TINT[m.material_type]}`}
             >
               {m.material_type}
             </span>
             {m.premium && <PremiumBadge />}
           </div>
         </div>
+
 
         {hasUploadedFile(m) ? (
           <div className="flex gap-2">
