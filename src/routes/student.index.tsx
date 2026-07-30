@@ -1226,8 +1226,9 @@ function StudentDashboard() {
               return (
                 <>
                   <AccentModalHeader
-                    background="#6264A7"
-                    iconTint="#6264A7"
+                    background={theme.background}
+                    iconTint={theme.solid}
+                    textTone={theme.textTone}
                     icon={CalendarClock}
                     eyebrow="UPCOMING SESSION"
                     title="Session Details"
