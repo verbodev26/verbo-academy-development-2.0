@@ -434,6 +434,32 @@ const STREAK_TIERS = [
   { days: 10, name: "10-Day Flame" },
   { days: 3, name: "3-Day Flame" },
 ];
+
+/** Flame artwork per streak tier. */
+const FLAME_ART: Record<string, string> = {
+  negra: flamaNegraAsset.url,
+  rosa: flamaRosaAsset.url,
+  amarilla_mediana: flamaAmarillaMedianaAsset.url,
+  amarilla_pequena: flamaAmarillaPequenaAsset.url,
+  naranja: flamaNaranjaAsset.url,
+  smoke: smokeAsset.url,
+};
+
+/** Streak tiers with the background gradient + flame artwork they use. */
+const STREAK_THEME = [
+  { days: 100, name: "100-Day Flame", gradient: ["#1c1c1c", "#000000"], flame: "negra" },
+  { days: 60, name: "60-Day Flame", gradient: ["#dea3ee", "#a34ac0"], flame: "rosa" },
+  { days: 30, name: "30-Day Flame", gradient: ["#fde68a", "#d97706"], flame: "amarilla_mediana" },
+  { days: 10, name: "10-Day Flame", gradient: ["#fef08a", "#eab308"], flame: "amarilla_pequena" },
+  { days: 3, name: "3-Day Flame", gradient: ["#fdba74", "#ea580c"], flame: "naranja" },
+];
+const STREAK_NONE_THEME = { days: 0, name: "No streak", gradient: ["#94a3b8", "#475569"], flame: "smoke" };
+
+function streakThemeFor(days: number) {
+  if (days <= 0) return STREAK_NONE_THEME;
+  return STREAK_THEME.find((t) => days >= t.days) ?? STREAK_THEME[STREAK_THEME.length - 1];
+}
+
 const MEDAL_METALS = ["Bronze", "Silver", "Gold", "Onyx"];
 
 function LevelsView({
