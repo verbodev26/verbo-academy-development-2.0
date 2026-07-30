@@ -577,30 +577,24 @@ function Page() {
             completed={hasCompletedChallenge(student.id, open.id)}
             cooldownRemaining={completeCooldownRemaining(student.id)}
             onChoose={() => { chooseChallenge(student.id, open.id); }}
-            onComplete={() => {
-              const ok = completeChallenge(student.id, open.id);
-              if (ok) {
-                // Immediately prompt for optional share step.
-                const justCompleted = open;
-                setOpen(null);
-                setShareForTheme({ accent: categoryTheme(justCompleted.category).solid, icon: categoryIcon(justCompleted.category) });
-                setShareFor(justCompleted);
-              }
-            }}
+            submission={getSubmission(student.id, open.id)}
+            onSubmit={() => openSubmit(open, "normal", "submit")}
+            onResubmit={() => openSubmit(open, "normal", "resubmit")}
           />
         )}
 
-        {shareFor && (
-          <ShareResultModal
-            challenge={shareFor}
-            accent={shareForTheme?.accent ?? "#111827"}
-            icon={shareForTheme?.icon ?? Share2}
-            initialLink={getSharedResult(student.id, shareFor.id)}
-            onClose={() => { setShareFor(null); setShareForTheme(null); }}
-            onSave={(link) => {
-              shareChallengeResult(student.id, shareFor.id, link);
-              setShareFor(null);
-              setShareForTheme(null);
+        {submitFor && (
+          <SubmitChallengeModal
+            title={submitFor.title}
+            accent={submitFor.accent}
+            icon={submitFor.icon}
+            mode={submitFor.mode}
+            onClose={() => setSubmitFor(null)}
+            onSubmit={(link, note) => {
+              const ok = submitFor.mode === "resubmit"
+                ? resubmitChallenge(student.id, submitFor.id, link, note)
+                : submitChallenge(student.id, submitFor.id, submitFor.format, link, note);
+              if (ok) { setSubmitFor(null); setOpen(null); setTick((t) => t + 1); }
             }}
           />
         )}
