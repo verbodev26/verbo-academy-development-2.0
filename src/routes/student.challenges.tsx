@@ -288,11 +288,86 @@ export function categoryIcon(name: string): LucideIcon {
 function CategoryBadge({ name, className = "" }: { name: string; className?: string }) {
   if (!name) return <Pill tone="muted">No category</Pill>;
   const Icon = categoryIcon(name);
+  const theme = categoryTheme(name);
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${categoryColor(name)} ${className}`}>
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-0.5 text-[11px] font-semibold shadow-sm ${className}`}
+      style={{ color: theme.solid }}
+    >
       <Icon className="h-3 w-3 shrink-0" strokeWidth={2.25} />
       {name}
     </span>
+  );
+}
+
+function ChallengeCard({
+  challenge: c,
+  locked,
+  chosen,
+  done,
+  shared,
+  onOpen,
+  onShare,
+}: {
+  challenge: Challenge;
+  locked: boolean;
+  chosen: boolean;
+  done: boolean;
+  shared: boolean;
+  onOpen: () => void;
+  onShare: () => void;
+}) {
+  const theme = categoryTheme(c.category);
+  const CatIcon = categoryIcon(c.category);
+  return (
+    <div className="group flex h-full flex-col gap-4 rounded-[2rem] border border-border bg-secondary/50 p-5 shadow-elevated transition-transform duration-300 ease-out hover:-translate-y-1.5">
+      <button type="button" onClick={onOpen} className="flex flex-1 flex-col gap-4 text-left">
+        <div className="flex items-start justify-between gap-3">
+          <h3 className="line-clamp-2 text-base font-bold leading-snug text-foreground">{c.title}</h3>
+          <span
+            className="inline-flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors"
+            style={{ borderColor: `${theme.solid}55`, color: theme.solid, backgroundColor: `${theme.solid}14` }}
+          >
+            See details <ChevronRight className="h-3 w-3" />
+          </span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className="flex h-7 w-7 items-center justify-center rounded-full"
+            style={{ backgroundColor: `${theme.solid}1f`, color: theme.solid }}
+          >
+            <CatIcon className="h-3.5 w-3.5" strokeWidth={2.25} />
+          </span>
+          <span className="text-xs font-medium text-muted-foreground">{c.category || "Challenge"}</span>
+          {locked && <PremiumBadge />}
+          {done ? (
+            <Pill tone="success"><CheckCircle2 className="mr-1 h-3 w-3" />Completed</Pill>
+          ) : chosen ? (
+            <Pill tone="muted">In progress</Pill>
+          ) : null}
+        </div>
+        {c.skill_tags && c.skill_tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {c.skill_tags.map((s) => <SkillChip key={s} label={s} />)}
+          </div>
+        )}
+        <div className="mt-auto rounded-2xl bg-card px-4 py-3 shadow-sm">
+          <p className="line-clamp-3 text-xs leading-relaxed text-muted-foreground">
+            {c.description || "Tap to see the details."}
+          </p>
+        </div>
+      </button>
+      {done && (
+        <button
+          type="button"
+          onClick={onShare}
+          className="inline-flex items-center gap-1.5 self-start text-[11px] font-semibold text-foreground/80 hover:underline"
+        >
+          <Share2 className="h-3 w-3" />
+          {shared ? "Edit shared result" : "Share result"}
+        </button>
+      )}
+    </div>
   );
 }
 
