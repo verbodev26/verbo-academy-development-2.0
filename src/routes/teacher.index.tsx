@@ -943,9 +943,10 @@ function TeacherDashboard() {
                   : s.status === "absent" || s.status === "no_show" ? "danger"
                   : s.status === "delayed" ? "warning"
                   : "default";
-                // Performance Sessions default to "Course" when the origin
-                // field is missing on legacy seed data — never blank.
-                const origin = s.origin === "workshop" ? "Workshop" : "Course";
+                // Performance Sessions origin: workshop → Workshop, spotlight → Spotlight Session,
+                // and any other value (including course or missing) is the regular 1:1 performance session.
+                const origin = s.origin === "workshop" ? "Workshop" : s.origin === "spotlight" ? "Spotlight Session" : "Performance Session";
+
                 return (
                   <tr
                     key={s.id}
