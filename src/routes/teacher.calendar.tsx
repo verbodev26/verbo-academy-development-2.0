@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { FileEdit, Video, Sparkles, BookOpen, Lightbulb, LogOut } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { userById } from "@/lib/mock-data";
 import { Card, GhostButton, PrimaryButton, SectionTitle, AccentModal, AccentModalFooter } from "@/components/verbo/ui";
