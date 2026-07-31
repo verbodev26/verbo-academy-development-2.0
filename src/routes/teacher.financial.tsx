@@ -559,6 +559,27 @@ function TotalCard({ label, value }: { label: string; value: string }) {
   );
 }
 
+function KpiBar({ label, value, sub }: { label: string; value: number; sub?: string }) {
+  const color = signalColor(value);
+  return (
+    <div>
+      <div className="mb-1 flex justify-between text-xs">
+        <span className="text-muted-foreground">
+          {label}
+          {sub && <span className="ml-2 text-[10px] text-muted-foreground/70">{sub}</span>}
+        </span>
+        <span className="font-semibold text-foreground">{value}%</span>
+      </div>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${value}%`, backgroundColor: color, boxShadow: `0 0 8px ${color}66` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function KpiMiniCard({ signal }: { signal: KpiSignal }) {
   const color = signalColor(signal.value);
   const Icon = KPI_ICONS[signal.key] ?? Gauge;
