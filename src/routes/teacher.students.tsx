@@ -22,7 +22,7 @@ import {
   PerformanceAnalyticsModal, useComputedMacros,
 } from "@/components/verbo/PerformanceAnalytics";
 import { useAvatar } from "@/lib/avatar-store";
-import { Card, Pill } from "@/components/verbo/ui";
+import { Card, Pill, AccentModal, AccentModalFooter } from "@/components/verbo/ui";
 import {
   Search, X, Filter, Crown, Users as UsersIcon,
   GraduationCap, Layers, Lightbulb, Video, Clock, Repeat, NotebookPen,
@@ -479,9 +479,9 @@ function StudentDetailModal({
           <>
             {/* --- Sessions balance --- */}
             {productType === "performance" && (
-              <section className="mt-6 rounded-xl border border-border bg-background p-5">
+              <section className="mt-6 rounded-xl border border-border border-l-4 border-l-navy-700 bg-background p-5">
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  <GraduationCap className="h-3.5 w-3.5" /> Sessions balance (current cycle)
+                  <GraduationCap className="h-3.5 w-3.5 text-navy-700" /> Sessions balance (current cycle)
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-4">
                   <Stat label="Contracted" value={String(hired)} />
@@ -502,10 +502,10 @@ function StudentDetailModal({
             </section>
 
             {/* --- Overall Attendance --- */}
-            <section className={`mt-4 rounded-xl border p-5 ${attAlert ? "border-destructive/50 verbo-pay-glow" : "border-border"} bg-background`}>
+            <section className={`mt-4 rounded-xl border border-l-4 p-5 ${attAlert ? "border-destructive/50 border-l-destructive verbo-pay-glow" : "border-border border-l-green-500"} bg-background`}>
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  <CalendarCheck className="h-3.5 w-3.5" /> Overall Attendance
+                  <CalendarCheck className={`h-3.5 w-3.5 ${attAlert ? "text-destructive" : "text-green-500"}`} /> Overall Attendance
                 </div>
                 <span className="text-2xl font-bold tabular-nums text-foreground">{attPct}%</span>
               </div>
@@ -523,11 +523,11 @@ function StudentDetailModal({
               <button
                 type="button"
                 onClick={() => setShowAnalytics(true)}
-                className={`w-full rounded-xl border p-4 text-left transition-all hover:bg-secondary/40 ${anySkillLow ? "border-destructive/40 verbo-pay-glow" : "border-border"} bg-background`}
+                className={`w-full rounded-xl border border-l-4 p-4 text-left transition-all hover:bg-secondary/40 ${anySkillLow ? "border-destructive/40 border-l-destructive verbo-pay-glow" : "border-border border-l-violet-500"} bg-background`}
               >
                 <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <Layers className="h-3.5 w-3.5" /> Overall Skills
+                    <Layers className={`h-3.5 w-3.5 ${anySkillLow ? "text-destructive" : "text-violet-500"}`} /> Overall Skills
                   </div>
                   <span className="text-[11px] font-semibold" style={{ color: "#f38934" }}>View Detailed Analytics →</span>
                 </div>
@@ -556,8 +556,8 @@ function StudentDetailModal({
 
             {/* --- Video call link (read only) --- */}
             {s.video_call_link && (
-              <section className="mt-4 flex items-center gap-2 rounded-xl border border-border bg-background p-4 text-sm">
-                <Video className="h-4 w-4 text-muted-foreground" />
+              <section className="mt-4 flex items-center gap-2 rounded-xl border border-border border-l-4 border-l-accent bg-background p-4 text-sm">
+                <Video className="h-4 w-4 text-accent" />
                 <span className="text-muted-foreground">Video Call Link:</span>
                 <a
                   href={s.video_call_link}
@@ -733,21 +733,18 @@ function ReportModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-foreground/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-floating">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Report</div>
-            <h3 className="mt-1 text-lg font-semibold tracking-tight text-foreground">
-              Report situation · {student.name}
-            </h3>
-          </div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <p className="mt-3 text-xs text-muted-foreground">
+    <AccentModal
+      maxWidth="max-w-lg"
+      background="linear-gradient(135deg, #dc0000 0%, #f38934 100%)"
+      iconTint="rgba(255,255,255,0.18)"
+      icon={Flag}
+      eyebrow="Report"
+      title={`Report situation · ${student.name}`}
+      watermark={{ type: "icon", icon: Flag }}
+      onClose={onClose}
+    >
+      <div className="p-6">
+        <p className="text-xs text-muted-foreground">
           Describe a situation observed about this student. The report will be stored
           in the database linked to you as the primary teacher.
         </p>
@@ -760,24 +757,24 @@ function ReportModal({
           className="mt-3 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         />
 
-        <div className="mt-4 flex items-center justify-end gap-2">
-          {saved && <span className="text-xs text-success">Report saved</span>}
-          <button
-            onClick={onClose}
-            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={!text.trim() || saved}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground shadow-sm transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            <Flag className="h-3.5 w-3.5" /> Save report
-          </button>
-        </div>
       </div>
-    </div>
+      <AccentModalFooter accent="#dc0000">
+        {saved && <span className="mr-auto text-xs text-success">Report saved</span>}
+        <button
+          onClick={onClose}
+          className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={!text.trim() || saved}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground shadow-sm transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          <Flag className="h-3.5 w-3.5" /> Save report
+        </button>
+      </AccentModalFooter>
+    </AccentModal>
   );
 }
 
