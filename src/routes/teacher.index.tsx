@@ -1099,15 +1099,19 @@ function TeacherDashboard() {
   );
 }
 
-function QuickAction({ to, icon: Icon, label }: { to: string; icon: LucideIcon; label: string }) {
+function QuickAction({ to, icon: Icon, iconSrc, label }: { to: string; icon?: LucideIcon; iconSrc?: string; label: string }) {
   return (
     <Link
       to={to as any}
       className="group flex items-center gap-4 rounded-2xl bg-card px-5 py-5 shadow-soft transition-shadow duration-200 hover:shadow-floating verbo-card-hover"
     >
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent">
-        <Icon className="h-6 w-6" />
-      </div>
+      {iconSrc ? (
+        <img src={iconSrc} alt="" aria-hidden className="h-12 w-12 shrink-0 object-contain" />
+      ) : (
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent">
+          {Icon ? <Icon className="h-6 w-6" /> : null}
+        </div>
+      )}
       <div className="min-w-0 text-sm font-semibold text-foreground">{label}</div>
       <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5" />
     </Link>
