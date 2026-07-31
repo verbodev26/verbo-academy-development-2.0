@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 import { USERS, type User } from "./mock-data";
 import { avgRating, assignedStudents } from "./teacher-model";
 import { activeTenureDays, teacherTier } from "./teacher-tiers";
+import { computeCurrentProgress } from "./product-courses-store";
+
 
 const KEY = "verbo:staff-profiles";
 const PRESENCE_KEY = "verbo:staff-presence";
