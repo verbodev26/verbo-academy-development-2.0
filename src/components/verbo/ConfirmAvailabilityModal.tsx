@@ -1,5 +1,5 @@
-import { X } from "lucide-react";
-import { GhostButton, PrimaryButton } from "./ui";
+import { CalendarCheck } from "lucide-react";
+import { AccentModal, AccentModalFooter, GhostButton, PrimaryButton } from "./ui";
 
 export function ConfirmAvailabilityModal({
   onCancel,
@@ -9,29 +9,26 @@ export function ConfirmAvailabilityModal({
   onConfirm: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-lg rounded-2xl bg-card p-6 shadow-floating"
-      >
-        <button
-          onClick={onCancel}
-          className="absolute right-4 top-4 cursor-pointer rounded-md p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          aria-label="Close"
-        >
-          <X className="h-4 w-4" />
-        </button>
-        <h3 className="text-lg font-semibold tracking-tight text-foreground">Confirm Your Availability</h3>
-        <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-foreground">
+    <AccentModal
+      maxWidth="max-w-lg"
+      background="linear-gradient(135deg, #01304a 0%, #024366 100%)"
+      iconTint="rgba(255,255,255,0.16)"
+      icon={CalendarCheck}
+      eyebrow="Availability"
+      title="Confirm Your Availability"
+      onClose={onCancel}
+    >
+      <div className="p-6">
+        <ul className="list-disc space-y-2 pl-5 text-sm text-foreground">
           <li>Within your declared hours, you may be assigned students, groups, or substitutions without being asked for permission beforehand.</li>
           <li>By confirming, you're committing to being genuinely available to work during these hours — not just marking them as free time.</li>
           <li>Your schedule is permanent once confirmed and can only be changed with prior Admin approval.</li>
         </ul>
-        <div className="mt-6 flex justify-end gap-2">
-          <GhostButton onClick={onCancel}>Cancel</GhostButton>
-          <PrimaryButton onClick={onConfirm}>Confirm Availability</PrimaryButton>
-        </div>
       </div>
-    </div>
+      <AccentModalFooter accent="#01304a">
+        <GhostButton onClick={onCancel}>Cancel</GhostButton>
+        <PrimaryButton onClick={onConfirm}>Confirm Availability</PrimaryButton>
+      </AccentModalFooter>
+    </AccentModal>
   );
 }

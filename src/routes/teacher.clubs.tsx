@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Sparkles, BookOpen, MessageCircle, X, Undo2, CalendarClock, User } from "lucide-react";
-import { Card, GhostButton, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
+import { LogOut } from "lucide-react";
+import { Card, GhostButton, PrimaryButton, SectionTitle, AccentModal, AccentModalFooter } from "@/components/verbo/ui";
 import { useAuth } from "@/lib/auth";
 import {
   type Club, type ClubType, type ClubReleaseRequest,
@@ -309,18 +310,27 @@ function Page() {
   );
 }
 
+/** Club identity, mirroring the Teacher Calendar club theme. */
+function clubTheme(type: Club["type"]) {
+  return type === "book"
+    ? { background: "linear-gradient(135deg, #c2410c 0%, #000000 100%)", solid: "#c2410c", label: "Book Club" }
+    : { background: "linear-gradient(135deg, #01304a 0%, #05070a 100%)", solid: "#01304a", label: "Insight" };
+}
+
 function RequestReleaseModal({ club, onClose, onSubmit }: { club: Club; onClose: () => void; onSubmit: (reason: string) => void }) {
   const [reason, setReason] = useState("");
+  const theme = clubTheme(club.type);
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-2xl bg-background shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-base font-semibold text-foreground">Request Release</h2>
-          <button onClick={onClose} aria-label="Close" className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        <div className="space-y-4 px-6 py-5">
+    <AccentModal
+      background={theme.background}
+      iconTint="rgba(255,255,255,0.18)"
+      icon={LogOut}
+      eyebrow={`Request Release · ${theme.label}`}
+      title={club.title}
+      watermark={{ type: "icon", icon: LogOut }}
+      onClose={onClose}
+    >
+      <div className="space-y-4 px-6 py-5">
           <div className="rounded-lg bg-secondary/40 px-3 py-2 text-xs text-muted-foreground">
             <div className="font-medium text-foreground">{club.title}</div>
             <div>{club.type === "insight" ? "Insight" : "Book Club"} · {fmtDate(club.date)}</div>
@@ -339,13 +349,12 @@ function RequestReleaseModal({ club, onClose, onSubmit }: { club: Club; onClose:
           <p className="text-[11px] text-muted-foreground">
             This does not release the club immediately — an admin will review your request. If approved, a penalty may be applied to your Financial adjustments.
           </p>
-        </div>
-        <div className="flex justify-end gap-2 border-t border-border bg-secondary/30 px-6 py-4">
-          <GhostButton onClick={onClose}>Cancel</GhostButton>
-          <PrimaryButton onClick={() => onSubmit(reason.trim())}>Submit Request</PrimaryButton>
-        </div>
       </div>
-    </div>
+      <AccentModalFooter accent={theme.solid}>
+        <GhostButton onClick={onClose}>Cancel</GhostButton>
+        <PrimaryButton onClick={() => onSubmit(reason.trim())}>Submit Request</PrimaryButton>
+      </AccentModalFooter>
+    </AccentModal>
   );
 }
 
