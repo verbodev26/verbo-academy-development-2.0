@@ -2,13 +2,13 @@ import { createFileRoute, useSearch, useNavigate, Link } from "@tanstack/react-r
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { SESSIONS, ASSIGNMENTS, USERS, studentsOfTeacher, userById, type Session, type SessionStatus } from "@/lib/mock-data";
-import { AccentModal, AccentModalFooter, AnimatedNumber, Card, GhostButton, HeroStatCard, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
+import { AccentModal, AccentModalHeader, AccentModalFooter, AnimatedNumber, Card, GhostButton, HeroStatCard, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
 import { rankLabel } from "@/lib/staff-profile-store";
 import alertIconAsset from "@/assets/Alert.svg.asset.json";
 import planIconAsset from "@/assets/plan.svg.asset.json";
 import completeIconAsset from "@/assets/complete.svg.asset.json";
 
-import { CalendarClock, FileEdit, X, Lock, Plus, Trash2, Download, CheckCircle2, Mic, PenLine, Ear, BookOpen, ChevronRight, Video, Star, AlertTriangle, AlertCircle, Trophy, CalendarDays, Users, Wallet, Sparkles as SparklesIcon, GraduationCap, type LucideIcon } from "lucide-react";
+import { CalendarClock, ClipboardCheck, FileEdit, X, Lock, Plus, Trash2, Download, CheckCircle2, Mic, PenLine, Ear, BookOpen, ChevronRight, Video, Star, AlertTriangle, AlertCircle, Trophy, CalendarDays, Users, Wallet, Sparkles as SparklesIcon, GraduationCap, type LucideIcon } from "lucide-react";
 import { savePerformance, type PerformanceRating } from "@/lib/performance-store";
 import { MACRO_SKILLS as SHARED_MACRO_SKILLS, skillKey as sharedSkillKey, type BaseKey as SharedBaseKey } from "@/lib/skills-taxonomy";
 import { submitSessionReport, updateSession, loadSessions, subscribeSessions, SUB_STATUS_META, isJustificationWindowOpen, type ExtSession, type AttendanceSubStatus } from "@/lib/sessions-store";
@@ -1160,6 +1160,7 @@ function ReportModal({ session, perf, subskills, onClose, onSubmit }: {
 }) {
   const student = userById(session.student_id);
   const [attendance, setAttendance] = useState<Attendance>("present");
+  const [attendanceTouched, setAttendanceTouched] = useState(false);
   const [absentCause, setAbsentCause] = useState<"student" | "teacher">("student");
   // Optional sub-status. `null` means plain Absent — DOES affect metrics.
   // AW/AI/AV all skip the metric penalty (justified). Locked past month end.
@@ -1229,7 +1230,7 @@ function ReportModal({ session, perf, subskills, onClose, onSubmit }: {
                   return (
                     <button
                       key={opt}
-                      onClick={() => setAttendance(opt)}
+                      onClick={() => { setAttendance(opt); setAttendanceTouched(true); }}
                       style={selected ? { backgroundColor: bgFor(opt) } : undefined}
                       className={`rounded-lg border px-3 py-2 text-sm capitalize transition-colors ${
                         selected ? "border-transparent text-white" : "border-border text-foreground hover:bg-secondary"
