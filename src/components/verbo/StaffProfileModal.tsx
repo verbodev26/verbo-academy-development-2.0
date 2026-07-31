@@ -205,18 +205,19 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
       <DialogContent className="max-w-xl gap-0 overflow-hidden rounded-[28px] border-0 p-0 shadow-elevated">
         <DialogTitle className="sr-only">My profile</DialogTitle>
 
-        {/* Hero banner — soft brand blobs, no geometric pattern */}
-        <div
-          className="relative h-24 w-full"
-          style={{
-            background:
-              "radial-gradient(circle at 12% 20%, rgba(1,48,74,0.95), transparent 62%), radial-gradient(circle at 42% 95%, rgba(10,74,110,0.9), transparent 60%), radial-gradient(circle at 74% 15%, rgba(243,137,52,0.85), transparent 58%), radial-gradient(circle at 95% 90%, rgba(95,202,22,0.8), transparent 55%), linear-gradient(120deg, #01304a 0%, #0a4a6e 60%, #f38934 100%)",
-          }}
-        />
+        {/* Hero banner + avatar — kept outside the scroll container so the avatar overlap isn't clipped */}
+        <div className="relative">
+          {/* Hero banner — soft brand blobs, no geometric pattern */}
+          <div
+            className="relative h-24 w-full"
+            style={{
+              background:
+                "radial-gradient(circle at 12% 20%, rgba(1,48,74,0.95), transparent 62%), radial-gradient(circle at 42% 95%, rgba(10,74,110,0.9), transparent 60%), radial-gradient(circle at 74% 15%, rgba(243,137,52,0.85), transparent 58%), radial-gradient(circle at 95% 90%, rgba(95,202,22,0.8), transparent 55%), linear-gradient(120deg, #01304a 0%, #0a4a6e 60%, #f38934 100%)",
+            }}
+          />
 
-        <div className="max-h-[78vh] overflow-y-auto px-6 pb-6">
-          {/* Avatar breaking the banner line */}
-          <div className="-mt-12 flex justify-center">
+          {/* Avatar overlaps the banner bottom edge */}
+          <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
             <div className="relative">
               <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-background shadow-elevated">
                 {avatar ? (
@@ -244,6 +245,9 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onPickAvatar} />
             </div>
           </div>
+        </div>
+
+        <div className="max-h-[78vh] overflow-y-auto px-6 pb-6 pt-12">
 
           {/* Identity */}
           <div className="mt-3 text-center">
