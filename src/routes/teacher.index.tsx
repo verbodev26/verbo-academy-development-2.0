@@ -32,6 +32,9 @@ import studentsIconAsset from "@/assets/students_assigned.svg.asset.json";
 import upcomingIconAsset from "@/assets/Upcoming_sessions.svg.asset.json";
 import starIconAsset from "@/assets/Star.svg.asset.json";
 import performanceIconAsset from "@/assets/performance.svg.asset.json";
+import availabilityIconAsset from "@/assets/availability.svg.asset.json";
+import clubsIconAsset from "@/assets/clubs.svg.asset.json";
+import balanceIconAsset from "@/assets/balance.svg.asset.json";
 
 export const Route = createFileRoute("/teacher/")({
   // Optional deep-link from the Calendar page → auto-open the Session Report
