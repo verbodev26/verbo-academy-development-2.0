@@ -18,7 +18,6 @@ function Layout() {
 
   const academicItems: NavItem[] = [
     { to: "/teacher/students", label: "My Students" },
-    { to: "/teacher/calendar", label: "Calendar" },
     { to: "/teacher/performance-sessions", label: "Performance Sessions" },
     { to: "/teacher/challenges", label: "Challenges" },
     { to: "/teacher/flash", label: "Verbo Flash" },
@@ -31,6 +30,7 @@ function Layout() {
 
   const items: (NavItem | NavGroup)[] = [
     { to: "/teacher", label: "Dashboard" },
+    { to: "/teacher/calendar", label: "Calendar" },
     { label: "Academic", items: academicItems },
     { to: "/teacher/financial", label: "Financial" },
   ];
