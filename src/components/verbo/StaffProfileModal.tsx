@@ -13,6 +13,35 @@ import {
   usePresence,
   useStaffProfile,
 } from "@/lib/staff-profile-store";
+import {
+  PERSONALITY_TAG_OPTIONS,
+  MAX_PERSONALITY_TAGS,
+  saveStudentProfile,
+  togglePersonalityTag,
+  useStudentProfile,
+} from "@/lib/student-profile-store";
+import {
+  loadBadges as loadProfileBadges,
+  subscribeBadges as subscribeProfileBadges,
+  isBadgeEarned,
+  buildProfileBadgeContext,
+  type BadgeDef as ProfileBadgeDef,
+  type BadgeContext,
+} from "@/lib/profile-badges-store";
+import {
+  loadEquippedBadgeIds,
+  setEquippedBadgeIds,
+  subscribeEquippedBadges,
+  EQUIPPED_MAX,
+} from "@/lib/equipped-profile-badges-store";
+import { isBadgeManuallyGranted } from "@/lib/badge-override-store";
+import { subscribeCourses } from "@/lib/product-courses-store";
+import {
+  getLeaderboardIdentity,
+  setLeaderboardIdentity,
+  type LeaderboardIdentityMode,
+} from "@/lib/leaderboard-identity-store";
+import { AchievementsGallery, BadgePickerModal, BadgeVisual } from "./ProfileModal";
 import { Check, KeyRound, Pencil, Plus, Star, Users, Clock, ShieldCheck, X } from "lucide-react";
 
 interface Props {
@@ -32,7 +61,11 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const avatar = useAvatar(user?.id);
   const online = usePresence(user?.id, true);
-  const stored = useStaffProfile(user?.id);
+  const isStudent = user?.role === "student";
+
+  const staffStored = useStaffProfile(user?.id);
+  const studentStored = useStudentProfile(user?.id);
+  const stored = isStudent ? studentStored : staffStored;
 
   const [headline, setHeadline] = useState("");
   const [tagDraft, setTagDraft] = useState("");
@@ -44,6 +77,21 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
   const [confirm, setConfirm] = useState("");
   const [pwError, setPwError] = useState<string | null>(null);
   const [pwDone, setPwDone] = useState(false);
+
+  // Student-only extras
+  const [gallery, setGallery] = useState(false);
+  const [pickerSlot, setPickerSlot] = useState<number | null>(null);
+  const [lbMode, setLbMode] = useState<LeaderboardIdentityMode>("real");
+  const [lbNickname, setLbNickname] = useState("");
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const bump = () => setTick((t) => t + 1);
+    const un1 = subscribeProfileBadges(bump);
+    const un2 = subscribeEquippedBadges(bump);
+    const un3 = subscribeCourses(bump);
+    return () => { un1(); un2(); un3(); };
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -58,7 +106,27 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
     setSavedTick(false);
   }, [open, stored.headline]);
 
-  const stats = useMemo(() => (user ? staffStats(user) : []), [user]);
+  useEffect(() => {
+    if (!user || !isStudent) return;
+    const cur = getLeaderboardIdentity(user.id);
+    setLbMode(cur.mode);
+    setLbNickname(cur.nickname);
+  }, [user, isStudent, open]);
+
+  const stats = useMemo(() => (user ? staffStats(user, tick) : []), [user, tick]);
+
+  const badgeData = useMemo(() => {
+    if (!user || !isStudent) {
+      return { badges: [] as ProfileBadgeDef[], ctx: null as BadgeContext | null, earned: [] as ProfileBadgeDef[], equipped: [] as string[] };
+    }
+    const badges = loadProfileBadges();
+    const ctx = buildProfileBadgeContext(user);
+    const earned = badges.filter(
+      (b) => isBadgeEarned(b, ctx) || isBadgeManuallyGranted(user.id, b.id, "profile"),
+    );
+    return { badges, ctx, earned, equipped: loadEquippedBadgeIds(user.id) };
+  }, [user, isStudent, tick]);
+
   if (!user) return null;
 
   const initial = user.name?.[0] ?? "?";
@@ -73,21 +141,24 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
   };
 
   const commitHeadline = () => {
-    saveStaffProfile(user.id, { headline });
+    if (isStudent) saveStudentProfile(user.id, { headline });
+    else saveStaffProfile(user.id, { headline });
     setSavedTick(true);
     setTimeout(() => setSavedTick(false), 1400);
   };
 
+  const specializations = isStudent ? studentStored.personalityTags : staffStored.specializations;
+
   const addTag = () => {
     const t = tagDraft.trim();
     if (!t) return;
-    saveStaffProfile(user.id, { specializations: [...stored.specializations, t] });
+    saveStaffProfile(user.id, { specializations: [...staffStored.specializations, t] });
     setTagDraft("");
   };
 
   const removeTag = (tag: string) => {
     saveStaffProfile(user.id, {
-      specializations: stored.specializations.filter((s) => s !== tag),
+      specializations: staffStored.specializations.filter((s) => s !== tag),
     });
   };
 
@@ -110,38 +181,48 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
 
   const chips = [roleLabelFor(user), rankLabel(user), tenureLabel(user)];
 
+  // Equipped badge slots (students only)
+  const slots: (ProfileBadgeDef | null)[] = Array.from({ length: EQUIPPED_MAX }, (_, i) => {
+    const id = badgeData.equipped[i];
+    if (!id) return null;
+    return badgeData.earned.find((b) => b.id === id) ?? null;
+  });
+
+  const unequip = (badgeId: string) =>
+    setEquippedBadgeIds(user.id, badgeData.equipped.filter((id) => id !== badgeId));
+
+  const equip = (slotIndex: number, badgeId: string) => {
+    const nextIds = [...badgeData.equipped];
+    while (nextIds.length < EQUIPPED_MAX) nextIds.push("");
+    nextIds[slotIndex] = badgeId;
+    setEquippedBadgeIds(user.id, nextIds.filter(Boolean));
+    setPickerSlot(null);
+  };
+
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl gap-0 overflow-hidden rounded-[28px] border-0 p-0 shadow-elevated">
         <DialogTitle className="sr-only">My profile</DialogTitle>
 
-        {/* Hero banner */}
+        {/* Hero banner — soft brand blobs, no geometric pattern */}
         <div
-          className="relative h-36 w-full"
+          className="relative h-24 w-full"
           style={{
             background:
-              "linear-gradient(120deg, #01304a 0%, #0a4a6e 42%, #7e22ce 78%, #f38934 100%)",
+              "radial-gradient(circle at 12% 20%, rgba(1,48,74,0.95), transparent 62%), radial-gradient(circle at 42% 95%, rgba(10,74,110,0.9), transparent 60%), radial-gradient(circle at 74% 15%, rgba(243,137,52,0.85), transparent 58%), radial-gradient(circle at 95% 90%, rgba(95,202,22,0.8), transparent 55%), linear-gradient(120deg, #01304a 0%, #0a4a6e 60%, #f38934 100%)",
           }}
-        >
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 opacity-40"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(45deg, rgba(255,255,255,0.14) 0 2px, transparent 2px 18px), radial-gradient(circle at 18% 120%, rgba(255,199,0,0.55), transparent 55%), radial-gradient(circle at 82% -20%, rgba(126,224,45,0.45), transparent 55%)",
-            }}
-          />
-        </div>
+        />
 
-        <div className="px-8 pb-8">
+        <div className="max-h-[78vh] overflow-y-auto px-6 pb-6">
           {/* Avatar breaking the banner line */}
-          <div className="-mt-14 flex justify-center">
+          <div className="-mt-12 flex justify-center">
             <div className="relative">
-              <div className="h-28 w-28 overflow-hidden rounded-full border-4 border-background shadow-elevated">
+              <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-background shadow-elevated">
                 {avatar ? (
                   <img src={avatar} alt={user.name} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#01304a] to-[#0a4a6e] text-4xl font-semibold text-white">
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#01304a] to-[#0a4a6e] text-3xl font-semibold text-white">
                     {initial}
                   </div>
                 )}
@@ -150,9 +231,9 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 aria-label="Change profile photo"
-                className="absolute -right-1 bottom-1 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#f38934] text-white shadow-md transition-transform hover:scale-105"
+                className="absolute -right-1 bottom-1 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#f38934] text-white shadow-md transition-transform hover:scale-105"
               >
-                <Pencil className="h-4 w-4" />
+                <Pencil className="h-3.5 w-3.5" />
               </button>
               <span
                 title={online ? "Online" : "Offline"}
@@ -165,13 +246,13 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
           </div>
 
           {/* Identity */}
-          <div className="mt-5 text-center">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground">{user.name}</h2>
-            <p className="mt-1 text-sm font-light text-muted-foreground">{rankLabel(user)}</p>
+          <div className="mt-3 text-center">
+            <h2 className="text-xl font-bold tracking-tight text-foreground">{user.name}</h2>
+            <p className="mt-0.5 text-sm font-light text-muted-foreground">{rankLabel(user)}</p>
           </div>
 
           {/* Chips */}
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
             {chips.map((c) => (
               <span
                 key={c}
@@ -183,7 +264,7 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
           </div>
 
           {/* Stats */}
-          <div className="mt-8 grid grid-cols-3">
+          <div className="mt-5 grid grid-cols-3">
             {stats.map((s, i) => {
               const Icon = STAT_ICON[s.key];
               return (
@@ -191,63 +272,193 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
                   key={s.key}
                   className={`flex flex-col items-center gap-1 px-2 ${i > 0 ? "border-l border-border" : ""}`}
                 >
-                  <Icon className="h-5 w-5 text-[#f38934]" />
-                  <div className="text-xl font-bold text-foreground">{s.value}</div>
+                  <Icon className="h-4 w-4 text-[#f38934]" />
+                  <div className="text-lg font-bold text-foreground">{s.value}</div>
                   <div className="text-center text-xs text-muted-foreground">{s.label}</div>
                 </div>
               );
             })}
           </div>
 
-          {/* Specializations */}
-          <div className="mt-8">
+          {/* Tags */}
+          <div className="mt-5">
             <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Specializes in
+              {isStudent ? "Personality tags" : "Specializes in"}
             </div>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              {stored.specializations.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-[#01304a]/[0.06] px-3 py-1.5 text-xs font-medium text-foreground"
-                >
-                  {tag}
-                  <button
-                    type="button"
-                    aria-label={`Remove ${tag}`}
-                    onClick={() => removeTag(tag)}
-                    className="cursor-pointer text-muted-foreground transition-colors hover:text-foreground"
+            {isStudent ? (
+              <>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {PERSONALITY_TAG_OPTIONS.map((tag) => {
+                    const active = specializations.includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => togglePersonalityTag(user.id, tag)}
+                        className={`cursor-pointer rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                          active
+                            ? "bg-[#01304a] text-white"
+                            : "bg-[#01304a]/[0.06] text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {tag}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-1.5 text-[11px] text-muted-foreground">
+                  {specializations.length}/{MAX_PERSONALITY_TAGS} selected
+                </div>
+              </>
+            ) : (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                {specializations.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#01304a]/[0.06] px-3 py-1.5 text-xs font-medium text-foreground"
                   >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ))}
-              {stored.specializations.length < MAX_SPECIALIZATIONS && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2 py-1">
-                  <input
-                    value={tagDraft}
-                    onChange={(e) => setTagDraft(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") { e.preventDefault(); addTag(); }
-                    }}
-                    placeholder="Add a focus area"
-                    maxLength={40}
-                    className="w-32 bg-transparent px-1 text-xs text-foreground outline-none placeholder:text-muted-foreground"
-                  />
-                  <button
-                    type="button"
-                    onClick={addTag}
-                    aria-label="Add specialization"
-                    className="cursor-pointer text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                  </button>
-                </span>
-              )}
-            </div>
+                    {tag}
+                    <button
+                      type="button"
+                      aria-label={`Remove ${tag}`}
+                      onClick={() => removeTag(tag)}
+                      className="cursor-pointer text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+                {specializations.length < MAX_SPECIALIZATIONS && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2 py-1">
+                    <input
+                      value={tagDraft}
+                      onChange={(e) => setTagDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") { e.preventDefault(); addTag(); }
+                      }}
+                      placeholder="Add a focus area"
+                      maxLength={40}
+                      className="w-32 bg-transparent px-1 text-xs text-foreground outline-none placeholder:text-muted-foreground"
+                    />
+                    <button
+                      type="button"
+                      onClick={addTag}
+                      aria-label="Add specialization"
+                      className="cursor-pointer text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
+          {/* Student-only: equipped badges + leaderboard identity */}
+          {isStudent && (
+            <>
+              <div className="mt-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Equipped badges
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setGallery(true)}
+                    className="cursor-pointer text-xs font-medium text-[#01304a] underline-offset-4 hover:underline"
+                  >
+                    View all achievements →
+                  </button>
+                </div>
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                  {slots.map((b, i) =>
+                    !b ? (
+                      <button
+                        key={`empty-${i}`}
+                        type="button"
+                        onClick={() => setPickerSlot(i)}
+                        className="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-border bg-secondary/60 px-2 py-3 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span className="font-medium">Add</span>
+                      </button>
+                    ) : (
+                      <div
+                        key={b.id}
+                        className="group relative flex flex-col items-center rounded-2xl bg-secondary/60 px-2 py-3"
+                      >
+                        <button
+                          type="button"
+                          aria-label={`Unequip ${b.name}`}
+                          onClick={() => unequip(b.id)}
+                          className="absolute right-1 top-1 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-background text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                        <BadgeVisual badge={b} earned size="sm" />
+                        <div className="mt-1.5 line-clamp-2 text-center text-[11px] font-medium text-foreground">
+                          {b.name}
+                        </div>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Show on leaderboard as
+                </div>
+                <div className="mt-2 space-y-2">
+                  <label className="flex cursor-pointer items-start gap-2 rounded-2xl bg-secondary/60 px-3 py-2.5 text-sm">
+                    <input
+                      type="radio"
+                      name="lb-mode"
+                      className="mt-0.5"
+                      checked={lbMode === "real"}
+                      onChange={() => {
+                        setLbMode("real");
+                        setLeaderboardIdentity(user.id, { mode: "real", nickname: lbNickname });
+                      }}
+                    />
+                    <span className="font-medium text-foreground">My name and photo</span>
+                  </label>
+                  <label className="flex cursor-pointer items-start gap-2 rounded-2xl bg-secondary/60 px-3 py-2.5 text-sm">
+                    <input
+                      type="radio"
+                      name="lb-mode"
+                      className="mt-0.5"
+                      checked={lbMode === "nickname"}
+                      onChange={() => {
+                        setLbMode("nickname");
+                        setLeaderboardIdentity(user.id, { mode: "nickname", nickname: lbNickname });
+                      }}
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-foreground">Custom nickname</div>
+                      {lbMode === "nickname" && (
+                        <input
+                          type="text"
+                          value={lbNickname}
+                          placeholder="Nickname"
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setLbNickname(v);
+                            setLeaderboardIdentity(user.id, { mode: "nickname", nickname: v });
+                          }}
+                          className="mt-2 w-full rounded-xl border border-input bg-background px-2.5 py-1.5 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+                        />
+                      )}
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </>
+          )}
+
           {/* Headline */}
-          <div className="mt-8">
+          <div className="mt-5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 About me
@@ -261,9 +472,13 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
               maxLength={MAX_HEADLINE_CHARS}
               onChange={(e) => setHeadline(e.target.value)}
               onBlur={commitHeadline}
-              rows={3}
-              placeholder="Write a short phrase your students will see…"
-              className="mt-2 w-full resize-none rounded-2xl bg-secondary/60 px-4 py-3 text-sm leading-relaxed text-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring"
+              rows={2}
+              placeholder={
+                isStudent
+                  ? "Write a short phrase about yourself…"
+                  : "Write a short phrase your students will see…"
+              }
+              className="mt-2 w-full resize-none rounded-2xl bg-secondary/60 px-4 py-2.5 text-sm leading-relaxed text-foreground outline-none transition-shadow focus:ring-2 focus:ring-ring"
             />
             {savedTick && (
               <div className="mt-1 flex items-center gap-1.5 text-xs font-medium text-emerald-600">
@@ -273,7 +488,7 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
           </div>
 
           {/* Password */}
-          <div className="mt-8 space-y-3">
+          <div className="mt-5 space-y-3">
             {!pwOpen ? (
               <div className="flex flex-col gap-2 sm:flex-row">
                 <button
@@ -343,5 +558,24 @@ export function StaffProfileModal({ open, onOpenChange }: Props) {
         </div>
       </DialogContent>
     </Dialog>
+
+    {isStudent && badgeData.ctx && (
+      <>
+        <AchievementsGallery
+          open={gallery}
+          onOpenChange={setGallery}
+          badges={badgeData.badges}
+          ctx={badgeData.ctx}
+        />
+        <BadgePickerModal
+          open={pickerSlot !== null}
+          onOpenChange={(v) => { if (!v) setPickerSlot(null); }}
+          available={badgeData.earned.filter((b) => !badgeData.equipped.includes(b.id))}
+          earnedCount={badgeData.earned.length}
+          onPick={(id) => { if (pickerSlot !== null) equip(pickerSlot, id); }}
+        />
+      </>
+    )}
+    </>
   );
 }
