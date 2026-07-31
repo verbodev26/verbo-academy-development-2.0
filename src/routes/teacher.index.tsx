@@ -489,11 +489,8 @@ function TeacherDashboard() {
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Link to="/teacher/students" className="block cursor-pointer">
           <HeroStatCard className="!items-start border border-border bg-card">
-            <div
-              className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
-              style={{ color: "#1f7a70", background: "rgba(62,187,173,0.14)" }}
-            >
-              <img src={studentsIconAsset.url} alt="" className="h-5 w-5" />
+            <div className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl bg-transparent">
+              <img src={studentsIconAsset.url} alt="" className="h-[52px] w-[52px]" />
             </div>
             <div className="relative w-full">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -508,11 +505,8 @@ function TeacherDashboard() {
         </Link>
         <Link to="/teacher/calendar" className="block cursor-pointer">
           <HeroStatCard className="!items-start border border-border bg-card">
-            <div
-              className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
-              style={{ color: "#a34ac0", background: "rgba(163,74,192,0.12)" }}
-            >
-              <img src={upcomingIconAsset.url} alt="" className="h-5 w-5" />
+            <div className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl bg-transparent">
+              <img src={upcomingIconAsset.url} alt="" className="h-[52px] w-[52px]" />
             </div>
             <div className="relative w-full">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -531,8 +525,8 @@ function TeacherDashboard() {
             className="verbo-focus-pulse !items-start border border-border bg-card"
             style={{ ["--verbo-focus-pulse-color" as any]: ratingGlow } as React.CSSProperties}
           >
-            <div className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-              <img src={starIconAsset.url} alt="" className="h-5 w-5" />
+            <div className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl bg-transparent">
+              <img src={starIconAsset.url} alt="" className="h-[52px] w-[52px]" />
             </div>
             <div className="relative w-full">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -550,8 +544,8 @@ function TeacherDashboard() {
             className="verbo-focus-pulse !items-start border border-border bg-card"
             style={{ ["--verbo-focus-pulse-color" as any]: performanceGlow } as React.CSSProperties}
           >
-            <div className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-              <img src={performanceIconAsset.url} alt="" className="h-5 w-5" />
+            <div className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl bg-transparent">
+              <img src={performanceIconAsset.url} alt="" className="h-[52px] w-[52px]" />
             </div>
             <div className="relative w-full">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
