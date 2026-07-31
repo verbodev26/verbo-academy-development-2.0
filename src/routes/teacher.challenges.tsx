@@ -11,6 +11,7 @@ import {
   rejectSubmission,
   type PendingSubmissionRow,
 } from "@/lib/students-store";
+import { Eye } from "lucide-react";
 import { Card, Pill, GhostButton, AccentModal, AccentModalFooter } from "@/components/verbo/ui";
 import { categoryTheme, categoryBackground } from "@/lib/challenge-theme";
 import {

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { X, Play, Zap, Gift, Sparkles } from "lucide-react";
+import { Eye } from "lucide-react";
 import { Card, Pill, GhostButton, AccentModal, AccentModalFooter } from "@/components/verbo/ui";
 import { categoryTheme, categoryBackground } from "@/lib/challenge-theme";
 import { categoryColor } from "@/lib/challenges-store";
