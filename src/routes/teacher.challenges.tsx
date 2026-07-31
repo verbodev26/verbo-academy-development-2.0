@@ -11,7 +11,8 @@ import {
   rejectSubmission,
   type PendingSubmissionRow,
 } from "@/lib/students-store";
-import { Card, Pill, GhostButton } from "@/components/verbo/ui";
+import { Card, Pill, GhostButton, AccentModal, AccentModalFooter } from "@/components/verbo/ui";
+import { categoryTheme, categoryBackground } from "@/lib/challenge-theme";
 import {
   type Challenge,
   type ChallengeProductId,
@@ -420,31 +421,24 @@ function ReviewRow({
 }
 
 function PreviewModal({ challenge, onClose }: { challenge: Challenge; onClose: () => void }) {
+  const theme = categoryTheme(challenge.category);
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-card shadow-elevated" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between gap-4 bg-gradient-to-br from-[#01304a] to-[#024366] p-6 text-white">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <CategoryBadge name={challenge.category} />
-              <Pill tone="muted">Preview</Pill>
-            </div>
-            <div className="mt-2 text-base font-semibold tracking-tight">{challenge.title}</div>
-            <div className="mt-1 text-[11px] uppercase tracking-[0.18em] text-white/70">
-              {PRODUCT_META[challenge.product].label} · {DIFFICULTY_META[challenge.difficulty].label}
-            </div>
-            {challenge.skill_tags && challenge.skill_tags.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {challenge.skill_tags.map((s) => <SkillChip key={s} label={s} />)}
-              </div>
-            )}
-          </div>
-          <button onClick={onClose} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white" aria-label="Close">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="space-y-4 p-6">
+    <AccentModal
+      maxWidth="max-w-xl"
+      background={categoryBackground(challenge.category)}
+      iconTint="rgba(255,255,255,0.18)"
+      icon={Eye}
+      eyebrow={`Preview · ${PRODUCT_META[challenge.product].label} · ${DIFFICULTY_META[challenge.difficulty].label}`}
+      title={challenge.title}
+      watermark={{ type: "icon", icon: Eye }}
+      onClose={onClose}
+    >
+      <div className="flex flex-wrap items-center gap-2 border-b border-border px-6 py-3">
+        <CategoryBadge name={challenge.category} />
+        <Pill tone="muted">Preview</Pill>
+        {challenge.skill_tags?.map((s) => <SkillChip key={s} label={s} />)}
+      </div>
+      <div className="space-y-4 p-6">
           <p className="text-sm leading-relaxed text-foreground">
             {challenge.description || "No description available."}
           </p>
@@ -471,10 +465,9 @@ function PreviewModal({ challenge, onClose }: { challenge: Challenge; onClose: (
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
-          <GhostButton onClick={onClose}>Close</GhostButton>
-        </div>
-      </div>
-    </div>
+      <AccentModalFooter accent={theme.solid}>
+        <GhostButton onClick={onClose}>Close</GhostButton>
+      </AccentModalFooter>
+    </AccentModal>
   );
 }
