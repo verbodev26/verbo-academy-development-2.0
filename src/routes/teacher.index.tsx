@@ -1400,8 +1400,10 @@ function ReportModal({ session, perf, subskills, onClose, onSubmit }: {
             </div>
           </>
         )}
+        </div>
       </div>
     </div>
+
   );
 }
 
