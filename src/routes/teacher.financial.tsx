@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
   Trophy, AlertTriangle, Star, Sparkles, MessageCircleWarning,
+  Plug, CalendarClock, CheckCircle2, ThumbsUp, XOctagon, Repeat2, Gauge,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { USERS, userById } from "@/lib/mock-data";
@@ -16,7 +17,7 @@ import {
   computeTeacherKpis, ratingBand, getBonusThreshold,
 } from "@/lib/teacher-kpis";
 import { addFinancialIssue } from "@/lib/financial-issues-store";
-import { Card, SectionTitle, Pill } from "@/components/verbo/ui";
+import { Card, SectionTitle, Pill, AccentModal, AccentModalFooter } from "@/components/verbo/ui";
 import { BonusBadge } from "@/components/verbo/BonusBadge";
 import { overridesForMonth } from "@/lib/teacher-kpi-overrides-store";
 import { monthKeyOf } from "@/lib/teacher-kpi-history-store";
@@ -69,6 +70,15 @@ function signalColor(v: number) {
   const t = signalTone(v);
   return t === "good" ? "#22c55e" : t === "mid" ? "#f59e0b" : "#ef4444";
 }
+
+const KPI_ICONS: Record<string, typeof Plug> = {
+  connection: Plug,
+  planning: CalendarClock,
+  completion: CheckCircle2,
+  rating: ThumbsUp,
+  cancellation: XOctagon,
+  responsiveness: Repeat2,
+};
 
 // --- page -------------------------------------------------------------------
 function MyBalancePage() {
@@ -271,7 +281,7 @@ function MyBalancePage() {
           sub={`${adjustments.length} adjustment${adjustments.length === 1 ? "" : "s"}`}
           expanded={expanded.adjustments}
           onClick={() => toggle("adjustments")}
-          gradient="card-gradient-teal"
+          gradient="card-gradient-crimson"
         />
         <SummaryCard
           label="Bonus"
@@ -403,21 +413,45 @@ function MyBalancePage() {
       <Card>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-sm font-semibold text-foreground">Performance</h3>
-          <div className="flex items-center gap-3">
-            {rating != null && (
-              <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold" style={{ backgroundColor: band.bg, color: band.fg }}>
-                <Star className="h-3.5 w-3.5 fill-current" /> {rating.toFixed(1)} · {band.label}
+          {rating != null && (
+            <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-bold" style={{ backgroundColor: band.bg, color: band.fg }}>
+              <Star className="h-4 w-4 fill-current" /> {rating.toFixed(1)} · {band.label}
+            </span>
+          )}
+        </div>
+
+        {/* Composite score — highlighted */}
+        <div
+          className="mb-5 flex items-center gap-4 rounded-2xl border p-5"
+          style={{
+            borderColor: `${signalColor(kpis?.composite ?? 0)}55`,
+            backgroundColor: `${signalColor(kpis?.composite ?? 0)}12`,
+          }}
+        >
+          <div
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
+            style={{ backgroundColor: `${signalColor(kpis?.composite ?? 0)}22`, color: signalColor(kpis?.composite ?? 0) }}
+          >
+            <Gauge className="h-6 w-6" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Composite Score</div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-4xl font-bold tabular-nums tracking-tight" style={{ color: signalColor(kpis?.composite ?? 0) }}>
+                {kpis?.composite ?? 0}%
               </span>
-            )}
-            <div className="text-xs text-muted-foreground">
-              Composite Score: <span className="text-base font-bold" style={{ color: kpis ? signalColor(kpis.composite) : undefined }}>{kpis?.composite ?? 0}%</span>
-              {kpis?.onboarding && <span className="ml-2 rounded-full bg-blue-50 px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wider text-blue-700">Onboarding</span>}
+              {kpis?.onboarding && (
+                <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-blue-700">Onboarding</span>
+              )}
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          {signals.map((s) => <KpiBar key={s.key} label={s.label} value={s.value} sub={s.sub} />)}
+
+        {/* KPI mini-cards */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {signals.map((sig) => <KpiMiniCard key={sig.key} signal={sig} />)}
         </div>
+
         <p className="mt-4 rounded-lg border border-accent/30 bg-accent/5 p-3 text-xs text-foreground">
           Teachers with strong, consistent performance get priority for new sessions and schedule requests — one more reason to keep your KPIs healthy.
         </p>
@@ -456,37 +490,43 @@ function FinancialIssueModal({ onClose, onSubmit }: { onClose: () => void; onSub
   const [text, setText] = useState("");
   const trimmed = text.trim();
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card shadow-elevated" onClick={(e) => e.stopPropagation()}>
-        <div className="bg-gradient-to-br from-[#01304a] to-[#024366] p-5 text-white">
-          <div className="text-base font-semibold">Report a Financial Issue</div>
-          <div className="mt-0.5 text-xs text-white/70">Admin will see this in their notifications and can follow up from here.</div>
-        </div>
-        <div className="space-y-3 p-5">
-          <label className="block">
-            <div className="mb-1.5 text-xs font-semibold text-foreground">What's the issue?</div>
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              rows={5}
-              placeholder="E.g., a completed session is missing from this month's summary."
-              className="w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-          </label>
-        </div>
-        <div className="flex items-center justify-end gap-3 border-t border-border bg-secondary/30 p-4">
-          <button type="button" onClick={onClose} className="rounded-lg border border-border bg-background px-4 py-2 text-sm text-foreground hover:bg-secondary">Cancel</button>
-          <button
-            type="button"
-            disabled={!trimmed}
-            onClick={() => onSubmit(trimmed)}
-            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground shadow-sm transition-opacity hover:opacity-90 disabled:opacity-40"
-          >
-            Send to Admin
-          </button>
-        </div>
+    <AccentModal
+      maxWidth="max-w-lg"
+      background="linear-gradient(135deg, #dc0000 0%, #f38934 100%)"
+      iconTint="rgba(255,255,255,0.18)"
+      icon={MessageCircleWarning}
+      eyebrow="Report"
+      title="Report a Financial Issue"
+      watermark={{ type: "icon", icon: MessageCircleWarning }}
+      onClose={onClose}
+    >
+      <div className="space-y-3 p-5">
+        <p className="text-xs text-muted-foreground">
+          Admin will see this in their notifications and can follow up from here.
+        </p>
+        <label className="block">
+          <div className="mb-1.5 text-xs font-semibold text-foreground">What's the issue?</div>
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            rows={5}
+            placeholder="E.g., a completed session is missing from this month's summary."
+            className="w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </label>
       </div>
-    </div>
+      <AccentModalFooter accent="#dc0000">
+        <button type="button" onClick={onClose} className="rounded-lg border border-border bg-background px-4 py-2 text-sm text-foreground hover:bg-secondary">Cancel</button>
+        <button
+          type="button"
+          disabled={!trimmed}
+          onClick={() => onSubmit(trimmed)}
+          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-accent-foreground shadow-sm transition-opacity hover:opacity-90 disabled:opacity-40"
+        >
+          Send to Admin
+        </button>
+      </AccentModalFooter>
+    </AccentModal>
   );
 }
 
@@ -536,6 +576,37 @@ function KpiBar({ label, value, sub }: { label: string; value: number; sub?: str
           style={{ width: `${value}%`, backgroundColor: color, boxShadow: `0 0 8px ${color}66` }}
         />
       </div>
+    </div>
+  );
+}
+
+function KpiMiniCard({ signal }: { signal: KpiSignal }) {
+  const color = signalColor(signal.value);
+  const Icon = KPI_ICONS[signal.key] ?? Gauge;
+  return (
+    <div
+      className="rounded-xl border p-4 transition-all hover:-translate-y-0.5 hover:shadow-soft"
+      style={{ borderColor: `${color}40`, backgroundColor: `${color}0F` }}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+            style={{ backgroundColor: `${color}1F`, color }}
+          >
+            <Icon className="h-4 w-4" />
+          </span>
+          <span className="text-xs font-medium leading-tight text-foreground">{signal.label}</span>
+        </div>
+        <span className="text-2xl font-bold tabular-nums leading-none" style={{ color }}>{signal.value}%</span>
+      </div>
+      <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+        <div
+          className="h-full rounded-full transition-all"
+          style={{ width: `${signal.value}%`, backgroundColor: color, boxShadow: `0 0 8px ${color}66` }}
+        />
+      </div>
+      {signal.sub && <div className="mt-2 text-[10px] text-muted-foreground">{signal.sub}</div>}
     </div>
   );
 }
