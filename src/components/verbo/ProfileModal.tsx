@@ -344,7 +344,7 @@ export function ProfileModal({ open, onOpenChange }: Props) {
   );
 }
 
-function AchievementsGallery({
+export function AchievementsGallery({
   open,
   onOpenChange,
   badges,

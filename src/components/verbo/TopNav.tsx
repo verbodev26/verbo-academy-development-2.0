@@ -4,7 +4,6 @@ import { useAuth } from "@/lib/auth";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ProfileModal } from "./ProfileModal";
 import { StaffProfileModal } from "./StaffProfileModal";
 import { useAvatar } from "@/lib/avatar-store";
 import { NotificationsBell } from "./NotificationsBell";
@@ -446,8 +445,9 @@ export function TopNav({ items, variant = "light" }: { items: NavEntry[]; varian
           </button>
         </div>
       </div>
-      {isStudent && <ProfileModal open={profileOpen} onOpenChange={setProfileOpen} />}
-      {(isAdmin || isTeacher) && <StaffProfileModal open={profileOpen} onOpenChange={setProfileOpen} />}
+      {(isStudent || isAdmin || isTeacher) && (
+        <StaffProfileModal open={profileOpen} onOpenChange={setProfileOpen} />
+      )}
     </header>
   );
 }

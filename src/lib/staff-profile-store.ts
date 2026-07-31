@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 import { USERS, type User } from "./mock-data";
 import { avgRating, assignedStudents } from "./teacher-model";
 import { activeTenureDays, teacherTier } from "./teacher-tiers";
+import { computeCurrentProgress } from "./product-courses-store";
+
 
 const KEY = "verbo:staff-profiles";
 const PRESENCE_KEY = "verbo:staff-presence";
@@ -154,6 +156,7 @@ function legacyTenureDays(u: User): number {
 /** Chip #2: rank / tier label. */
 export function rankLabel(u: User): string {
   if (u.role === "teacher") return teacherTier(u).name;
+  if (u.role === "student") return u.hired_plan || u.access_plan || "Student";
   if (u.admin_type === "coordinator_ops") return "Operations";
   if (u.admin_type === "coordinator_fin") return "Financial";
   return "Super Admin";
@@ -166,7 +169,7 @@ export function roleLabelFor(u: User): string {
 }
 
 /** The three stat columns shown in the profile modal. */
-export function staffStats(u: User): StaffStat[] {
+export function staffStats(u: User, rev = 0): StaffStat[] {
   if (u.role === "teacher") {
     const rating = avgRating(u);
     const students = assignedStudents(u.id).length;
@@ -174,6 +177,14 @@ export function staffStats(u: User): StaffStat[] {
       { key: "rating", value: rating != null ? rating.toFixed(1) : "—", label: "Rating" },
       { key: "students", value: students > 0 ? `${students}` : "—", label: "Students Taught" },
       { key: "sessions", value: `${Math.round(u.hours_month ?? 0)}`, label: "Hours This Month" },
+    ];
+  }
+  if (u.role === "student") {
+    const progress = computeCurrentProgress(u.id, u.product, u.contracted_levels ?? [], rev);
+    return [
+      { key: "team", value: progress?.levelName ?? "—", label: "Current Level" },
+      { key: "rating", value: `${u.attendance_percentage ?? 0}%`, label: "Attendance" },
+      { key: "sessions", value: `${u.completed_challenges?.length ?? 0}`, label: "Challenges Completed" },
     ];
   }
   const teachers = USERS.filter((x) => x.role === "teacher").length;
@@ -184,3 +195,4 @@ export function staffStats(u: User): StaffStat[] {
     { key: "rating", value: rankLabel(u), label: "Access" },
   ];
 }
+
