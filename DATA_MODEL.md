@@ -931,7 +931,7 @@ Store simple (mismo patrón que `student-reports-store.ts`): `localStorage["verb
 
 ## Staff Profile (`src/lib/staff-profile-store.ts`)
 
-Datos de presentación editables para **teachers y admins** (el equivalente staff del `ProfileModal` de alumno). Se renderiza en `StaffProfileModal.tsx`, abierto desde la foto del navbar (`TopNav`). Reemplaza a `AdminProfileModal.tsx` (eliminado).
+Datos de presentación editables para **teachers y admins** (el equivalente staff del `ProfileModal` de alumno). Se renderiza en `StaffProfileModal.tsx`, abierto desde la foto del navbar (`TopNav`) para **los 3 roles** (student incluido desde la unificación del modal "My Profile"; `ProfileModal.tsx` queda en el repo sin usar salvo por sus subcomponentes `BadgeVisual`, `AchievementsGallery` y `BadgePickerModal`, reutilizados desde `StaffProfileModal`). Reemplaza a `AdminProfileModal.tsx` (eliminado).
 
 ### `StaffProfile` — localStorage `verbo:staff-profiles` (mapa `userId → StaffProfile`)
 
@@ -946,12 +946,28 @@ Datos de presentación editables para **teachers y admins** (el equivalente staf
 
 ### Derivados (calculados solo en el store)
 - `roleLabelFor(user)` → "Teacher" | "Admin" | "Student" (chip 1).
-- `rankLabel(user)` → tier del teacher (`teacher-tiers.ts`) o tipo de admin (chip 2).
-- `tenureLabel(user)` → "New" / "N mos tenure" / "N yrs tenure"; teachers usan `activeTenureDays()`, admins `member_since` (chip 3).
-- `staffStats(user)` → 3 columnas. Teacher: `avgRating()`, `assignedStudents().length`, `hours_month`. Admin: nº de teachers, nº de alumnos, nivel de acceso.
+- `rankLabel(user)` → teacher: tier (`teacher-tiers.ts`); student: `hired_plan ?? access_plan ?? "Student"`; admin: tipo de admin (chip 2).
+- `tenureLabel(user)` → "New" / "N mos tenure" / "N yrs tenure"; teachers usan `activeTenureDays()`, resto `member_since` (chip 3).
+- `staffStats(user, rev)` → 3 columnas. Teacher: `avgRating()`, `assignedStudents().length`, `hours_month`. Student: Current Level (`computeCurrentProgress`), Attendance % (`attendance_percentage`), Challenges Completed (`completed_challenges.length`). Admin: nº de teachers, nº de alumnos, nivel de acceso. `rev` es el contador de revalidación para reaccionar a cambios de cursos.
 
 ### Contraseña
 El cambio de contraseña usa `updateProfile({ currentPassword, newPassword })` de `auth.tsx` + `validatePasswordComplexity()` (misma regla que el alumno: ≥4 chars, 1 mayúscula, 1 número). Sin contraseña actual correcta no se aplica el cambio. "Forgot password" es solo UI por ahora (sin lógica).
+
+## Student Profile (`src/lib/student-profile-store.ts`)
+
+Equivalente al Staff Profile pero para **alumnos**, con la misma forma (read/write/subscribe sobre localStorage + hook `useStudentProfile`).
+
+### `StudentProfile` — localStorage `verbo:student-profiles` (mapa `userId → StudentProfile`), evento `verbo:student-profiles-updated`
+
+| campo | tipo | notas |
+|---|---|---|
+| headline | string | frase "About me", máx. `MAX_HEADLINE_CHARS` = 200 |
+| personalityTags | string[] | adjetivos activos, solo valores de `PERSONALITY_TAG_OPTIONS`, máx. `MAX_PERSONALITY_TAGS` = 5 |
+
+- `PERSONALITY_TAG_OPTIONS` (catálogo cerrado): Cheerful, Talkative, Curious, Creative, Energetic, Friendly, Funny, Adventurous, Calm, Thoughtful, Patient, Focused, Observant, Independent, Reserved, Practical, Confident, Easygoing.
+- `togglePersonalityTag(userId, tag)`: activa/desactiva; al llegar al máximo, activar uno nuevo **reemplaza el más antiguo**.
+- Las secciones "Equipped badges" y "Show on leaderboard as" del modal siguen viviendo en `equipped-profile-badges-store.ts`, `profile-badges-store.ts` y `leaderboard-identity-store.ts` (sin cambios).
+
 
 ## Overrides manuales de badges (`src/lib/badge-override-store.ts`)
 
