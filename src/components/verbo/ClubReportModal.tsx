@@ -25,6 +25,13 @@ function typeColor(t: ClubReportEventType) {
   return t === "book" ? "#d97706" : t === "insight" ? "#0ea5e9" : "#06b6d4";
 }
 
+/** Same identity calendarEventTheme() paints these events with. */
+function typeTheme(t: ClubReportEventType) {
+  if (t === "book") return { background: "linear-gradient(135deg, #c2410c 0%, #000000 100%)", solid: "#c2410c", icon: BookOpen };
+  if (t === "insight") return { background: "linear-gradient(135deg, #01304a 0%, #05070a 100%)", solid: "#01304a", icon: Lightbulb };
+  return { background: "#06b6d4", solid: "#06b6d4", icon: Sparkles };
+}
+
 export function ClubReportModal({
   event, teacherId, onClose, onSubmitted,
 }: {
@@ -42,6 +49,8 @@ export function ClubReportModal({
   const fmt = new Date(event.date).toLocaleString(undefined, {
     weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
   });
+
+  const theme = typeTheme(event.type);
 
   const toggle = (name: string, value: ClubAttendance) =>
     setAttendance((prev) => ({ ...prev, [name]: value }));
@@ -73,24 +82,15 @@ export function ClubReportModal({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div onClick={(e) => e.stopPropagation()} className="w-full max-w-lg overflow-hidden rounded-2xl bg-card shadow-floating">
-        <div className="flex items-start justify-between border-b border-border px-6 py-5">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <span
-                className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white"
-                style={{ background: typeColor(event.type) }}
-              >
-                {typeLabel(event.type)}
-              </span>
-              <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Club Report</div>
-            </div>
-            <h2 className="mt-1 truncate text-lg font-semibold tracking-tight text-foreground">{event.title}</h2>
-            <div className="mt-0.5 text-xs text-muted-foreground">{fmt}</div>
-          </div>
-          <button onClick={onClose} aria-label="Close" className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <AccentModalHeader
+          background={theme.background}
+          iconTint={theme.solid}
+          icon={theme.icon}
+          eyebrow={`${typeLabel(event.type)} · Club Report`}
+          title={<span className="block truncate">{event.title}<span className="mt-0.5 block text-xs font-normal opacity-80">{fmt}</span></span>}
+          watermark={{ type: "icon", icon: theme.icon }}
+          onClose={onClose}
+        />
 
         <div className="max-h-[60vh] overflow-y-auto px-6 py-5">
           <div>
