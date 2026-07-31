@@ -421,6 +421,8 @@ function StudentDetailModal({
   const remaining = counts.remaining;
   const used = sessionProgressFor(hired, remaining).done;
 
+  const [openDifficulty, setOpenDifficulty] = useState<(typeof DIFFICULTY_ORDER)[number] | null>(null);
+
   type DetailTab = "overview" | "progress" | "challenges";
   const [tab, setTab] = useState<DetailTab>("overview");
   const showCourseProgressTab = s.product === "go" || s.product === "enterprise" || s.product === "international";
@@ -651,34 +653,69 @@ function StudentDetailModal({
               <Lightbulb className="h-3.5 w-3.5" /> Suggested Challenges ({product?.name})
             </div>
             <div className="mt-3 space-y-4">
-              {DIFFICULTY_ORDER.map((diff) => {
-                const list = challengesFor(challenges, challengeProductId, diff);
-                if (list.length === 0) return null;
+              {/* Difficulty filter cards — only the selected tier expands. */}
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {DIFFICULTY_ORDER.map((diff) => {
+                  const count = challengesFor(challenges, challengeProductId, diff).length;
+                  const active = openDifficulty === diff;
+                  return (
+                    <button
+                      key={diff}
+                      type="button"
+                      onClick={() => setOpenDifficulty(active ? null : diff)}
+                      className={`rounded-xl border p-3 text-left transition-colors ${
+                        active
+                          ? "border-accent bg-accent/10"
+                          : "border-border bg-background hover:bg-secondary/60"
+                      }`}
+                    >
+                      <div className={`text-sm font-semibold ${active ? "text-accent" : "text-foreground"}`}>
+                        {DIFFICULTY_META[diff].label}
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-muted-foreground">
+                        {count} challenge{count === 1 ? "" : "s"}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {openDifficulty && (() => {
+                const list = challengesFor(challenges, challengeProductId, openDifficulty);
+                if (list.length === 0) {
+                  return (
+                    <p className="text-xs text-muted-foreground">
+                      No challenges published yet for this difficulty.
+                    </p>
+                  );
+                }
                 return (
-                  <div key={diff}>
-                    <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      {DIFFICULTY_META[diff].label}
-                    </div>
-                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                      {list.map((c) => (
-                        <div key={c.id} className="rounded-lg border border-border bg-background p-3">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="text-sm font-medium text-foreground">{c.title}</div>
-                            {c.category && (
-                              <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${categoryColor(c.category)}`}>
-                                {c.category}
-                              </span>
-                            )}
-                          </div>
-                          {c.description && (
-                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{c.description}</p>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {list.map((c) => (
+                      <div key={c.id} className="rounded-lg border border-border bg-background p-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="text-sm font-medium text-foreground">{c.title}</div>
+                          {c.category && (
+                            <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${categoryColor(c.category)}`}>
+                              {c.category}
+                            </span>
                           )}
                         </div>
-                      ))}
-                    </div>
+                        {c.description && (
+                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{c.description}</p>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 );
-              })}
+              })()}
+
+              {!openDifficulty && (
+                <p className="text-xs text-muted-foreground">
+                  Pick a difficulty above to see its challenges.
+                </p>
+              )}
+
               {DIFFICULTY_ORDER.every((d) => challengesFor(challenges, challengeProductId, d).length === 0) && (
                 <p className="text-xs text-muted-foreground">
                   No challenges published yet for this product.
