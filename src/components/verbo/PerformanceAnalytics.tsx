@@ -202,7 +202,7 @@ export function PerformanceAnalyticsModal({
       icon={BarChart3}
       eyebrow="Advanced Performance Analytics"
       title="Skill breakdown"
-      watermark={{ icon: BarChart3 }}
+      watermark={{ type: "icon", icon: BarChart3 }}
       onClose={onClose}
     >
       <div className="max-h-[80vh] overflow-y-auto p-8">

@@ -740,7 +740,7 @@ function ReportModal({
       icon={Flag}
       eyebrow="Report"
       title={`Report situation · ${student.name}`}
-      watermark={{ icon: Flag }}
+      watermark={{ type: "icon", icon: Flag }}
       onClose={onClose}
     >
       <div className="p-6">
