@@ -105,24 +105,52 @@ export function ClubReservationModal({
         onClick={(e) => e.stopPropagation()}
         className="relative w-full max-w-lg overflow-hidden rounded-2xl bg-card shadow-floating"
       >
-        <AccentModalHeader
-          background={headerBg}
-          iconTint={accent}
-          icon={HeaderIcon}
-          eyebrow={label}
-          title={club.title}
-          watermark={{ type: "icon", icon: HeaderIcon }}
-          onClose={onClose}
-        />
-
-        {club.cover_image && (
-          <div className="relative h-40 w-full overflow-hidden bg-secondary">
+        {club.cover_image ? (
+          <div className="relative h-32 w-full overflow-hidden">
             <img
               src={club.cover_image}
               alt=""
               className="h-full w-full object-cover"
             />
+            <div
+              className="absolute inset-0"
+              style={{ background: "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.08) 100%)" }}
+              aria-hidden
+            />
+            <div className="absolute inset-0 flex flex-col justify-between p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white shadow-sm">
+                  <HeaderIcon className="h-5 w-5" style={{ color: accent }} />
+                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label="Close"
+                  className="rounded-full border border-white/40 p-1.5 text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
+                  {label}
+                </div>
+                <h2 className="mt-1 text-lg font-semibold tracking-tight text-white">
+                  {club.title}
+                </h2>
+              </div>
+            </div>
           </div>
+        ) : (
+          <AccentModalHeader
+            background={headerBg}
+            iconTint={accent}
+            icon={HeaderIcon}
+            eyebrow={label}
+            title={club.title}
+            watermark={{ type: "icon", icon: HeaderIcon }}
+            onClose={onClose}
+          />
         )}
 
         <div className="p-6">
