@@ -2326,15 +2326,23 @@ function NicknameAvatar({ seed, className = "" }: { seed: string; className?: st
 function RowAvatar({ row, size }: { row: LeaderboardRow; size: "sm" | "lg" }) {
   const realAvatar = useAvatar(row.useRealAvatar ? row.userId : undefined);
   const cls = size === "lg" ? "h-16 w-16 text-lg" : "h-9 w-9 text-xs";
-  if (row.useRealAvatar) {
-    if (realAvatar) {
-      return <img src={realAvatar} alt="" className={`${cls} rounded-full object-cover`} />;
-    }
-    // fall back to initials over a neutral color when the real user has no avatar
-    return <NicknameAvatar seed={row.avatarSeed} className={cls} />;
-  }
-  return <NicknameAvatar seed={row.avatarSeed} className={cls} />;
+  const inner =
+    row.useRealAvatar && realAvatar ? (
+      <img src={realAvatar} alt="" className={`${cls} rounded-full object-cover`} />
+    ) : (
+      <NicknameAvatar seed={row.avatarSeed} className={cls} />
+    );
+  return (
+    <ProfilePeekCard
+      userId={row.userId}
+      displayName={row.displayName}
+      showRealIdentity={row.useRealAvatar}
+    >
+      {inner}
+    </ProfilePeekCard>
+  );
 }
+
 
 const PODIUM_STYLES: Record<number, {
   frame: string; medal: string; label: string; halo: string; delay: number;
