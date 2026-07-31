@@ -266,6 +266,13 @@ function StudentBuilder({ studentId, studentName, onBack }: {
   );
 }
 
+const TAILORED_ACCENT: ModalAccent = {
+  background: "linear-gradient(135deg, #f38934 0%, #7c2d12 100%)",
+  solid: "#f38934",
+  icon: Sparkles,
+  eyebrow: "Tailored Content",
+};
+
 function TailoredUnitModal({ editingUnit, onClose, onCreate, onUpdate }: {
   editingUnit?: TailoredUnit;
   onClose: () => void;
@@ -287,6 +294,7 @@ function TailoredUnitModal({ editingUnit, onClose, onCreate, onUpdate }: {
     <ModalShell
       title={isEdit ? "Edit Unit" : "New Unit"}
       subtitle={isEdit ? "Update this unit." : "Name this unit's topic and attach the downloadable material."}
+      accent={TAILORED_ACCENT}
       onClose={onClose}
     >
       <div className="space-y-4 p-6">

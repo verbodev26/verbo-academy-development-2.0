@@ -7,7 +7,8 @@ import {
   Plus, Trash2, X, Info, Headphones, GripVertical, Mic, AlignLeft,
   Shuffle, BookOpen, ListChecks,
 } from "lucide-react";
-import { GhostButton, PrimaryButton, Pill } from "./ui";
+import type { LucideIcon } from "lucide-react";
+import { GhostButton, PrimaryButton, Pill, AccentModal } from "./ui";
 import {
   type Activity,
   type ExerciseType,
@@ -29,22 +30,38 @@ export const inputCls =
 export const textareaCls =
   "min-h-[96px] w-full rounded-lg border border-border bg-background p-3 text-sm text-foreground shadow-sm transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30";
 
-export function ModalShell({ title, subtitle, onClose, children, width = "max-w-xl" }: {
+export type ModalAccent = { background: string; solid: string; icon: LucideIcon; eyebrow: string };
+
+export const DEFAULT_MODAL_ACCENT: ModalAccent = {
+  background: "linear-gradient(135deg, #01304a 0%, #024366 100%)",
+  solid: "#01304a",
+  icon: BookOpen,
+  eyebrow: "Course Builder",
+};
+
+export function ModalShell({ title, subtitle, onClose, children, width = "max-w-xl", accent }: {
   title: string; subtitle?: string; onClose: () => void; children: React.ReactNode; width?: string;
+  accent?: ModalAccent;
 }) {
+  const a = accent ?? DEFAULT_MODAL_ACCENT;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className={`w-full ${width} overflow-hidden rounded-2xl border border-border bg-card shadow-elevated`} onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between gap-4 bg-gradient-to-br from-[#01304a] to-[#024366] p-6 text-white">
-          <div>
-            <div className="text-base font-semibold tracking-tight">{title}</div>
-            {subtitle && <div className="mt-0.5 text-xs text-white/70">{subtitle}</div>}
-          </div>
-          <button onClick={onClose} className="rounded-md p-1 text-white/80 hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
-        </div>
-        {children}
-      </div>
-    </div>
+    <AccentModal
+      maxWidth={width}
+      background={a.background}
+      iconTint="rgba(255,255,255,0.18)"
+      icon={a.icon}
+      eyebrow={a.eyebrow}
+      title={
+        <>
+          {title}
+          {subtitle && <div className="mt-0.5 text-xs font-normal text-white/75">{subtitle}</div>}
+        </>
+      }
+      watermark={{ type: "icon", icon: a.icon }}
+      onClose={onClose}
+    >
+      {children}
+    </AccentModal>
   );
 }
 
@@ -72,7 +89,7 @@ const TYPE_OPTIONS: { value: ExerciseType; icon: React.ComponentType<{ className
   { value: "match", icon: Shuffle },
 ];
 
-export function ActivityModal({ unitId, unitTitle, onClose }: { unitId: string; unitTitle: string; onClose: () => void }) {
+export function ActivityModal({ unitId, unitTitle, onClose, accent }: { unitId: string; unitTitle: string; onClose: () => void; accent?: ModalAccent }) {
   const [phase, setPhase] = useState<SessionPhase>("pre");
   const [name, setName] = useState("");
   const [type, setType] = useState<ExerciseType>("fill_gaps");
@@ -145,7 +162,7 @@ export function ActivityModal({ unitId, unitTitle, onClose }: { unitId: string; 
 
 
   return (
-    <ModalShell title="Activities" subtitle={unitTitle} onClose={onClose} width="max-w-4xl">
+    <ModalShell title="Activities" subtitle={unitTitle} onClose={onClose} width="max-w-4xl" accent={accent}>
       <div className="grid gap-0 md:grid-cols-[1fr_320px]">
         <div className="space-y-5 border-b border-border p-6 md:border-b-0 md:border-r">
           <div className="inline-flex rounded-lg border border-border bg-secondary/40 p-1">
