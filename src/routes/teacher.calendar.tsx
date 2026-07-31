@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { CalendarClock, FileEdit, Video, X } from "lucide-react";
+import { FileEdit, Video, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { userById } from "@/lib/mock-data";
 import { Card, GhostButton, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
@@ -14,7 +14,7 @@ import {
 import { PlanModal } from "@/components/verbo/PlanModal";
 import { CalendarView } from "@/components/verbo/CalendarView";
 import {
-  teacherCalendarEvents, CALENDAR_STATUS_META, EVENT_KIND_META,
+  teacherCalendarEvents, CALENDAR_STATUS_META, EVENT_KIND_META, calendarEventTheme,
   type CalendarEvent,
 } from "@/lib/calendar-events";
 import { WORKSHOPS_KEY, loadWorkshops } from "@/lib/workshops-store";
@@ -40,7 +40,7 @@ function Page() {
   const [plans, setPlans] = useState<Record<string, LessonPlan>>({});
   
   const [planning, setPlanning] = useState<ExtSession | null>(null);
-  const [detailsFor, setDetailsFor] = useState<{ session: ExtSession; mode: "ready" | "completed"; title: string } | null>(null);
+  const [detailsFor, setDetailsFor] = useState<{ session: ExtSession; mode: "ready" | "completed"; title: string; event: CalendarEvent } | null>(null);
   const [cancelling, setCancelling] = useState<ExtSession | null>(null);
   const [clubModal, setClubModal] = useState<Club | null>(null);
   const [releaseFor, setReleaseFor] = useState<Club | null>(null);
@@ -131,11 +131,11 @@ function Page() {
     if (!ev.session) return;
     const s = ev.session;
     if (s.status === "completed") {
-      setDetailsFor({ session: s, mode: "completed", title: ev.title });
+      setDetailsFor({ session: s, mode: "completed", title: ev.title, event: ev });
       return;
     }
     if (s.status === "ready") {
-      setDetailsFor({ session: s, mode: "ready", title: ev.title });
+      setDetailsFor({ session: s, mode: "ready", title: ev.title, event: ev });
       return;
     }
     if (s.status === "absent" || s.status === "no_show" || s.status === "cancelled") return;
@@ -182,38 +182,68 @@ function Page() {
             const statusKey = ((ev.status ?? "scheduled") as keyof typeof CALENDAR_STATUS_META);
             const meta = CALENDAR_STATUS_META[statusKey] ?? CALENDAR_STATUS_META.scheduled;
             const kindMeta = EVENT_KIND_META[ev.kind];
+            const theme = calendarEventTheme(ev, { substitutionAware: true });
             const ended = ev.session ? +new Date(ev.date) + ev.session.duration_minutes * 60_000 <= Date.now() : false;
+            const d = new Date(ev.date);
+            const day = d.toLocaleDateString([], { day: "2-digit" });
+            const month = d.toLocaleDateString([], { month: "short" }).toUpperCase();
+            const weekday = d.toLocaleDateString([], { weekday: "short" });
+            const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            const actionable = !!ev.session && (
+              (ended && ev.status === "ready") || ev.status === "scheduled" || ev.status === "rescheduled"
+            );
             return (
-              <Card key={ev.id} className="flex flex-wrap items-center justify-between gap-4">
+              <div
+                key={ev.id}
+                className="verbo-card-hover group relative flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-2xl border border-border bg-card p-4 pl-6 shadow-soft transition-shadow hover:shadow-floating"
+              >
+                {/* Status accent rail */}
+                <div className="absolute inset-y-0 left-0 w-1.5" style={{ background: theme.background }} aria-hidden />
                 <div className="flex items-center gap-4">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-secondary"><CalendarClock className="h-5 w-5" /></div>
+                  {/* Date block — the date/time is now the protagonist */}
+                  <div
+                    className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl text-white"
+                    style={{ background: theme.background, color: theme.textTone === "dark" ? "#01304a" : undefined }}
+                  >
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] opacity-80">{month}</span>
+                    <span className="text-xl font-bold leading-none">{day}</span>
+                  </div>
                   <div>
-                    <div className="text-sm font-semibold text-foreground">
+                    <div className="text-base font-semibold leading-tight tracking-tight text-foreground">
                       {ev.title}
-                      <span className="ml-2 rounded-full px-1.5 py-0.5 text-[10px] font-semibold text-white" style={{ background: kindMeta.color }}>
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-semibold text-foreground">{weekday} · {time}</span>
+                      {ev.subtitle && <span className="text-xs text-muted-foreground">{ev.subtitle}</span>}
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-white" style={{ background: kindMeta.color }}>
                         {kindMeta.label}
                       </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {fmtDateTime(ev.date)}{ev.subtitle ? ` · ${ev.subtitle}` : ""}
+                      <span
+                        className="rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+                        style={{ color: theme.solid, borderColor: `${theme.solid}55`, background: `${theme.solid}14` }}
+                      >
+                        {meta.label}
+                      </span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium text-white" style={{ backgroundColor: meta.color }}>
-                    {meta.label}
-                  </span>
-                  {ev.session && ended && ev.status === "ready" ? (
-                    <PrimaryButton onClick={() => goReport(ev.session!.id)} className="cursor-pointer">
-                      <FileEdit className="h-4 w-4" /> Fill Session Report
-                    </PrimaryButton>
-                  ) : ev.session && (ev.status === "scheduled" || ev.status === "rescheduled") ? (
-                    <PrimaryButton onClick={() => setPlanning(ev.session!)} className="cursor-pointer">Plan</PrimaryButton>
+                  {actionable ? (
+                    <button
+                      type="button"
+                      onClick={() => (ended && ev.status === "ready" ? goReport(ev.session!.id) : setPlanning(ev.session!))}
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:shadow-floating hover:brightness-110"
+                      style={{ background: theme.background, color: theme.textTone === "dark" ? "#01304a" : undefined }}
+                    >
+                      {ended && ev.status === "ready" ? (<><FileEdit className="h-4 w-4" /> Fill Session Report</>) : "Plan"}
+                    </button>
                   ) : (
                     <GhostButton disabled className="cursor-not-allowed opacity-50">—</GhostButton>
                   )}
                 </div>
-              </Card>
+              </div>
             );
           })}
         </div>
@@ -228,8 +258,13 @@ function Page() {
         />
       )}
 
-      {detailsFor && (
+      {detailsFor && (() => {
+        const theme = calendarEventTheme(detailsFor.event, { substitutionAware: true });
+        return (
         <SessionDetailsModal
+          background={theme.background}
+          iconTint={theme.solid}
+          textTone={theme.textTone}
           session={detailsFor.session}
           plan={plans[detailsFor.session.id]}
           title={detailsFor.title}
@@ -239,7 +274,8 @@ function Page() {
           onCantAttend={() => { const s = detailsFor.session; setDetailsFor(null); setCancelling(s); }}
           onEditPlan={() => { const s = detailsFor.session; setDetailsFor(null); setPlanning(s); }}
         />
-      )}
+        );
+      })()}
 
       {cancelling && (
         <CantAttendModal

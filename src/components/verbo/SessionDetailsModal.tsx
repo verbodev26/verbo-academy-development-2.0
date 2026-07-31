@@ -1,8 +1,8 @@
 // Session Details modal used by the Teacher Calendar for Ready and
 // Completed Performance Sessions. Read-only view of the plan/report plus
 // action shortcuts (Join Live Session, Can't Attend, Edit Lesson Plan).
-import { X, Video, CalendarClock, FileEdit, NotebookPen } from "lucide-react";
-import { GhostButton, PrimaryButton } from "@/components/verbo/ui";
+import { Video, CalendarClock, FileEdit, NotebookPen } from "lucide-react";
+import { GhostButton, PrimaryButton, AccentModalHeader } from "@/components/verbo/ui";
 import type { ExtSession } from "@/lib/sessions-store";
 import type { LessonPlan } from "@/lib/lesson-plans-store";
 
@@ -14,7 +14,8 @@ function fmtTime(iso: string) {
 }
 
 export function SessionDetailsModal({
-  session, plan, title, mode, coverageNote, onClose, onJoin, onCantAttend, onEditPlan,
+  session, plan, title, mode, coverageNote, background, iconTint, textTone = "light",
+  onClose, onJoin, onCantAttend, onEditPlan,
 }: {
   session: ExtSession;
   plan?: LessonPlan;
@@ -24,6 +25,12 @@ export function SessionDetailsModal({
    *  set, a highlighted callout is rendered so a substitute sees it the
    *  moment they open the session — no need to open the Lesson Plan. */
   coverageNote?: string;
+  /** Header accent background (solid or gradient), from calendarEventTheme(). */
+  background?: string;
+  /** Solid version of the accent, used for the header icon tint. */
+  iconTint?: string;
+  /** "dark" when the accent background is light. */
+  textTone?: "light" | "dark";
   onClose: () => void;
   onJoin?: () => void;
   onCantAttend?: () => void;
@@ -36,13 +43,16 @@ export function SessionDetailsModal({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div onClick={(e) => e.stopPropagation()} className="w-full max-w-lg overflow-hidden rounded-2xl bg-card shadow-floating">
-        <div className="flex items-start justify-between border-b border-border px-6 py-5" style={{ background: "linear-gradient(135deg, #01304a 0%, #02466b 100%)" }}>
-          <div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/60">Session Details</div>
-            <h2 className="mt-1 text-lg font-semibold tracking-tight text-white">{title}</h2>
-          </div>
-          <button onClick={onClose} aria-label="Close" className="rounded-md p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white"><X className="h-4 w-4" /></button>
-        </div>
+        <AccentModalHeader
+          background={background ?? "linear-gradient(135deg, #01304a 0%, #02466b 100%)"}
+          iconTint={iconTint ?? "#01304a"}
+          icon={CalendarClock}
+          eyebrow="Session Details"
+          title={title}
+          watermark={{ type: "icon", icon: CalendarClock }}
+          textTone={textTone}
+          onClose={onClose}
+        />
         <div className="space-y-4 px-6 py-5 text-sm">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Info icon={<CalendarClock className="h-3.5 w-3.5" />} label="Date" value={fmtDate(session.date_time)} />
