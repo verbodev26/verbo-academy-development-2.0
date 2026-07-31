@@ -2,13 +2,13 @@ import { createFileRoute, useSearch, useNavigate, Link } from "@tanstack/react-r
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { SESSIONS, ASSIGNMENTS, USERS, studentsOfTeacher, userById, type Session, type SessionStatus } from "@/lib/mock-data";
-import { AccentModal, AccentModalFooter, AnimatedNumber, Card, GhostButton, HeroStatCard, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
+import { AccentModal, AccentModalHeader, AccentModalFooter, AnimatedNumber, Card, GhostButton, HeroStatCard, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
 import { rankLabel } from "@/lib/staff-profile-store";
 import alertIconAsset from "@/assets/Alert.svg.asset.json";
 import planIconAsset from "@/assets/plan.svg.asset.json";
 import completeIconAsset from "@/assets/complete.svg.asset.json";
 
-import { CalendarClock, FileEdit, X, Lock, Plus, Trash2, Download, CheckCircle2, Mic, PenLine, Ear, BookOpen, ChevronRight, Video, Star, AlertTriangle, AlertCircle, Trophy, CalendarDays, Users, Wallet, Sparkles as SparklesIcon, GraduationCap, type LucideIcon } from "lucide-react";
+import { CalendarClock, ClipboardCheck, FileEdit, X, Lock, Plus, Trash2, Download, CheckCircle2, Mic, PenLine, Ear, BookOpen, ChevronRight, Video, Star, AlertTriangle, AlertCircle, Trophy, CalendarDays, Users, Wallet, Sparkles as SparklesIcon, GraduationCap, type LucideIcon } from "lucide-react";
 import { savePerformance, type PerformanceRating } from "@/lib/performance-store";
 import { MACRO_SKILLS as SHARED_MACRO_SKILLS, skillKey as sharedSkillKey, type BaseKey as SharedBaseKey } from "@/lib/skills-taxonomy";
 import { submitSessionReport, updateSession, loadSessions, subscribeSessions, SUB_STATUS_META, isJustificationWindowOpen, type ExtSession, type AttendanceSubStatus } from "@/lib/sessions-store";
@@ -1160,6 +1160,7 @@ function ReportModal({ session, perf, subskills, onClose, onSubmit }: {
 }) {
   const student = userById(session.student_id);
   const [attendance, setAttendance] = useState<Attendance>("present");
+  const [attendanceTouched, setAttendanceTouched] = useState(false);
   const [absentCause, setAbsentCause] = useState<"student" | "teacher">("student");
   // Optional sub-status. `null` means plain Absent — DOES affect metrics.
   // AW/AI/AV all skip the metric penalty (justified). Locked past month end.
@@ -1190,17 +1191,23 @@ function ReportModal({ session, perf, subskills, onClose, onSubmit }: {
     onSubmit(session.id, attendance, perf, subskills, isAbsent ? absentCause : undefined, isAbsent ? absentSub : null, isAbsent ? undefined : (studentNote.trim() || undefined));
   };
 
+  const headerBg = attendanceTouched ? bgFor(attendance) : "#01304a";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4">
-      <div className="report-modal-scroll w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card p-8 shadow-floating">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{submitted ? "Final report preview" : "Session report"}</div>
-            <h2 className="mt-1 text-xl font-semibold tracking-tight text-foreground text-gray-950">{student?.name}</h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">{fmt(session.date_time)}</p>
-          </div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"><X className="h-4 w-4" /></button>
-        </div>
+      <div className="flex w-full max-w-2xl max-h-[90vh] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-floating">
+        <AccentModalHeader
+          background={headerBg}
+          iconTint={headerBg}
+          icon={ClipboardCheck}
+          eyebrow={submitted ? "Final report preview" : "Session report"}
+          title={student?.name ?? "Session report"}
+          watermark={{ type: "icon", icon: ClipboardCheck }}
+          onClose={onClose}
+        />
+        <div className="report-modal-scroll flex-1 overflow-y-auto p-6">
+        <p className="text-sm text-muted-foreground">{fmt(session.date_time)}</p>
+
 
         {submitted ? (
           <ReportPreview
@@ -1223,7 +1230,7 @@ function ReportModal({ session, perf, subskills, onClose, onSubmit }: {
                   return (
                     <button
                       key={opt}
-                      onClick={() => setAttendance(opt)}
+                      onClick={() => { setAttendance(opt); setAttendanceTouched(true); }}
                       style={selected ? { backgroundColor: bgFor(opt) } : undefined}
                       className={`rounded-lg border px-3 py-2 text-sm capitalize transition-colors ${
                         selected ? "border-transparent text-white" : "border-border text-foreground hover:bg-secondary"
@@ -1394,8 +1401,10 @@ function ReportModal({ session, perf, subskills, onClose, onSubmit }: {
             </div>
           </>
         )}
+        </div>
       </div>
     </div>
+
   );
 }
 

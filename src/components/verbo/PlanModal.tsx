@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { X, Lock } from "lucide-react";
+import { NotebookPen, UserRound, CalendarClock, Video } from "lucide-react";
 import { userById } from "@/lib/mock-data";
-import { GhostButton } from "@/components/verbo/ui";
+import { AccentModalHeader, AccentModalFooter, GhostButton, InfoStatRow } from "@/components/verbo/ui";
 import type { LessonPlan, LessonSessionType } from "@/lib/lesson-plans-store";
 import type { ExtSession } from "@/lib/sessions-store";
 import { unitsForStudent, vipUnitDoneMap } from "@/lib/vip-courses-store";
@@ -117,35 +117,39 @@ export function PlanModal({
   const inputCls = "mt-1.5 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring";
   const readOnlyCls = "mt-1.5 w-full rounded-lg border border-input bg-muted px-3 py-2 text-sm text-muted-foreground cursor-not-allowed";
 
+  const NAVY = "#01304a";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl rounded-2xl bg-card p-6 shadow-floating max-h-[90vh] overflow-y-auto">
-        <button onClick={onClose} className="absolute right-4 top-4 cursor-pointer rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Close">
-          <X className="h-4 w-4" />
-        </button>
+      <div onClick={(e) => e.stopPropagation()} className="relative flex w-full max-w-2xl max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-card shadow-floating">
+        <AccentModalHeader
+          background={NAVY}
+          iconTint={NAVY}
+          icon={NotebookPen}
+          eyebrow={student?.access_plan ? `Performance Sessions · Access Plan ${student.access_plan}` : "Performance Sessions"}
+          title="Lesson Plan"
+          watermark={{ type: "icon", icon: NotebookPen }}
+          onClose={onClose}
+        />
 
-        <h3 className="text-lg font-semibold tracking-tight text-foreground">Lesson Plan</h3>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          Performance Sessions · {student?.access_plan ? `Access Plan ${student.access_plan}` : "Access Plan"}
-          {" — "}prepare the pedagogical plan. Saved plans move the session from
+        <div className="flex-1 overflow-y-auto p-6">
+        <p className="text-xs text-muted-foreground">
+          Prepare the pedagogical plan. Saved plans move the session from
           Scheduled to Ready in the calendar. Aim to save ≥5 days before the session for on-time planning.
         </p>
 
         {/* Read-only context */}
-        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div>
-            <label className="text-xs font-medium text-muted-foreground flex items-center gap-1"><Lock className="h-3 w-3" /> Student</label>
-            <input readOnly value={student?.name ?? ""} className={readOnlyCls} />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-muted-foreground flex items-center gap-1"><Lock className="h-3 w-3" /> Date & Time</label>
-            <input readOnly value={new Date(session.date_time).toLocaleString()} className={readOnlyCls} />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="text-xs font-medium text-muted-foreground flex items-center gap-1"><Lock className="h-3 w-3" /> MS Teams Link</label>
-            <input readOnly value={session.teams_link || "—"} className={readOnlyCls} />
-          </div>
+        <div className="mt-4">
+          <InfoStatRow
+            items={[
+              { icon: UserRound, value: student?.name ?? "—", label: "Student", tint: NAVY },
+              { icon: CalendarClock, value: new Date(session.date_time).toLocaleString(), label: "Date & Time", tint: NAVY },
+              { icon: Video, value: session.teams_link ? "Ready" : "—", label: "MS Teams Link", tint: NAVY },
+            ]}
+          />
         </div>
+
+        <div className="my-5 h-px bg-border" />
 
         <div className="mt-4 space-y-4">
           <div>
@@ -253,7 +257,9 @@ export function PlanModal({
           </div>
         </div>
 
-        <div className="mt-6 flex justify-end gap-2">
+        </div>
+
+        <AccentModalFooter>
           <GhostButton onClick={onClose} className="cursor-pointer">Cancel</GhostButton>
           <button
             onClick={submit}
@@ -262,7 +268,7 @@ export function PlanModal({
           >
             Save Lesson Plan
           </button>
-        </div>
+        </AccentModalFooter>
       </div>
     </div>
   );
