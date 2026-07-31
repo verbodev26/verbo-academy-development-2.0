@@ -117,25 +117,28 @@ function TeacherAvatar({
   className?: string;
 }) {
   const avatar = useAvatar(userId);
-  if (avatar) {
-    return (
-      <img
-        src={avatar}
-        alt={name ?? "Teacher"}
-        className={`shrink-0 rounded-full object-cover ${className}`}
-      />
-    );
-  }
-  const initial = (name ?? "?").trim().charAt(0).toUpperCase() || "?";
-  return (
+  const inner = avatar ? (
+    <img
+      src={avatar}
+      alt={name ?? "Teacher"}
+      className={`shrink-0 rounded-full object-cover ${className}`}
+    />
+  ) : (
     <div
       className={`flex shrink-0 items-center justify-center rounded-full bg-[#01304a] text-sm font-semibold text-white ${className}`}
       aria-hidden
     >
-      {initial}
+      {(name ?? "?").trim().charAt(0).toUpperCase() || "?"}
     </div>
   );
+  if (!userId) return inner;
+  return (
+    <ProfilePeekCard userId={userId} displayName={name}>
+      {inner}
+    </ProfilePeekCard>
+  );
 }
+
 
 /** Section heading with a colored icon circle (Class Details modal). */
 function SectionHeadIcon({ icon, circleClass = "", label }: { icon: React.ReactNode; circleClass?: string; label: string }) {
