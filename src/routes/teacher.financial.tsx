@@ -218,7 +218,10 @@ function MyBalancePage() {
             <SectionTitle>My Balance</SectionTitle>
             {tier && <Pill tone="success">{tier.name} tier · ${rate} MXN/h</Pill>}
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">Your payment summary for this period. Read-only.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your payment summary for this period. Check how many sessions you've taught, the adjustments{"\n"}
+            made and monitor your KPIs with absolute transparency.
+          </p>
         </div>
         <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-2 py-1.5 shadow-soft">
           <button
