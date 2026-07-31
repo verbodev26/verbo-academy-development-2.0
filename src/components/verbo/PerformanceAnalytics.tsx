@@ -25,6 +25,8 @@ import {
   subscribeSessions,
 } from "@/lib/sessions-store";
 import { MACRO_SKILLS, skillKey } from "@/lib/skills-taxonomy";
+import { BarChart3 } from "lucide-react";
+import { AccentModal } from "@/components/verbo/ui";
 
 function subAverage(map: PerformanceMap, key: string) {
   const vals: number[] = [];
@@ -193,30 +195,22 @@ export function PerformanceAnalyticsModal({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/40 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-5xl max-h-[92vh] overflow-y-auto rounded-2xl border border-border bg-card p-8 shadow-floating">
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <div className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-              Advanced Performance Analytics
-            </div>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight" style={{ color: "#01304a" }}>
-              Skill breakdown
-            </h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <PlanTierBadge tier={planTier} />
-            <button
-              onClick={onClose}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
-              aria-label="Close"
-            >
-              ✕
-            </button>
-          </div>
+    <AccentModal
+      maxWidth="max-w-5xl"
+      background="linear-gradient(135deg, #01304a 0%, #7e22ce 100%)"
+      iconTint="rgba(255,255,255,0.18)"
+      icon={BarChart3}
+      eyebrow="Advanced Performance Analytics"
+      title="Skill breakdown"
+      watermark={{ icon: BarChart3 }}
+      onClose={onClose}
+    >
+      <div className="max-h-[80vh] overflow-y-auto p-8">
+        <div className="mb-5 flex justify-end">
+          <PlanTierBadge tier={planTier} />
         </div>
         <PerformanceAnalyticsGrid studentId={studentId} />
       </div>
-    </div>
+    </AccentModal>
   );
 }
