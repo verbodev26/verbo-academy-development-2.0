@@ -234,7 +234,10 @@ function Page() {
                         {meta.label}
                       </span>
                       {isNext && needsPlan && (
-                        <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-white" style={{ background: theme.solid }}>
+                        <span
+                          className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                          style={{ background: theme.solid, color: theme.textTone === "dark" ? "#01304a" : undefined }}
+                        >
                           Plan now
                         </span>
                       )}
