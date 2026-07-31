@@ -5,6 +5,37 @@ import { Video, CalendarClock, FileEdit, NotebookPen } from "lucide-react";
 import { GhostButton, PrimaryButton, AccentModalHeader } from "@/components/verbo/ui";
 import type { ExtSession } from "@/lib/sessions-store";
 import type { LessonPlan } from "@/lib/lesson-plans-store";
+import { userById } from "@/lib/mock-data";
+import { unitsForStudent } from "@/lib/vip-courses-store";
+import { tailoredUnitsForStudent } from "@/lib/tailored-content-store";
+import { loadCourses, PRODUCT_TO_COURSE } from "@/lib/product-courses-store";
+
+/** Lime accent used across the app for "join a live session" actions. */
+const LIME = "#5fca16";
+
+/** Resolves the human-readable "Level · Unit" planned for this session, using
+ *  the same sources PlanModal writes from (syllabus course, VIP course or
+ *  Tailored Content). Returns null when the plan targets no unit. */
+function plannedUnitLabel(session: ExtSession, plan?: LessonPlan): string | null {
+  if (!plan) return null;
+  const student = session.student_id ? userById(session.student_id) : undefined;
+  if (plan.vip_unit_id && student) {
+    const u = unitsForStudent(student.id).find((x) => x.id === plan.vip_unit_id);
+    return u ? `VIP · ${u.title}` : null;
+  }
+  if (plan.tailored_unit_id && student) {
+    const u = tailoredUnitsForStudent(student.id).find((x) => x.id === plan.tailored_unit_id);
+    return u ? `Tailored Content · ${u.title}` : null;
+  }
+  if (!plan.unit_id) return null;
+  const productId = student?.product ? PRODUCT_TO_COURSE[student.product] : undefined;
+  const course = productId ? loadCourses().find((c) => c.product === productId) : undefined;
+  for (const level of course?.levels ?? []) {
+    const unit = level.units.find((u) => u.id === plan.unit_id);
+    if (unit) return `${level.name} · ${unit.title}`;
+  }
+  return null;
+}
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
@@ -36,6 +67,11 @@ export function SessionDetailsModal({
   onCantAttend?: () => void;
   onEditPlan?: () => void;
 }) {
+  const isSyllabusType = plan?.type === "Syllabus content" || plan?.type === "Evaluation";
+  const unitLabel = isSyllabusType || plan?.vip_unit_id || plan?.tailored_unit_id
+    ? plannedUnitLabel(session, plan)
+    : null;
+
   const comments = mode === "completed"
     ? (session.report_comments ?? plan?.comments ?? "No comments were left with the Session Report.")
     : (plan?.comments || "No plan comments yet.");
@@ -54,6 +90,19 @@ export function SessionDetailsModal({
           onClose={onClose}
         />
         <div className="space-y-4 px-6 py-5 text-sm">
+          {(plan?.title || plan?.type) && (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {plan?.title && (
+                <Info icon={<NotebookPen className="h-3.5 w-3.5" />} label="Session Title" value={plan.title} />
+              )}
+              {plan?.type && (
+                <Info icon={<NotebookPen className="h-3.5 w-3.5" />} label="Session Type" value={plan.type} />
+              )}
+            </div>
+          )}
+          {unitLabel && (
+            <Info icon={<NotebookPen className="h-3.5 w-3.5" />} label="Planned Level / Unit" value={unitLabel} />
+          )}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Info icon={<CalendarClock className="h-3.5 w-3.5" />} label="Date" value={fmtDate(session.date_time)} />
             <Info icon={<CalendarClock className="h-3.5 w-3.5" />} label="Time" value={`${fmtTime(session.date_time)} · ${session.duration_minutes} min`} />
@@ -92,7 +141,8 @@ export function SessionDetailsModal({
                 href={session.teams_link || "#"}
                 target="_blank" rel="noopener noreferrer"
                 onClick={(e) => { if (!session.teams_link) e.preventDefault(); onJoin?.(); }}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3.5 py-1.5 text-xs font-semibold text-accent-foreground shadow-sm transition-opacity hover:opacity-90"
+                style={{ backgroundColor: LIME }}
+                className="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
               >
                 <Video className="h-3.5 w-3.5" /> Join Live Session
               </a>
