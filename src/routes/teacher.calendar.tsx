@@ -1,10 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { FileEdit, Video, X } from "lucide-react";
+import { FileEdit, Video, Sparkles, BookOpen, Lightbulb, LogOut } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { userById } from "@/lib/mock-data";
-import { Card, GhostButton, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
+import { Card, GhostButton, PrimaryButton, SectionTitle, AccentModal, AccentModalFooter } from "@/components/verbo/ui";
 import {
   loadLessonPlans, saveLessonPlan, subscribeLessonPlans, type LessonPlan,
 } from "@/lib/lesson-plans-store";
@@ -333,31 +333,39 @@ function SpotlightPreviewModal({ session, onClose }: { session: ExtSession; onCl
   const student = userById(session.student_id);
   const connect = () => { if (session.teams_link) window.open(session.teams_link, "_blank"); };
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md rounded-2xl bg-card p-6 shadow-floating">
-        <button onClick={onClose} aria-label="Close" className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground">
-          <X className="h-4 w-4" />
-        </button>
-        <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white" style={{ background: EVENT_KIND_META.spotlight.color }}>
-          Spotlight
-        </span>
-        <h3 className="mt-2 text-lg font-semibold tracking-tight text-foreground">Spotlight with {student?.name ?? "Student"}</h3>
-        <p className="mt-1 text-sm text-muted-foreground">{fmtDateTime(session.date_time)} · {session.duration_minutes} min</p>
+    <AccentModal
+      background={EVENT_KIND_META.spotlight.color}
+      iconTint={EVENT_KIND_META.spotlight.color}
+      icon={Sparkles}
+      eyebrow="Spotlight"
+      title={`Spotlight with ${student?.name ?? "Student"}`}
+      watermark={{ type: "icon", icon: Sparkles }}
+      onClose={onClose}
+    >
+      <div className="px-6 py-5">
+        <p className="text-sm text-muted-foreground">{fmtDateTime(session.date_time)} · {session.duration_minutes} min</p>
         {session.notes && (
           <div className="mt-4 rounded-lg border border-border bg-secondary/30 p-3 text-sm text-foreground">
             <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">What the student needs</div>
             {session.notes}
           </div>
         )}
-        <div className="mt-6 flex gap-2">
-          <PrimaryButton className="flex-1" onClick={connect} disabled={!session.teams_link}>
-            <Video className="h-4 w-4" /> Connect
-          </PrimaryButton>
-          <GhostButton className="flex-1" onClick={onClose}>Close</GhostButton>
-        </div>
       </div>
-    </div>
+      <AccentModalFooter accent={EVENT_KIND_META.spotlight.color}>
+        <GhostButton onClick={onClose}>Close</GhostButton>
+        <PrimaryButton onClick={connect} disabled={!session.teams_link}>
+          <Video className="h-4 w-4" /> Connect
+        </PrimaryButton>
+      </AccentModalFooter>
+    </AccentModal>
   );
+}
+
+/** Club identity, mirroring calendarEventTheme() for insight / book_club. */
+function clubTheme(type: Club["type"]) {
+  return type === "book"
+    ? { background: "linear-gradient(135deg, #c2410c 0%, #000000 100%)", solid: "#c2410c", icon: BookOpen, label: "Book Club" }
+    : { background: "linear-gradient(135deg, #01304a 0%, #05070a 100%)", solid: "#01304a", icon: Lightbulb, label: "Insight" };
 }
 
 // ---------------------------------------------------------------------------
@@ -368,34 +376,32 @@ function SpotlightPreviewModal({ session, onClose }: { session: ExtSession; onCl
 function ClubQuickModal({ club, onClose, onCantAttend }: {
   club: Club; onClose: () => void; onCantAttend: () => void;
 }) {
+  const theme = clubTheme(club.type);
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-floating">
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{club.type === "book" ? "Book Club" : "Insight"}</div>
-            <h2 className="mt-0.5 text-base font-semibold text-foreground">{club.title}</h2>
-          </div>
-          <button onClick={onClose} aria-label="Close" className="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        <div className="px-5 py-4 text-sm text-muted-foreground">
-          {new Date(club.date).toLocaleString(undefined, { weekday: "long", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-          {" · "}{club.spots_taken}/{club.spots_total} Seats
-        </div>
-        <div className="flex justify-end gap-2 border-t border-border bg-secondary/30 px-5 py-3">
-          <GhostButton onClick={onCantAttend}>Can't Attend</GhostButton>
-          <a
-            href={club.link || "#"} target="_blank" rel="noopener noreferrer"
-            onClick={(e) => { if (!club.link) e.preventDefault(); }}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3.5 py-1.5 text-xs font-semibold text-accent-foreground shadow-sm transition-opacity hover:opacity-90"
-          >
-            <Video className="h-3.5 w-3.5" /> Join Club
-          </a>
-        </div>
+    <AccentModal
+      background={theme.background}
+      iconTint={theme.solid}
+      icon={theme.icon}
+      eyebrow={theme.label}
+      title={club.title}
+      watermark={{ type: "icon", icon: theme.icon }}
+      onClose={onClose}
+    >
+      <div className="px-5 py-4 text-sm text-muted-foreground">
+        {new Date(club.date).toLocaleString(undefined, { weekday: "long", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+        {" · "}{club.spots_taken}/{club.spots_total} Seats
       </div>
-    </div>
+      <AccentModalFooter accent={theme.solid}>
+        <GhostButton onClick={onCantAttend}>Can't Attend</GhostButton>
+        <a
+          href={club.link || "#"} target="_blank" rel="noopener noreferrer"
+          onClick={(e) => { if (!club.link) e.preventDefault(); }}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3.5 py-1.5 text-xs font-semibold text-accent-foreground shadow-sm transition-opacity hover:opacity-90"
+        >
+          <Video className="h-3.5 w-3.5" /> Join Club
+        </a>
+      </AccentModalFooter>
+    </AccentModal>
   );
 }
 
@@ -403,30 +409,33 @@ function RequestReleaseModal({ club, onClose, onSubmit }: {
   club: Club; onClose: () => void; onSubmit: (reason: string) => void;
 }) {
   const [reason, setReason] = useState("");
+  const theme = clubTheme(club.type);
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4">
-      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-2xl bg-background shadow-2xl">
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-base font-semibold text-foreground">Request Release</h2>
-          <button onClick={onClose} aria-label="Close" className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"><X className="h-4 w-4" /></button>
+    <AccentModal
+      background={theme.background}
+      iconTint={theme.solid}
+      icon={LogOut}
+      eyebrow={`${theme.label} · Release`}
+      title="Request Release"
+      watermark={{ type: "icon", icon: LogOut }}
+      onClose={onClose}
+    >
+      <div className="space-y-4 px-6 py-5">
+        <div className="rounded-lg bg-secondary/40 px-3 py-2 text-xs text-muted-foreground">
+          <div className="font-medium text-foreground">{club.title}</div>
+          <div>{theme.label} · {new Date(club.date).toLocaleString()}</div>
         </div>
-        <div className="space-y-4 px-6 py-5">
-          <div className="rounded-lg bg-secondary/40 px-3 py-2 text-xs text-muted-foreground">
-            <div className="font-medium text-foreground">{club.title}</div>
-            <div>{club.type === "book" ? "Book Club" : "Insight"} · {new Date(club.date).toLocaleString()}</div>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-foreground">Reason</label>
-            <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={4} placeholder="Why you need to release this club…" className="mt-1.5 w-full resize-none rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-          </div>
-          <p className="text-[11px] text-muted-foreground">This does not release the club immediately — an admin will review. If approved, a penalty may be applied.</p>
+        <div>
+          <label className="text-xs font-medium text-foreground">Reason</label>
+          <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={4} placeholder="Why you need to release this club…" className="mt-1.5 w-full resize-none rounded-lg border border-input bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
         </div>
-        <div className="flex justify-end gap-2 border-t border-border bg-secondary/30 px-6 py-4">
-          <GhostButton onClick={onClose}>Cancel</GhostButton>
-          <PrimaryButton onClick={() => onSubmit(reason.trim())}>Submit Request</PrimaryButton>
-        </div>
+        <p className="text-[11px] text-muted-foreground">This does not release the club immediately — an admin will review. If approved, a penalty may be applied.</p>
       </div>
-    </div>
+      <AccentModalFooter accent={theme.solid}>
+        <GhostButton onClick={onClose}>Cancel</GhostButton>
+        <PrimaryButton onClick={() => onSubmit(reason.trim())}>Submit Request</PrimaryButton>
+      </AccentModalFooter>
+    </AccentModal>
   );
 }
 
