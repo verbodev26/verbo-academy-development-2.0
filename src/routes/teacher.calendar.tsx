@@ -179,11 +179,13 @@ function Page() {
           {upcoming.length === 0 && (
             <Card><p className="text-sm text-muted-foreground">No upcoming sessions on your calendar.</p></Card>
           )}
-          {upcoming.map((ev) => {
+          {upcoming.map((ev, index) => {
             const statusKey = ((ev.status ?? "scheduled") as keyof typeof CALENDAR_STATUS_META);
             const meta = CALENDAR_STATUS_META[statusKey] ?? CALENDAR_STATUS_META.scheduled;
             const kindMeta = EVENT_KIND_META[ev.kind];
             const theme = calendarEventTheme(ev, { substitutionAware: true });
+            const isNext = index === 0;
+            const needsPlan = ev.status === "scheduled" || ev.status === "rescheduled";
             const ended = ev.session ? +new Date(ev.date) + ev.session.duration_minutes * 60_000 <= Date.now() : false;
             const d = new Date(ev.date);
             const day = d.toLocaleDateString([], { day: "2-digit" });
@@ -196,7 +198,11 @@ function Page() {
             return (
               <div
                 key={ev.id}
-                className="verbo-card-hover group relative flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-2xl border border-border bg-card p-4 pl-6 shadow-soft transition-shadow hover:shadow-floating"
+                className={cn(
+                  "verbo-card-hover group relative flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-2xl border border-border bg-card p-4 pl-6 transition-shadow hover:shadow-floating",
+                  !isNext && "shadow-soft",
+                )}
+                style={isNext ? { boxShadow: `0 0 22px -4px color-mix(in srgb, ${theme.solid} 28%, transparent)` } : undefined}
               >
                 {/* Status accent rail */}
                 <div className="absolute inset-y-0 left-0 w-1.5" style={{ background: theme.background }} aria-hidden />
@@ -227,6 +233,11 @@ function Page() {
                       >
                         {meta.label}
                       </span>
+                      {isNext && needsPlan && (
+                        <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-white" style={{ background: theme.solid }}>
+                          Plan now
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
