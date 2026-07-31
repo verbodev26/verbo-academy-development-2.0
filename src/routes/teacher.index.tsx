@@ -1125,7 +1125,7 @@ function QuickAction({ to, icon: Icon, iconSrc, label }: { to: string; icon?: Lu
   return (
     <Link
       to={to as any}
-      className="group flex items-center gap-4 rounded-2xl bg-card px-5 py-5 shadow-soft transition-shadow duration-200 hover:shadow-floating verbo-card-hover"
+      className="group flex items-center gap-4 rounded-2xl bg-card px-5 py-5 shadow-[0_8px_20px_-8px_rgba(243,137,52,0.18)] transition-shadow duration-200 hover:shadow-floating verbo-card-hover"
     >
       {iconSrc ? (
         <img src={iconSrc} alt="" aria-hidden className="h-12 w-12 shrink-0 object-contain" />
