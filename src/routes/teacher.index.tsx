@@ -61,8 +61,8 @@ const CRIMSON = "#b52904";
 const CRIMSON_BG = "linear-gradient(150deg, #c2410c 0%, #b52904 55%, #760137 100%)";
 const VIOLET = "var(--violet-500)";
 const VIOLET_BG = "linear-gradient(150deg, var(--violet-300) 0%, var(--violet-500) 55%, var(--violet-900) 100%)";
-const GREEN = "var(--green-500)";
-const GREEN_BG = "linear-gradient(150deg, var(--green-300) 0%, var(--green-500) 55%, var(--green-700) 100%)";
+const GREEN = "#5fca16";
+const GREEN_BG = "linear-gradient(150deg, #7ee02d 0%, #5fca16 55%, #3ea008 100%)";
 const ORANGE = "#ea580c";
 const YELLOW = "#eab308";
 
@@ -123,10 +123,12 @@ function TeacherDashboard() {
   // so refresh doesn't re-open the modal after cancel.
   useEffect(() => {
     if (!reportId) return;
-    const s = sessions.find((x) => x.id === reportId);
-    if (s && !evaluating && !editing) setEvaluating(s);
+    const s =
+      sessions.find((x) => x.id === reportId) ??
+      (liveSessions.find((x) => x.id === reportId) as unknown as Session | undefined);
+    if (s && !evaluating && !editing) { setOpenPanel(null); setEvaluating(s); }
     navigate({ to: "/teacher", search: {} as never, replace: true });
-  }, [reportId, sessions]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [reportId, sessions, liveSessions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-lock overdue sessions: flip to completed-without-report
   useEffect(() => {
@@ -147,7 +149,7 @@ function TeacherDashboard() {
   const mySessions = sessions.filter((s) => s.teacher_id === user.id);
   const upcoming = mySessions.filter((s) => s.status === "scheduled").sort((a, b) => +new Date(a.date_time) - +new Date(b.date_time));
   const recent = mySessions.filter((s) => s.status !== "scheduled").slice(0, 5);
-  const toPlan = upcoming.slice(0, 3);
+  const toPlan = upcoming.filter((s) => !plans[s.id]).slice(0, 3);
 
   // ---- Real-data derivations (cards, Needs Attention, Recent Activity) ----
   const teacherUser = USERS.find((u) => u.id === user.id && u.role === "teacher") ?? null;
@@ -256,6 +258,19 @@ function TeacherDashboard() {
     });
   };
 
+  // Opens the Session Report modal for a session listed in "Needs Your
+  // Attention". Those items come from the live store, so we fall back to it
+  // when the legacy in-memory mirror doesn't have the id. The panel is closed
+  // so two modals never stay mounted on top of each other.
+  const openSessionReport = (id: string) => {
+    const s =
+      sessions.find((x) => x.id === id) ??
+      (myLive.find((x) => x.id === id) as unknown as Session | undefined);
+    if (!s) return;
+    setOpenPanel(null);
+    setEvaluating(s);
+  };
+
   // ---- Needs Your Attention items ----
   type AttentionChip = { label: string; color: string };
   type AttentionItem = { id: string; icon: LucideIcon; text: string; tone: "warning" | "danger" | "info"; iconClassName?: string; iconWrapClassName?: string; chip?: AttentionChip; cta?: { label: string; to?: string; onClick?: () => void; search?: Record<string, string> } };
@@ -298,7 +313,7 @@ function TeacherDashboard() {
       text: overdue
         ? `Session Report overdue — ${who} (${fmt(s.date_time)})`
         : `Session Report pending — ${who} (${fmt(s.date_time)})`,
-      cta: { label: overdue ? "Open Report" : "Fill Report", to: "/teacher", search: { report: s.id } },
+      cta: { label: overdue ? "Open Report" : "Fill Report", onClick: () => openSessionReport(s.id) },
     });
   }
 
@@ -330,7 +345,7 @@ function TeacherDashboard() {
       text: overdue
         ? `Club Report overdue — ${ev.title} (${fmt(ev.date)})`
         : `Club Report pending — ${ev.title} (${fmt(ev.date)})`,
-      cta: { label: overdue ? "Open Report" : "Fill Report", onClick: () => openClubReport(ev) },
+      cta: { label: overdue ? "Open Report" : "Fill Report", onClick: () => { setOpenPanel(null); openClubReport(ev); } },
     });
   }
 
@@ -824,7 +839,7 @@ function TeacherDashboard() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90"
-                        style={{ backgroundColor: "#16a34a" }}
+                        style={{ backgroundColor: "#5fca16" }}
                       >
                         <Video className="h-4 w-4" /> Join Live Session
                       </a>
@@ -838,7 +853,7 @@ function TeacherDashboard() {
                           <Lock className="h-4 w-4" /> Overdue (Locked)
                         </button>
                       ) : (
-                        <PrimaryButton onClick={() => setEvaluating(s)}>
+                        <PrimaryButton accentColor={GREEN} onClick={() => setEvaluating(s)}>
                           <FileEdit className="h-4 w-4" /> Fill session report
                         </PrimaryButton>
                       )
@@ -869,7 +884,7 @@ function TeacherDashboard() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-2">
-                    <PrimaryButton onClick={() => openClubReport(ev)}>
+                    <PrimaryButton accentColor={GREEN} onClick={() => openClubReport(ev)}>
                       <FileEdit className="h-4 w-4" /> Fill Report
                     </PrimaryButton>
                   </div>
@@ -1197,6 +1212,7 @@ function ReportModal({ session, perf, subskills, onClose, onSubmit }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4">
       <div className="flex w-full max-w-2xl max-h-[90vh] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-floating">
+        <div className="shrink-0">
         <AccentModalHeader
           background={headerBg}
           iconTint={headerBg}
@@ -1206,6 +1222,7 @@ function ReportModal({ session, perf, subskills, onClose, onSubmit }: {
           watermark={{ type: "icon", icon: ClipboardCheck }}
           onClose={onClose}
         />
+        </div>
         <div className="report-modal-scroll flex-1 overflow-y-auto p-6">
         <p className="text-sm text-muted-foreground">{fmt(session.date_time)}</p>
 
@@ -1613,7 +1630,7 @@ function PerformanceEvaluationModal({
     <AccentModal
       maxWidth="max-w-2xl"
       background="linear-gradient(135deg, #01304a 0%, #024366 100%)"
-      iconTint="rgba(255,255,255,0.16)"
+      iconTint="#01304a"
       icon={Gauge}
       eyebrow="Step 1 of 2"
       title="Student Performance Evaluation"
@@ -1715,7 +1732,7 @@ function SubSkillModal({
       maxWidth="max-w-xl"
       zClass="z-[60]"
       background="linear-gradient(135deg, #024366 0%, #01304a 100%)"
-      iconTint="rgba(255,255,255,0.16)"
+      iconTint="#01304a"
       icon={Icon}
       eyebrow="Tier 2 evaluation"
       title={`${macro.key} Session Evaluation`}

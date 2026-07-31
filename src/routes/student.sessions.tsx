@@ -616,43 +616,41 @@ function EventDetailsModal({
           )
         )}
 
-        <div className="mt-6 flex gap-2">
+        <div className="mt-6 flex flex-col gap-2">
           {canAct ? (
             plan ? (
               <>
-                <GhostButton className="flex-1 justify-center" onClick={prepare}>
+                <GhostButton className="w-full justify-center" onClick={prepare}>
                   <BookOpen className="h-3.5 w-3.5" /> Prepare Session
                 </GhostButton>
-                <ConnectButton className="flex-1" enabled={connectOpen} onClick={connect} />
+                <div className="flex items-center gap-2">
+                  <ConnectButton className="flex-1" enabled={connectOpen} onClick={connect} />
+                  <button
+                    type="button"
+                    onClick={() => session && onCantAttend(session)}
+                    className="group inline-flex h-8 shrink-0 items-center gap-1.5 self-center overflow-hidden whitespace-nowrap rounded-full border border-destructive/40 bg-destructive/10 px-2 text-xs font-medium text-destructive transition-all duration-200 hover:border-destructive hover:bg-destructive hover:px-3 hover:text-destructive-foreground"
+                  >
+                    <X className="h-3.5 w-3.5 shrink-0" />
+                    <span className="max-w-0 overflow-hidden transition-all duration-200 group-hover:max-w-[60px]">Cancel</span>
+                  </button>
+                </div>
               </>
             ) : (
               <GhostButton className="w-full justify-center" onClick={onClose}>Close</GhostButton>
             )
           ) : canConnectSpotlight ? (
-            <>
+            <div className="flex gap-2">
               <ConnectButton className="flex-1" enabled={connectOpen} onClick={connect} />
               {status === "scheduled" && (
                 <GhostButton className="flex-1" onClick={() => session && onCancelSpotlight(session)}>
                   Cancel Spotlight
                 </GhostButton>
               )}
-            </>
+            </div>
           ) : (
             <GhostButton className="w-full" onClick={onClose}>Close</GhostButton>
           )}
         </div>
-        {canAct && plan && (
-          <div className="mt-2 flex justify-end">
-            <button
-              type="button"
-              onClick={() => session && onCantAttend(session)}
-              className="group inline-flex h-8 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-full border border-border bg-background px-2 text-xs font-medium text-muted-foreground transition-all duration-200 hover:border-destructive/40 hover:bg-destructive/10 hover:px-3 hover:text-destructive"
-            >
-              <X className="h-3.5 w-3.5 shrink-0" />
-              <span className="max-w-0 overflow-hidden transition-all duration-200 group-hover:max-w-[60px]">Cancel</span>
-            </button>
-          </div>
-        )}
         </div>
       </div>
 

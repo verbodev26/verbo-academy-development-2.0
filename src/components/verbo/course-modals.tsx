@@ -48,7 +48,7 @@ export function ModalShell({ title, subtitle, onClose, children, width = "max-w-
     <AccentModal
       maxWidth={width}
       background={a.background}
-      iconTint="rgba(255,255,255,0.18)"
+      iconTint={a.solid}
       icon={a.icon}
       eyebrow={a.eyebrow}
       title={
