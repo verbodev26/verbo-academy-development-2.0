@@ -28,6 +28,10 @@ import { loadClubReports, subscribeClubReports, type ClubReport } from "@/lib/cl
 import { ClubReportModal, type ClubReportEventInput } from "@/components/verbo/ClubReportModal";
 import { RatingTrendModal } from "@/components/verbo/RatingTrendModal";
 import { getCoverageNoteForStudent } from "@/lib/coverage-notes-store";
+import studentsIconAsset from "@/assets/students_assigned.svg.asset.json";
+import upcomingIconAsset from "@/assets/Upcoming_sessions.svg.asset.json";
+import starIconAsset from "@/assets/Star.svg.asset.json";
+import performanceIconAsset from "@/assets/performance.svg.asset.json";
 
 export const Route = createFileRoute("/teacher/")({
   // Optional deep-link from the Calendar page → auto-open the Session Report
@@ -489,7 +493,7 @@ function TeacherDashboard() {
               className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
               style={{ color: "#1f7a70", background: "rgba(62,187,173,0.14)" }}
             >
-              <Users className="h-5 w-5" />
+              <img src={studentsIconAsset.url} alt="" className="h-5 w-5" />
             </div>
             <div className="relative w-full">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -508,7 +512,7 @@ function TeacherDashboard() {
               className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl"
               style={{ color: "#a34ac0", background: "rgba(163,74,192,0.12)" }}
             >
-              <CalendarDays className="h-5 w-5" />
+              <img src={upcomingIconAsset.url} alt="" className="h-5 w-5" />
             </div>
             <div className="relative w-full">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -528,7 +532,7 @@ function TeacherDashboard() {
             style={{ ["--verbo-focus-pulse-color" as any]: ratingGlow } as React.CSSProperties}
           >
             <div className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-              <Star className="h-5 w-5" />
+              <img src={starIconAsset.url} alt="" className="h-5 w-5" />
             </div>
             <div className="relative w-full">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -547,7 +551,7 @@ function TeacherDashboard() {
             style={{ ["--verbo-focus-pulse-color" as any]: performanceGlow } as React.CSSProperties}
           >
             <div className="absolute right-6 top-6 flex h-11 w-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-              <Trophy className="h-5 w-5" />
+              <img src={performanceIconAsset.url} alt="" className="h-5 w-5" />
             </div>
             <div className="relative w-full">
               <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
