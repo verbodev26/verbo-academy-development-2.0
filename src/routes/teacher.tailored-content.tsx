@@ -12,6 +12,7 @@ import { loadSessions, subscribeSessions } from "@/lib/sessions-store";
 import { loadLessonPlans, subscribeLessonPlans } from "@/lib/lesson-plans-store";
 import {
   Field, ModalFooter, ModalShell, inputCls,
+  type ModalAccent,
 } from "@/components/verbo/course-modals";
 import { Card, GhostButton, PrimaryButton, Pill } from "@/components/verbo/ui";
 import {
@@ -266,6 +267,13 @@ function StudentBuilder({ studentId, studentName, onBack }: {
   );
 }
 
+const TAILORED_ACCENT: ModalAccent = {
+  background: "linear-gradient(135deg, #f38934 0%, #7c2d12 100%)",
+  solid: "#f38934",
+  icon: Sparkles,
+  eyebrow: "Tailored Content",
+};
+
 function TailoredUnitModal({ editingUnit, onClose, onCreate, onUpdate }: {
   editingUnit?: TailoredUnit;
   onClose: () => void;
@@ -287,6 +295,7 @@ function TailoredUnitModal({ editingUnit, onClose, onCreate, onUpdate }: {
     <ModalShell
       title={isEdit ? "Edit Unit" : "New Unit"}
       subtitle={isEdit ? "Update this unit." : "Name this unit's topic and attach the downloadable material."}
+      accent={TAILORED_ACCENT}
       onClose={onClose}
     >
       <div className="space-y-4 p-6">

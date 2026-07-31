@@ -2,6 +2,7 @@ import { createFileRoute, useSearch, useNavigate, Link } from "@tanstack/react-r
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { SESSIONS, ASSIGNMENTS, USERS, studentsOfTeacher, userById, type Session, type SessionStatus } from "@/lib/mock-data";
+import { Gauge } from "lucide-react";
 import { AccentModal, AccentModalHeader, AccentModalFooter, AnimatedNumber, Card, GhostButton, HeroStatCard, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
 import { rankLabel } from "@/lib/staff-profile-store";
 import alertIconAsset from "@/assets/Alert.svg.asset.json";
@@ -1609,32 +1610,18 @@ function PerformanceEvaluationModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4"
+    <AccentModal
+      maxWidth="max-w-2xl"
+      background="linear-gradient(135deg, #01304a 0%, #024366 100%)"
+      iconTint="rgba(255,255,255,0.16)"
+      icon={Gauge}
+      eyebrow="Step 1 of 2"
+      title="Student Performance Evaluation"
+      watermark={{ type: "icon", icon: Gauge }}
+      onClose={onClose}
     >
-      <div
-        className="w-full max-w-2xl rounded-2xl border border-border bg-card p-8 shadow-floating"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Step 1 of 2</div>
-            <h2 className="mt-1 text-xl font-semibold tracking-tight" style={{ color: "#01304a" }}>
-              Student Performance Evaluation
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="mt-5 rounded-lg border border-border bg-secondary/40 p-4 text-sm">
+      <div className="p-8 pt-6">
+        <div className=" rounded-lg border border-border bg-secondary/40 p-4 text-sm">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Student</div>
@@ -1698,7 +1685,7 @@ function PerformanceEvaluationModal({
           onClose={() => setActiveMacro(null)}
         />
       )}
-    </div>
+    </AccentModal>
   );
 }
 
@@ -1724,37 +1711,19 @@ function SubSkillModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-foreground/50 backdrop-blur-sm p-4"
+    <AccentModal
+      maxWidth="max-w-xl"
+      zClass="z-[60]"
+      background="linear-gradient(135deg, #024366 0%, #01304a 100%)"
+      iconTint="rgba(255,255,255,0.16)"
+      icon={Icon}
+      eyebrow="Tier 2 evaluation"
+      title={`${macro.key} Session Evaluation`}
+      watermark={{ type: "icon", icon: Icon }}
+      onClose={onClose}
     >
-      <div
-        className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card p-8 shadow-floating"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: "rgba(1, 48, 74, 0.06)", color: "#01304a" }}>
-              <Icon className="h-5 w-5" strokeWidth={1.6} />
-            </div>
-            <div>
-              <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Tier 2 evaluation</div>
-              <h3 className="text-lg font-semibold tracking-tight" style={{ color: "#01304a" }}>
-                {macro.key} Session Evaluation
-              </h3>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="mt-6 space-y-4">
+      <div className="max-h-[70vh] overflow-y-auto p-8 pt-6">
+        <div className="space-y-4">
           {macro.subs.map((s) => {
             const v = scores[subKey(macro.key, s.name)];
             const active = typeof v === "number";
@@ -1819,7 +1788,7 @@ function SubSkillModal({
           </button>
         </div>
       </div>
-    </div>
+    </AccentModal>
   );
 }
 

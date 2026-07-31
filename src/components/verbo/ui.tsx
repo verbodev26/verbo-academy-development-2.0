@@ -131,6 +131,7 @@ export function AccentModal({
   onClose,
   textTone = "light",
   maxWidth = "max-w-md",
+  zClass = "z-50",
   children,
 }: {
   background: string;
@@ -143,11 +144,13 @@ export function AccentModal({
   textTone?: "light" | "dark";
   /** Tailwind max-width class for the card. */
   maxWidth?: string;
+  /** Tailwind z-index class, for modals stacked on top of another modal. */
+  zClass?: string;
   children: ReactNode;
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+      className={`fixed inset-0 ${zClass} flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm`}
       onClick={onClose}
     >
       <div

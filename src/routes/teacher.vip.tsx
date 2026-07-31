@@ -11,6 +11,7 @@ import { loadSessions, subscribeSessions } from "@/lib/sessions-store";
 import { loadLessonPlans, subscribeLessonPlans } from "@/lib/lesson-plans-store";
 import {
   ActivityModal, Field, ModalFooter, ModalShell, inputCls,
+  type ModalAccent,
 } from "@/components/verbo/course-modals";
 import { Card, GhostButton, PrimaryButton, Pill } from "@/components/verbo/ui";
 import { loadActivities } from "@/lib/activities-store";
@@ -271,12 +272,20 @@ function StudentBuilder({ studentId, studentName, onBack }: {
         <ActivityModal
           unitId={actModalUnit.unitId}
           unitTitle={actModalUnit.unitTitle}
+          accent={VIP_ACCENT}
           onClose={() => { setActModalUnit(null); setActRev((r) => r + 1); }}
         />
       )}
     </div>
   );
 }
+
+const VIP_ACCENT: ModalAccent = {
+  background: "linear-gradient(135deg, #f38934 0%, #c2410c 100%)",
+  solid: "#f38934",
+  icon: Crown,
+  eyebrow: "VIP Course Builder",
+};
 
 function VipUnitModal({ editingUnit, onClose, onCreate, onUpdate }: {
   editingUnit?: VipUnit;
@@ -299,6 +308,7 @@ function VipUnitModal({ editingUnit, onClose, onCreate, onUpdate }: {
     <ModalShell
       title={isEdit ? "Edit Unit" : "New Unit"}
       subtitle={isEdit ? "Update this unit. Activities remain untouched." : "Name this week’s topic and attach the downloadable material."}
+      accent={VIP_ACCENT}
       onClose={onClose}
     >
       <div className="space-y-4 p-6">
