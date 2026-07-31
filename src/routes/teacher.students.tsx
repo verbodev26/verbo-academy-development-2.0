@@ -479,9 +479,9 @@ function StudentDetailModal({
           <>
             {/* --- Sessions balance --- */}
             {productType === "performance" && (
-              <section className="mt-6 rounded-xl border border-border bg-background p-5">
+              <section className="mt-6 rounded-xl border border-border border-l-4 border-l-navy-700 bg-background p-5">
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  <GraduationCap className="h-3.5 w-3.5" /> Sessions balance (current cycle)
+                  <GraduationCap className="h-3.5 w-3.5 text-navy-700" /> Sessions balance (current cycle)
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-4">
                   <Stat label="Contracted" value={String(hired)} />
@@ -502,10 +502,10 @@ function StudentDetailModal({
             </section>
 
             {/* --- Overall Attendance --- */}
-            <section className={`mt-4 rounded-xl border p-5 ${attAlert ? "border-destructive/50 verbo-pay-glow" : "border-border"} bg-background`}>
+            <section className={`mt-4 rounded-xl border border-l-4 p-5 ${attAlert ? "border-destructive/50 border-l-destructive verbo-pay-glow" : "border-border border-l-green-500"} bg-background`}>
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  <CalendarCheck className="h-3.5 w-3.5" /> Overall Attendance
+                  <CalendarCheck className={`h-3.5 w-3.5 ${attAlert ? "text-destructive" : "text-green-500"}`} /> Overall Attendance
                 </div>
                 <span className="text-2xl font-bold tabular-nums text-foreground">{attPct}%</span>
               </div>
@@ -523,11 +523,11 @@ function StudentDetailModal({
               <button
                 type="button"
                 onClick={() => setShowAnalytics(true)}
-                className={`w-full rounded-xl border p-4 text-left transition-all hover:bg-secondary/40 ${anySkillLow ? "border-destructive/40 verbo-pay-glow" : "border-border"} bg-background`}
+                className={`w-full rounded-xl border border-l-4 p-4 text-left transition-all hover:bg-secondary/40 ${anySkillLow ? "border-destructive/40 border-l-destructive verbo-pay-glow" : "border-border border-l-violet-500"} bg-background`}
               >
                 <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <Layers className="h-3.5 w-3.5" /> Overall Skills
+                    <Layers className={`h-3.5 w-3.5 ${anySkillLow ? "text-destructive" : "text-violet-500"}`} /> Overall Skills
                   </div>
                   <span className="text-[11px] font-semibold" style={{ color: "#f38934" }}>View Detailed Analytics →</span>
                 </div>
@@ -556,8 +556,8 @@ function StudentDetailModal({
 
             {/* --- Video call link (read only) --- */}
             {s.video_call_link && (
-              <section className="mt-4 flex items-center gap-2 rounded-xl border border-border bg-background p-4 text-sm">
-                <Video className="h-4 w-4 text-muted-foreground" />
+              <section className="mt-4 flex items-center gap-2 rounded-xl border border-border border-l-4 border-l-accent bg-background p-4 text-sm">
+                <Video className="h-4 w-4 text-accent" />
                 <span className="text-muted-foreground">Video Call Link:</span>
                 <a
                   href={s.video_call_link}
