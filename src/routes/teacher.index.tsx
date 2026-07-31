@@ -880,9 +880,9 @@ function TeacherDashboard() {
       <section>
         <SectionTitle>Quick Actions</SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <QuickAction to="/teacher/availability" icon={CalendarDays} label="My Availability" />
-          <QuickAction to="/teacher/clubs" icon={SparklesIcon} label="Available Clubs" />
-          <QuickAction to="/teacher/financial" icon={Wallet} label="My Balance" />
+          <QuickAction to="/teacher/availability" iconSrc={availabilityIconAsset.url} label="My Availability" />
+          <QuickAction to="/teacher/clubs" iconSrc={clubsIconAsset.url} label="Available Clubs" />
+          <QuickAction to="/teacher/financial" iconSrc={balanceIconAsset.url} label="My Balance" />
           {hasVipStudent && (
             <QuickAction to="/teacher/vip" icon={GraduationCap} label="Course Builder VIP" />
           )}
