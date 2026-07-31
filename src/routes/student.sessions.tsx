@@ -565,9 +565,16 @@ function EventDetailsModal({
 
         {(isClass || isSpotlight) && session && (
           <div className="vc-rise mt-4 space-y-2 text-sm" style={{ animationDelay: "0.3s" }}>
-            <Row label="Teacher" value={teacherName ?? "—"} />
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Teacher</span>
+              <span className="flex items-center gap-2">
+                <TeacherPeekAvatar userId={session.teacher_id} name={teacherName} />
+                <span className="font-medium text-foreground">{teacherName ?? "—"}</span>
+              </span>
+            </div>
           </div>
         )}
+
 
         {isClass && session && isAbsent && (
           <>
