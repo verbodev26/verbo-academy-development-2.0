@@ -32,6 +32,9 @@ import studentsIconAsset from "@/assets/students_assigned.svg.asset.json";
 import upcomingIconAsset from "@/assets/Upcoming_sessions.svg.asset.json";
 import starIconAsset from "@/assets/Star.svg.asset.json";
 import performanceIconAsset from "@/assets/performance.svg.asset.json";
+import availabilityIconAsset from "@/assets/availability.svg.asset.json";
+import clubsIconAsset from "@/assets/clubs.svg.asset.json";
+import balanceIconAsset from "@/assets/balance.svg.asset.json";
 
 export const Route = createFileRoute("/teacher/")({
   // Optional deep-link from the Calendar page → auto-open the Session Report
@@ -880,9 +883,9 @@ function TeacherDashboard() {
       <section>
         <SectionTitle>Quick Actions</SectionTitle>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <QuickAction to="/teacher/availability" icon={CalendarDays} label="My Availability" />
-          <QuickAction to="/teacher/clubs" icon={SparklesIcon} label="Available Clubs" />
-          <QuickAction to="/teacher/financial" icon={Wallet} label="My Balance" />
+          <QuickAction to="/teacher/availability" iconSrc={availabilityIconAsset.url} label="My Availability" />
+          <QuickAction to="/teacher/clubs" iconSrc={clubsIconAsset.url} label="Available Clubs" />
+          <QuickAction to="/teacher/financial" iconSrc={balanceIconAsset.url} label="My Balance" />
           {hasVipStudent && (
             <QuickAction to="/teacher/vip" icon={GraduationCap} label="Course Builder VIP" />
           )}
@@ -1099,15 +1102,19 @@ function TeacherDashboard() {
   );
 }
 
-function QuickAction({ to, icon: Icon, label }: { to: string; icon: LucideIcon; label: string }) {
+function QuickAction({ to, icon: Icon, iconSrc, label }: { to: string; icon?: LucideIcon; iconSrc?: string; label: string }) {
   return (
     <Link
       to={to as any}
       className="group flex items-center gap-4 rounded-2xl bg-card px-5 py-5 shadow-soft transition-shadow duration-200 hover:shadow-floating verbo-card-hover"
     >
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent">
-        <Icon className="h-6 w-6" />
-      </div>
+      {iconSrc ? (
+        <img src={iconSrc} alt="" aria-hidden className="h-12 w-12 shrink-0 object-contain" />
+      ) : (
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent">
+          {Icon ? <Icon className="h-6 w-6" /> : null}
+        </div>
+      )}
       <div className="min-w-0 text-sm font-semibold text-foreground">{label}</div>
       <ChevronRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5" />
     </Link>
