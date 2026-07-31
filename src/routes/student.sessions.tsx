@@ -71,6 +71,8 @@ import { groupOfStudent, incrementGroupRemaining, effectiveSessionCounts, sessio
 import { useCoreFreemiumGate } from "@/components/verbo/CoreFreemiumFlow";
 import { isSilenced, hasCreditUsed as freemiumUsed, markCreditUsed as markFreemiumUsed } from "@/lib/core-freemium-store";
 import { effectiveHourlyRate, appendTeacherAdjustment } from "@/lib/teacher-tiers";
+import { ProfilePeekCard } from "@/components/verbo/ProfilePeekCard";
+import { useAvatar } from "@/lib/avatar-store";
 
 
 
@@ -564,9 +566,16 @@ function EventDetailsModal({
 
         {(isClass || isSpotlight) && session && (
           <div className="vc-rise mt-4 space-y-2 text-sm" style={{ animationDelay: "0.3s" }}>
-            <Row label="Teacher" value={teacherName ?? "—"} />
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Teacher</span>
+              <span className="flex items-center gap-2">
+                <TeacherPeekAvatar userId={session.teacher_id} name={teacherName} />
+                <span className="font-medium text-foreground">{teacherName ?? "—"}</span>
+              </span>
+            </div>
           </div>
         )}
+
 
         {isClass && session && isAbsent && (
           <>
@@ -657,7 +666,29 @@ function EventDetailsModal({
     </div>
   );
 }
+/** Small teacher avatar that opens a read-only profile peek card. */
+function TeacherPeekAvatar({ userId, name }: { userId?: string; name?: string }) {
+  const avatar = useAvatar(userId);
+  const inner = avatar ? (
+    <img src={avatar} alt={name ?? "Teacher"} className="h-8 w-8 shrink-0 rounded-full object-cover" />
+  ) : (
+    <div
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#01304a] text-xs font-semibold text-white"
+      aria-hidden
+    >
+      {(name ?? "?").trim().charAt(0).toUpperCase() || "?"}
+    </div>
+  );
+  if (!userId) return inner;
+  return (
+    <ProfilePeekCard userId={userId} displayName={name}>
+      {inner}
+    </ProfilePeekCard>
+  );
+}
+
 function Row({ label, value, accent }: { label: string; value: string; accent?: string }) {
+
   return (
     <div className="flex items-center justify-between">
       <span className="text-muted-foreground">{label}</span>
