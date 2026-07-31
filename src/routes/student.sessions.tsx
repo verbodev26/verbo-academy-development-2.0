@@ -665,7 +665,29 @@ function EventDetailsModal({
     </div>
   );
 }
+/** Small teacher avatar that opens a read-only profile peek card. */
+function TeacherPeekAvatar({ userId, name }: { userId?: string; name?: string }) {
+  const avatar = useAvatar(userId);
+  const inner = avatar ? (
+    <img src={avatar} alt={name ?? "Teacher"} className="h-8 w-8 shrink-0 rounded-full object-cover" />
+  ) : (
+    <div
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#01304a] text-xs font-semibold text-white"
+      aria-hidden
+    >
+      {(name ?? "?").trim().charAt(0).toUpperCase() || "?"}
+    </div>
+  );
+  if (!userId) return inner;
+  return (
+    <ProfilePeekCard userId={userId} displayName={name}>
+      {inner}
+    </ProfilePeekCard>
+  );
+}
+
 function Row({ label, value, accent }: { label: string; value: string; accent?: string }) {
+
   return (
     <div className="flex items-center justify-between">
       <span className="text-muted-foreground">{label}</span>
