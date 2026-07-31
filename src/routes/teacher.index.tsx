@@ -1609,32 +1609,18 @@ function PerformanceEvaluationModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4"
+    <AccentModal
+      maxWidth="max-w-2xl"
+      background="linear-gradient(135deg, #01304a 0%, #024366 100%)"
+      iconTint="rgba(255,255,255,0.16)"
+      icon={Gauge}
+      eyebrow="Step 1 of 2"
+      title="Student Performance Evaluation"
+      watermark={{ type: "icon", icon: Gauge }}
+      onClose={onClose}
     >
-      <div
-        className="w-full max-w-2xl rounded-2xl border border-border bg-card p-8 shadow-floating"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Step 1 of 2</div>
-            <h2 className="mt-1 text-xl font-semibold tracking-tight" style={{ color: "#01304a" }}>
-              Student Performance Evaluation
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-
-        <div className="mt-5 rounded-lg border border-border bg-secondary/40 p-4 text-sm">
+      <div className="p-8 pt-6">
+        <div className=" rounded-lg border border-border bg-secondary/40 p-4 text-sm">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Student</div>
