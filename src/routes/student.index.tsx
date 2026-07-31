@@ -89,6 +89,7 @@ import pencilIconAsset from "@/assets/pencil-animation.svg.asset.json";
 import soundWavesIconAsset from "@/assets/sound-waves.svg.asset.json";
 import bookIconAsset from "@/assets/book-icon.svg.asset.json";
 import { useAvatar } from "@/lib/avatar-store";
+import { ProfilePeekCard } from "@/components/verbo/ProfilePeekCard";
 
 const MACRO_ICON_ASSETS: Record<string, string> = {
   Speaking: micIconAsset.url,

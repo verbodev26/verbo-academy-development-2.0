@@ -204,6 +204,7 @@ const DIFFICULTY_MOTIF: Record<DifficultyId, typeof Trophy> = {
 
 export { categoryTheme } from "@/lib/challenge-theme";
 import { categoryTheme } from "@/lib/challenge-theme";
+import { ProfilePeekCard } from "@/components/verbo/ProfilePeekCard";
 
 function ChallengeSurface({
   difficulty,
