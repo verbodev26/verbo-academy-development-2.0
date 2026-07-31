@@ -446,8 +446,9 @@ export function TopNav({ items, variant = "light" }: { items: NavEntry[]; varian
           </button>
         </div>
       </div>
-      {isStudent && <ProfileModal open={profileOpen} onOpenChange={setProfileOpen} />}
-      {(isAdmin || isTeacher) && <StaffProfileModal open={profileOpen} onOpenChange={setProfileOpen} />}
+      {(isStudent || isAdmin || isTeacher) && (
+        <StaffProfileModal open={profileOpen} onOpenChange={setProfileOpen} />
+      )}
     </header>
   );
 }
