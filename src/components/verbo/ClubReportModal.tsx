@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Download, X } from "lucide-react";
+import { Download, BookOpen, Lightbulb, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { GhostButton, PrimaryButton } from "@/components/verbo/ui";
+import { GhostButton, PrimaryButton, AccentModalHeader } from "@/components/verbo/ui";
 import {
   saveClubReport, type ClubAttendance, type ClubReportEventType,
 } from "@/lib/club-reports-store";
