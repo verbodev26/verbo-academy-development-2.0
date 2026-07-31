@@ -12,6 +12,7 @@ import { loadSessions, subscribeSessions } from "@/lib/sessions-store";
 import { loadLessonPlans, subscribeLessonPlans } from "@/lib/lesson-plans-store";
 import {
   Field, ModalFooter, ModalShell, inputCls,
+  type ModalAccent,
 } from "@/components/verbo/course-modals";
 import { Card, GhostButton, PrimaryButton, Pill } from "@/components/verbo/ui";
 import {
