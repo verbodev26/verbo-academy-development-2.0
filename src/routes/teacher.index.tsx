@@ -4,6 +4,9 @@ import { useAuth } from "@/lib/auth";
 import { SESSIONS, ASSIGNMENTS, USERS, studentsOfTeacher, userById, type Session, type SessionStatus } from "@/lib/mock-data";
 import { AccentModal, AccentModalFooter, AnimatedNumber, Card, GhostButton, HeroStatCard, Pill, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
 import { rankLabel } from "@/lib/staff-profile-store";
+import alertIconAsset from "@/assets/Alert.svg.asset.json";
+import planIconAsset from "@/assets/plan.svg.asset.json";
+import completeIconAsset from "@/assets/complete.svg.asset.json";
 
 import { CalendarClock, FileEdit, X, Lock, Plus, Trash2, Download, CheckCircle2, Mic, PenLine, Ear, BookOpen, ChevronRight, Video, Star, AlertTriangle, AlertCircle, Trophy, CalendarDays, Users, Wallet, Sparkles as SparklesIcon, GraduationCap, type LucideIcon } from "lucide-react";
 import { savePerformance, type PerformanceRating } from "@/lib/performance-store";
@@ -596,7 +599,7 @@ function TeacherDashboard() {
                   {attention.length === 0 ? "You're all caught up" : `${attention.length} item${attention.length === 1 ? "" : "s"} need review`}
                 </div>
               </div>
-              <AlertTriangle className="h-7 w-7 shrink-0 text-white/85" strokeWidth={1.5} />
+              <img src={alertIconAsset.url} alt="" aria-hidden className="h-[31px] w-[31px] shrink-0" />
             </div>
           </HeroStatCard>
         </div>
@@ -619,7 +622,7 @@ function TeacherDashboard() {
                   {toPlan.length} session{toPlan.length === 1 ? "" : "s"} to plan
                 </div>
               </div>
-              <CalendarClock className="h-7 w-7 shrink-0 text-white/85" strokeWidth={1.5} />
+              <img src={planIconAsset.url} alt="" aria-hidden className="h-[31px] w-[31px] shrink-0" />
             </div>
           </HeroStatCard>
         </div>
@@ -642,7 +645,7 @@ function TeacherDashboard() {
                   {upcoming.length + pendingClubEvents.length} session{upcoming.length + pendingClubEvents.length === 1 ? "" : "s"} awaiting completion
                 </div>
               </div>
-              <CheckCircle2 className="h-7 w-7 shrink-0 text-white/85" strokeWidth={1.5} />
+              <img src={completeIconAsset.url} alt="" aria-hidden className="h-[31px] w-[31px] shrink-0" />
             </div>
           </HeroStatCard>
         </div>
