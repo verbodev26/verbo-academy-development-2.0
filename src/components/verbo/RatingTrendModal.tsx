@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { X } from "lucide-react";
+import { Star } from "lucide-react";
+import { AccentModalHeader } from "@/components/verbo/ui";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
@@ -71,15 +72,15 @@ export function RatingTrendModal({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div onClick={(e) => e.stopPropagation()} className="w-full max-w-lg overflow-hidden rounded-2xl bg-card shadow-floating">
-        <div className="flex items-start justify-between border-b border-border px-6 py-5" style={{ background: "linear-gradient(135deg, #01304a 0%, #02466b 100%)" }}>
-          <div>
-            <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/60">Rating trend · last 6 months</div>
-            <h2 className="mt-1 text-lg font-semibold tracking-tight text-white">Your average student rating</h2>
-          </div>
-          <button onClick={onClose} aria-label="Close" className="rounded-md p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <AccentModalHeader
+          background="linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
+          iconTint="#d97706"
+          icon={Star}
+          eyebrow="Rating trend · last 6 months"
+          title="Your average student rating"
+          watermark={{ type: "icon", icon: Star }}
+          onClose={onClose}
+        />
         <div className="px-6 py-6">
           {!hasData ? (
             <div className="flex h-48 items-center justify-center text-sm text-muted-foreground">

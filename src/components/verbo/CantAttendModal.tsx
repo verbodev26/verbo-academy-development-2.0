@@ -7,8 +7,8 @@
 // so all downstream effects (session → cancelled, strike ledger, auto-freeze
 // at 3 strikes, Needs Substitute flag when <24h) stay in one place.
 import { useMemo, useState } from "react";
-import { X, AlertTriangle, NotebookPen } from "lucide-react";
-import { GhostButton, PrimaryButton } from "@/components/verbo/ui";
+import { AlertTriangle, NotebookPen } from "lucide-react";
+import { GhostButton, PrimaryButton, AccentModalHeader } from "@/components/verbo/ui";
 import type { ExtSession } from "@/lib/sessions-store";
 import {
   cancelSessionByTeacher, CANCEL_REASON_LABEL, type CancelReason,
@@ -50,6 +50,10 @@ export function CantAttendModal({
       reason === "major_issue") &&
     coverageValid;
 
+  // Alert tone reuses the same red the app already paints "absent" /
+  // cancellation states with in status-palette.ts (#dc0000).
+  const ALERT_BG = "linear-gradient(135deg, #dc0000 0%, #f38934 100%)";
+
   const confirmCancel = () => {
     if (!reason) return;
     // Persist coverage note first so it is available to the substitute the
@@ -75,12 +79,15 @@ export function CantAttendModal({
       >
         {step === 1 ? (
           <>
-            <div className="flex items-center justify-between border-b border-border px-5 py-4">
-              <h2 className="text-base font-semibold text-foreground">Can't Attend</h2>
-              <button onClick={onClose} aria-label="Close" className="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+            <AccentModalHeader
+              background={ALERT_BG}
+              iconTint="#dc0000"
+              icon={AlertTriangle}
+              eyebrow="Performance Session"
+              title="Can't Attend"
+              watermark={{ type: "icon", icon: AlertTriangle }}
+              onClose={onClose}
+            />
             <div className="space-y-4 px-5 py-5 text-sm">
               <div>
                 <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Reason</label>
@@ -163,10 +170,15 @@ export function CantAttendModal({
           </>
         ) : (
           <>
-            <div className="flex items-center gap-2 border-b border-border bg-destructive/5 px-5 py-4">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              <h2 className="text-base font-semibold text-foreground">Confirm Cancellation</h2>
-            </div>
+            <AccentModalHeader
+              background={ALERT_BG}
+              iconTint="#dc0000"
+              icon={AlertTriangle}
+              eyebrow="Step 2 of 2"
+              title="Confirm Cancellation"
+              watermark={{ type: "icon", icon: AlertTriangle }}
+              onClose={onClose}
+            />
             <div className="space-y-3 px-5 py-5 text-sm text-foreground">
               <p>
                 Cancelling this session will count as a <strong>strike</strong> against your
