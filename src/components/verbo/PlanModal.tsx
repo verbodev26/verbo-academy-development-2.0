@@ -122,6 +122,7 @@ export function PlanModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div onClick={(e) => e.stopPropagation()} className="relative flex w-full max-w-2xl max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-card shadow-floating">
+        <div className="shrink-0">
         <AccentModalHeader
           background={NAVY}
           iconTint={NAVY}
@@ -131,6 +132,7 @@ export function PlanModal({
           watermark={{ type: "icon", icon: NotebookPen }}
           onClose={onClose}
         />
+        </div>
 
         <div className="flex-1 overflow-y-auto p-6">
         <p className="text-xs text-muted-foreground">
