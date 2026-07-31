@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { CalendarClock, FileEdit, Video, X } from "lucide-react";
+import { FileEdit, Video, X } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { userById } from "@/lib/mock-data";
 import { Card, GhostButton, PrimaryButton, SectionTitle } from "@/components/verbo/ui";
