@@ -72,6 +72,7 @@ import { useCoreFreemiumGate } from "@/components/verbo/CoreFreemiumFlow";
 import { isSilenced, hasCreditUsed as freemiumUsed, markCreditUsed as markFreemiumUsed } from "@/lib/core-freemium-store";
 import { effectiveHourlyRate, appendTeacherAdjustment } from "@/lib/teacher-tiers";
 import { ProfilePeekCard } from "@/components/verbo/ProfilePeekCard";
+import { useAvatar } from "@/lib/avatar-store";
 
 
 
