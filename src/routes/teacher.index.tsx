@@ -1190,17 +1190,23 @@ function ReportModal({ session, perf, subskills, onClose, onSubmit }: {
     onSubmit(session.id, attendance, perf, subskills, isAbsent ? absentCause : undefined, isAbsent ? absentSub : null, isAbsent ? undefined : (studentNote.trim() || undefined));
   };
 
+  const headerBg = attendanceTouched ? bgFor(attendance) : "#01304a";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4">
-      <div className="report-modal-scroll w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card p-8 shadow-floating">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{submitted ? "Final report preview" : "Session report"}</div>
-            <h2 className="mt-1 text-xl font-semibold tracking-tight text-foreground text-gray-950">{student?.name}</h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">{fmt(session.date_time)}</p>
-          </div>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"><X className="h-4 w-4" /></button>
-        </div>
+      <div className="flex w-full max-w-2xl max-h-[90vh] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-floating">
+        <AccentModalHeader
+          background={headerBg}
+          iconTint={headerBg}
+          icon={ClipboardCheck}
+          eyebrow={submitted ? "Final report preview" : "Session report"}
+          title={student?.name ?? "Session report"}
+          watermark={{ type: "icon", icon: ClipboardCheck }}
+          onClose={onClose}
+        />
+        <div className="report-modal-scroll flex-1 overflow-y-auto p-6">
+        <p className="text-sm text-muted-foreground">{fmt(session.date_time)}</p>
+
 
         {submitted ? (
           <ReportPreview
